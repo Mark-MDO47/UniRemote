@@ -9,7 +9,7 @@ Plan is to communicate with my projects via ESP-NOW WiFi
 * [The Plan](#the-plan "The Plan")
 
 ## The Plan
-I may have one or more of these ways to input my desires
+I may include one or more of these ways to input my desires:
 - CYD - Cheap Yellow Display - perhaps this one
   - https://www.aliexpress.us/item/3256805697430313.html
 - QR code reader - perhaps this one
