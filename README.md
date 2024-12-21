@@ -19,7 +19,7 @@ I may include one or more of these ways to input my desires:
 - Voice Input - perhaps one of these
   - https://www.seeedstudio.com/XIAO-ESP32S3-Sense-p-5639.html
   - https://www.dfrobot.com/product-2665.html
-- joystick or rotary encoder
+- Joystick or rotary encoder, buttons
 - BlueTooth keyboard
 
 ## Licensing
