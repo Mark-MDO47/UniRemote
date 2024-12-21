@@ -5,6 +5,8 @@ Plan is to communicate with my projects via ESP-NOW WiFi
 - https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/network/esp_now.html
 
 **Table Of Contents**
+* [Top](#uniremote-\--one-remote-to-rule-them-all "Top")
+* [The Plan](#the-plan "The Plan")
 
 ## The Plan
 I may have one or more of these ways to input my desires
