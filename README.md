@@ -1,6 +1,4 @@
 # UniRemote - one remote to rule them all!
-Universal - one remote to rule them all!
-
 I wanted a way to control all the projects I make. It is not a remote for A/V systems.
 
 Plan is to communicate with my projects via ESP-NOW WiFi
