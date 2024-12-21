@@ -7,6 +7,7 @@ Plan is to communicate with my projects via ESP-NOW WiFi
 **Table Of Contents**
 * [Top](#uniremote-\--one-remote-to-rule-them-all "Top")
 * [The Plan](#the-plan "The Plan")
+* [Licensing](#licensing "Licensing")
 
 ## The Plan
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
