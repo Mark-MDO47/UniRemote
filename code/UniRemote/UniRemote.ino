@@ -7,6 +7,7 @@
  // This code was developed after reading the Random Nerd Tutorial below.
  // There are significant differences in this code and that, but I want to give a
  //    tip of the hat to Rui Santos & Sara Santos for the wonderful work they do.
+ // Below is the attribution from the Random Nerd Tutorial.
  /*
   Rui Santos & Sara Santos - Random Nerd Tutorials
   Complete project details at https://RandomNerdTutorials.com/esp-now-esp32-arduino-ide/
@@ -15,10 +16,11 @@
 */
 
 
-#include <esp_now.h>  // for ESP-NOW
-#include <WiFi.h>     // for ESP-NOW
+#include <esp_now.h>   // for ESP-NOW
+#include <WiFi.h>      // for ESP-NOW
+#include "wifi_key.h"  // WiFi secrets
 
-#include <Wire.h>    // for QR sensor (Tiny Code Reader) and anything else
+#include <Wire.h>     // for QR sensor (Tiny Code Reader) and anything else
 
 #include "tiny_code_reader/tiny_code_reader.h" // see https://github.com/usefulsensors/tiny_code_reader_arduino.git
 
@@ -37,7 +39,8 @@
 const int32_t QRsampleDelayMsec = 200;
 
 // ESP-NOW definitions
-static uint8_t rcvr_mac_addr[6] = {0x74, 0x4d, 0xbd, 0x98, 0x7f, 0x1c}; // FIXME TODO this may be dynamic
+#define MDO_ESP_NOW_MSEC_PER_MSG_MIN 500 // millisec between messages
+static uint8_t rcvr_mac_addr[ESP_NOW_ETH_ALEN] = {0x74, 0x4d, 0xbd, 0x98, 0x7f, 0x1c}; // FIXME TODO this may be dynamic
 static uint8_t rcvr_msg_count = 0;
 esp_now_peer_info_t rcvr_peer_info; // will be filled in later
 
@@ -68,19 +71,29 @@ void esp_now_send_callback(const uint8_t *mac_addr, esp_now_send_status_t status
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // esp_now_send() - decipher QR code and send as needed
-//    returns: status from call
+//       returns: status from call
+//   sends a string up to length ESP_NOW_MAX_DATA_LEN; includes the zero termination of the string   
+//
 // FIXME TODO this is only for initial testing
 // FIXME TODO WARNING this can modify qr_code
 //
 esp_err_t esp_now_send(char * qr_code) {
   esp_err_t send_status = ESP_OK;
-  uint16_t qr_len = strlen(qr_code)+1;
-  if (qr_len >= 256) {
-    qr_code[256] = 0;
-    qr_len = strlen(qr_code)+1;
+  static char msg_data[ESP_NOW_MAX_DATA_LEN+1];
+  static uint32_t msec_prev_send = 0;
+  uint32_t msec_now = millis();
+
+  if (msec_now < (MDO_ESP_NOW_MSEC_PER_MSG_MIN+msec_prev_send)) {
+    send_status = ESP_ERR_ESPNOW_INTERNAL;
+    return(send_status);
   }
+  msec_prev_send = msec_now;
+
+  memset(msg_data, '\0', sizeof(msg_data));
+  strncpy(msg_data, qr_code, ESP_NOW_MAX_DATA_LEN-1); // max ESP-NOW msg size
+  int len = strlen(msg_data)+1; // length to send
   rcvr_msg_count += 1;
-  send_status = esp_now_send(rcvr_mac_addr, (uint8_t *) qr_code, qr_len);
+  send_status = esp_now_send(rcvr_mac_addr, (uint8_t *) msg_data, ESP_NOW_MAX_DATA_LEN);
   return (send_status);
 } // end esp_now_send()
 
@@ -124,7 +137,7 @@ void setup() {
   }
   
   // register peer - FIXME TODO this may be dynamic
-  memcpy(rcvr_peer_info.peer_addr, rcvr_mac_addr, 6);
+  memcpy(rcvr_peer_info.peer_addr, rcvr_mac_addr, ESP_NOW_ETH_ALEN);
   rcvr_peer_info.channel = 0;  
   rcvr_peer_info.encrypt = false;
   
