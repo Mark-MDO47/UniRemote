@@ -112,11 +112,46 @@ void esp_now_send_callback(const uint8_t *mac_addr, esp_now_send_status_t status
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // qr_decode_get_mac_addr_to_send()
+//       returns: (uint8_t *) pointer to MAC address; pointer is zero if bad decode
+//
+// qr_code is string starting with MAC address; something like this
+// 74:4d:bd:11:22:33|the-rest-is-the-command
+// 000000000011111111
+// 012345678901234567
+//
 static uint8_t qr_decode_mac_addr[ESP_NOW_ETH_ALEN];
 uint8_t * qr_decode_get_mac_addr_to_send(char * qr_code) {
-  // TODO FIXME get it from QR code
-  memcpy(qr_decode_mac_addr, &g_mac_addrs[ESP_NOW_ETH_ALEN], ESP_NOW_ETH_ALEN);
-  return(qr_decode_mac_addr);
+  uint8_t * ret_addr = qr_decode_mac_addr;
+  uint8_t tmp;
+
+  // make sure MAC address is of the correct form and decode piece by piece
+  if ((3*ESP_NOW_ETH_ALEN+1) > strlen(qr_code)) {
+    ret_addr = ((uint8_t *) 0);
+  } else { // at least one character after MAC address
+    for (int i = 0; i < 3*ESP_NOW_ETH_ALEN; i += 3) {
+      if (!isHexadecimalDigit(qr_code[i]) || !isHexadecimalDigit(qr_code[i+1])) {
+        ret_addr = ((uint8_t *) 0);
+        break;
+      }
+      tmp = 0;
+      if ( ((3*(ESP_NOW_ETH_ALEN-1) != i) && (':' != qr_code[i+2])) ||
+           ((3*(ESP_NOW_ETH_ALEN-1) == i) && ('|' != qr_code[i+2])) ) {
+        ret_addr = ((uint8_t *) 0);
+        break;
+      }
+      // these two hex digits are good
+      for (int j = 0; j < 2; j += 1) {
+        tmp <<= 4;
+        if      (qr_code[i+j] <= '9') tmp |= qr_code[i+j] - '0';
+        else if (qr_code[i+j] <= 'F') tmp |= qr_code[i+j] - 'A' + 10;
+        else                          tmp |= qr_code[i+j] - 'a' + 10;
+      }
+      ret_addr[i/3] = tmp;
+    } // end check MAC address
+  }
+
+  // if ret_addr is not 0 then the address is good
+  return(ret_addr);
 } // qr_decode_get_mac_addr_to_send
 
 
