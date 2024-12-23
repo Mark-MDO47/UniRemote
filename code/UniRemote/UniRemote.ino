@@ -24,6 +24,9 @@
 
 #include "tiny_code_reader/tiny_code_reader.h" // see https://github.com/usefulsensors/tiny_code_reader_arduino.git
 
+// PIN definitions
+#define PIN_MSG_RDY 13
+
 // DEBUG definitions
 
 #define DEBUG_SERIALPRINT 1 // print messages
@@ -40,13 +43,51 @@ const int32_t QRsampleDelayMsec = 200;
 
 // ESP-NOW definitions
 #define MDO_ESP_NOW_MSEC_PER_MSG_MIN 500 // millisec between messages
-static uint8_t rcvr_mac_addr[ESP_NOW_ETH_ALEN] = {0x74, 0x4d, 0xbd, 0x98, 0x7f, 0x1c}; // FIXME TODO this may be dynamic
+static uint8_t g_rcvr_mac_addr[ESP_NOW_ETH_ALEN * ESP_NOW_MAX_TOTAL_PEER_NUM];
+static uint8_t g_rcvr_peer_num = 0;
 static uint8_t rcvr_msg_count = 0;
+
 esp_now_peer_info_t rcvr_peer_info; // will be filled in later
 
 static esp_now_send_status_t g_last_send_callback_status;
 static uint8_t g_last_send_callback_msg_count;
 static uint8_t g_last_send_msg_count_checked;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// esp_now_decode_dbgprint_error() - ESP-NOW print string with error
+//
+void esp_now_decode_dbgprint_error(uint16_t errcode) {
+  DBG_SERIALPRINT(errcode);
+  switch (errcode)
+  {
+    case ESP_ERR_ESPNOW_NOT_INIT:
+      DBG_SERIALPRINT(" ESPNOW is not initialized");
+      break;
+    case ESP_ERR_ESPNOW_ARG:
+      DBG_SERIALPRINT(" ESPNOW Invalid argument");
+      break;
+    case ESP_ERR_ESPNOW_NO_MEM:
+      DBG_SERIALPRINT(" ESPNOW Out of memory");
+      break;
+    case ESP_ERR_ESPNOW_FULL:
+      DBG_SERIALPRINT(" ESPNOW peer list is full");
+      break;
+    case ESP_ERR_ESPNOW_NOT_FOUND:
+      DBG_SERIALPRINT(" ESPNOW peer is not found");
+      break;
+    case ESP_ERR_ESPNOW_INTERNAL:
+      DBG_SERIALPRINT(" ESPNOW Internal error");
+      break;
+    case ESP_ERR_ESPNOW_EXIST:
+      DBG_SERIALPRINT(" ESPNOW peer has existed");
+      break;
+    case ESP_ERR_ESPNOW_IF:
+      DBG_SERIALPRINT(" ESPNOW Interface error");
+      break;
+    default:
+      DBG_SERIALPRINT(" ESPNOW UNKNOWN ERROR CODE");
+  }
+} // end esp_now_decode_dbgprint_error()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // esp_now_send_callback() - ESP-NOW sending callback function
@@ -70,6 +111,62 @@ void esp_now_send_callback(const uint8_t *mac_addr, esp_now_send_status_t status
 } // end esp_now_send_callback()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
+// qr_decode_get_mac_addr_to_send()
+static uint8_t qr_decode_mac_addr[ESP_NOW_ETH_ALEN];
+uint8_t * qr_decode_get_mac_addr_to_send(char * qr_code) {
+  // TODO FIXME get it from QR code
+  memcpy(qr_decode_mac_addr, &g_mac_addrs[ESP_NOW_ETH_ALEN], ESP_NOW_ETH_ALEN);
+  return(qr_decode_mac_addr);
+} // qr_decode_get_mac_addr_to_send
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// esp_now_register_peer() - 
+//       returns: index to peer
+int16_t esp_now_register_peer(uint8_t * mac_addr) {
+  
+  esp_err_t reg_status = ESP_OK;
+  int16_t  reg_index = -1;
+  uint8_t found = 0;
+  int8_t this_found;
+  uint8_t i, j;
+  for (i = 0; i < g_rcvr_peer_num; i++) {
+    this_found = -1;
+    for (j = 0; j < ESP_NOW_ETH_ALEN; j++) {
+      if (mac_addr[j] != g_rcvr_mac_addr[j+i*ESP_NOW_ETH_ALEN]) {
+        this_found = 0;
+        break;
+      }
+    }
+    if (0 != this_found) {
+      reg_index = i;
+      return(reg_index); // already registered
+    }
+  }
+  // not yet registered
+  if (g_rcvr_peer_num > (ESP_NOW_MAX_TOTAL_PEER_NUM-1)) {
+    reg_status = ESP_ERR_ESPNOW_FULL;
+    reg_index = -1;
+  } else {
+    reg_index = g_rcvr_peer_num;
+    memcpy(&g_rcvr_mac_addr[g_rcvr_peer_num*ESP_NOW_ETH_ALEN], mac_addr, ESP_NOW_ETH_ALEN);
+    g_rcvr_peer_num += 1;
+    memcpy(rcvr_peer_info.peer_addr, mac_addr, ESP_NOW_ETH_ALEN);
+    rcvr_peer_info.channel = 0;  
+    rcvr_peer_info.encrypt = false;
+    // Add peer
+    reg_status = esp_now_add_peer(&rcvr_peer_info);
+  }
+  
+  if (reg_status != ESP_OK){
+    reg_index = -1;
+    DBG_SERIALPRINT("ERROR: ESP-NOW reg/add peer error ");
+    DBG_SERIALPRINTLN(reg_status);
+  }
+  return(reg_index);
+} // end esp_now_register_peer
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 // esp_now_send() - decipher QR code and send as needed
 //       returns: status from call
 //   sends a string up to length ESP_NOW_MAX_DATA_LEN; includes the zero termination of the string   
@@ -83,17 +180,34 @@ esp_err_t esp_now_send(char * qr_code) {
   static uint32_t msec_prev_send = 0;
   uint32_t msec_now = millis();
 
+  // see if waited long enough to send another ESP-NOW message
   if (msec_now < (MDO_ESP_NOW_MSEC_PER_MSG_MIN+msec_prev_send)) {
-    send_status = ESP_ERR_ESPNOW_INTERNAL;
-    return(send_status);
+    DBG_SERIALPRINTLN("ERROR: too soon to send");
+    return(ESP_ERR_ESPNOW_INTERNAL); // too soon to send another message
   }
   msec_prev_send = msec_now;
+
+  // see if we can obtain and register the MAC address to send message to
+  uint8_t * mac_addr_ptr = qr_decode_get_mac_addr_to_send(qr_code);
+  int16_t mac_addr_index;
+  if ((uint8_t *)0 != mac_addr_ptr) {
+    mac_addr_index = esp_now_register_peer(mac_addr_ptr);
+  } else {
+    DBG_SERIALPRINTLN("ERROR: qr_decode_get_mac_addr_to_send returned 0");
+    return(ESP_ERR_ESPNOW_INTERNAL); // could not decode QR code
+  }
+  if (mac_addr_index < 0) {
+    DBG_SERIALPRINTLN("ERROR: could not register MAC");
+    return(ESP_ERR_ESPNOW_FULL); // could not register the MAC address
+  }
+
+  digitalWrite(PIN_MSG_RDY, HIGH);
 
   memset(msg_data, '\0', sizeof(msg_data));
   strncpy(msg_data, qr_code, ESP_NOW_MAX_DATA_LEN-1); // max ESP-NOW msg size
   int len = strlen(msg_data)+1; // length to send
   rcvr_msg_count += 1;
-  send_status = esp_now_send(rcvr_mac_addr, (uint8_t *) msg_data, ESP_NOW_MAX_DATA_LEN);
+  send_status = esp_now_send(mac_addr_ptr, (uint8_t *) msg_data, ESP_NOW_MAX_DATA_LEN);
   return (send_status);
 } // end esp_now_send()
 
@@ -114,6 +228,9 @@ void setup() {
   DBG_SERIALPRINTLN(""); // print a blank line in case there is some junk from power-on
   DBG_SERIALPRINTLN("\nStarting UniRemote\n");
 #endif // DEBUG_SERIALPRINT
+
+  pinMode(PIN_MSG_RDY,OUTPUT);
+  digitalWrite(PIN_MSG_RDY, LOW);
 
   Wire.begin(); // for the QR code sensor
 
@@ -136,18 +253,6 @@ void setup() {
     return;
   }
   
-  // register peer - FIXME TODO this may be dynamic
-  memcpy(rcvr_peer_info.peer_addr, rcvr_mac_addr, ESP_NOW_ETH_ALEN);
-  rcvr_peer_info.channel = 0;  
-  rcvr_peer_info.encrypt = false;
-  
-  // Add peer
-  esp_err_t status_add_peer = esp_now_add_peer(&rcvr_peer_info);
-  if (status_add_peer != ESP_OK){
-    DBG_SERIALPRINT("ERROR: ESP-NOW add peer error ");
-    DBG_SERIALPRINTLN(status_add_peer);
-    return;
-  }
 } // end setup()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -181,11 +286,13 @@ void loop() {
     QRcodeSeen = 1; // found something
     esp_err_t send_status = esp_now_send((char*)QRresults.content_bytes);
     if (send_status == ESP_OK) {
-      DBG_SERIALPRINTLN("ESP-NOW send success");
+      DBG_SERIALPRINT("ESP-NOW send success msg ");
+      DBG_SERIALPRINTLN(rcvr_msg_count);
     }
     else {
       DBG_SERIALPRINT("ERROR: ESP-NOW sending error ");
-      DBG_SERIALPRINTLN(send_status);
+      esp_now_decode_dbgprint_error(send_status);
+      DBG_SERIALPRINTLN(" ");
     }
   }
 

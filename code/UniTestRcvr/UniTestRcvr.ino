@@ -17,6 +17,7 @@
 
 #include <esp_now.h>  // for ESP-NOW
 #include <WiFi.h>     // for ESP-NOW
+#include "wifi_key.h"  // WiFi secrets
 
 // DEBUG definitions
 
