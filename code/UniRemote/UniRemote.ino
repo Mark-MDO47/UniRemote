@@ -222,7 +222,7 @@ esp_err_t esp_now_send(char * qr_code) {
   }
   msec_prev_send = msec_now;
 
-  // see if we can obtain and register the MAC address to send message to
+  // see if we can obtain and register the MAC address for sending
   uint8_t * mac_addr_ptr = qr_decode_get_mac_addr_to_send(qr_code);
   int16_t mac_addr_index;
   if ((uint8_t *)0 != mac_addr_ptr) {
@@ -238,8 +238,9 @@ esp_err_t esp_now_send(char * qr_code) {
 
   digitalWrite(PIN_MSG_RDY, HIGH);
 
+  // copy message over starting after the MAC address
   memset(msg_data, '\0', sizeof(msg_data));
-  strncpy(msg_data, qr_code, ESP_NOW_MAX_DATA_LEN-1); // max ESP-NOW msg size
+  strncpy(msg_data, &qr_code[3*ESP_NOW_ETH_ALEN], ESP_NOW_MAX_DATA_LEN-1); // max ESP-NOW msg size
   int len = strlen(msg_data)+1; // length to send
   rcvr_msg_count += 1;
   send_status = esp_now_send(mac_addr_ptr, (uint8_t *) msg_data, ESP_NOW_MAX_DATA_LEN);
