@@ -243,7 +243,7 @@ esp_err_t esp_now_send(char * qr_code) {
   strncpy(msg_data, &qr_code[3*ESP_NOW_ETH_ALEN], ESP_NOW_MAX_DATA_LEN-1); // max ESP-NOW msg size
   int len = strlen(msg_data)+1; // length to send
   rcvr_msg_count += 1;
-  send_status = esp_now_send(mac_addr_ptr, (uint8_t *) msg_data, ESP_NOW_MAX_DATA_LEN);
+  send_status = esp_now_send(mac_addr_ptr, (uint8_t *) msg_data, strlen(msg_data)+1);
   return (send_status);
 } // end esp_now_send()
 

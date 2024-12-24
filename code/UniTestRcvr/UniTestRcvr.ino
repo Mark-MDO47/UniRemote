@@ -95,6 +95,8 @@ void loop() {
     if (ESP_OK == g_esp_now_recv_status) {
       DBG_SERIALPRINT("ESP-NOW recv cb msg: ");
       DBG_SERIALPRINT(g_esp_now_recv_msgnum);
+
+#ifdef DEBUG_MAC_ADDRESS
       DBG_SERIALPRINT(" mac_addr");
       for (int i = 0; i < 40; i++) {
         DBG_SERIALPRINT(":");
@@ -103,6 +105,8 @@ void loop() {
         }
         DBG_SERIALPRINT(g_esp_now_header[i],HEX);
       }
+#endif // DEBUG_MAC_ADDRESS
+
       DBG_SERIALPRINT(" msglen ");
       DBG_SERIALPRINT(g_esp_now_recv_msglen);
       DBG_SERIALPRINT(" '");
