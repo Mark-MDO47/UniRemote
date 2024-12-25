@@ -53,6 +53,8 @@ static esp_now_send_status_t g_last_send_callback_status;
 static uint8_t g_last_send_callback_msg_count;
 static uint8_t g_last_send_msg_count_checked;
 
+static char g_qr_code_queue[2][ESP_NOW_MAX_DATA_LEN+2]; // queue for msgs; 0==sending now, 1==next up
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // esp_now_decode_dbgprint_error() - ESP-NOW print string with error
 //

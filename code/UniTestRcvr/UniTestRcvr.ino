@@ -34,8 +34,9 @@ static uint16_t g_esp_now_recv_msglen = 0;
 static uint16_t g_esp_now_recv_msgnum = 0;
 static uint16_t g_esp_now_prev_msgnum = 0;
 static esp_err_t g_esp_now_recv_status = ESP_OK;
-#define MDO_ESP_NOW_HEADER_NUM 46 // basically for debugging
-static char g_esp_now_header[MDO_ESP_NOW_HEADER_NUM];
+#define MDO_ESP_NOW_HDR_NUM 20 // basically for debugging. Last used one is the 18th
+#define MDO_ESP_NOW_HDR_MAC_OFFSET 12 // This is where the MAC address is on my system
+static char g_esp_now_header[MDO_ESP_NOW_HDR_NUM];
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // esp_now_recv_callback() - callback function that will be executed when data is received
@@ -49,7 +50,7 @@ void esp_now_recv_callback(const uint8_t * mac_addr, const uint8_t *recv_data, i
   g_esp_now_recv_status = ESP_OK;
   memset(g_esp_now_recv_data, '\0', recv_len+1);
   strncpy(g_esp_now_recv_data, (char *)recv_data, recv_len);
-  memcpy(g_esp_now_header, mac_addr, MDO_ESP_NOW_HEADER_NUM);
+  memcpy(g_esp_now_header, mac_addr, MDO_ESP_NOW_HDR_NUM);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
