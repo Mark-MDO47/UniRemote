@@ -29,8 +29,9 @@ I may include one or more of these ways to input my desires:
 **WAIT_QR**
 - alert OK for next QR
 - wait for QR
-  - if not "too soon", scan QR code into RAM
-  - check validity & if valid register peer and alert that have VALID_CMD
+  - if not "too soon"
+    - scan QR code into RAM
+    - check validity & if valid register peer and alert that have VALID_CMD
 
 **VALID_CMD**
 - alert wait for send
