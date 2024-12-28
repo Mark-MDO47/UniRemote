@@ -7,6 +7,7 @@ Plan is to communicate with my projects via ESP-NOW WiFi
 **Table Of Contents**
 * [Top](#uniremote-\--one-remote-to-rule-them-all "Top")
 * [The Plan](#the-plan "The Plan")
+* [Expected Flow for V1.0](#expected-flow-for-v10 "Expected Flow for V1.0")
 * [Licensing](#licensing "Licensing")
 
 ## The Plan
