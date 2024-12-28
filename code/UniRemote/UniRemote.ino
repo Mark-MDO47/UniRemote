@@ -5,26 +5,30 @@
  *     the appropriate MAC address using ESP-NOW point-to-point on WiFi.
  *     It is sent in plain text, not encrypted.
  *
+ * ESP-NOW is a protocol designed by Espressif Systems https://www.espressif.com/
+ *     This code should run on just about any ESP32 device that includes WiFi. 
+ *
  * The QR code contains the MAC address and the command string. This code will
  *     dynamically register the MAC addresses but ESP_NOW has a limit of 20 MAC
  *     addresses that can be registered at once.
- *     
  *   
  *  The QR code reader for this code is Tiny Code Reader from Useful Sensors
  *     see https://github.com/usefulsensors/tiny_code_reader_arduino.git
  *     
- *  The QR code should be a text tab-separated-variable file of the following form:
+ *  The QR code should be a text tab-separated-variable text file of the following form:
  *  <MAC ADDRESS><TAB><COMMAND STRING><TAB><DESCRIPTION STRING>
  *  
- *  <MAC ADDRESS> is a string of this exact form (without quotations):
+ *  <MAC ADDRESS> is a string of the following exact form:
  *      ##:##:##:##:##:##
- *    This is the MAC Address that will be used in the ESP-NOW message;
+ *    This is the MAC Address that will be used to send the ESP-NOW message;
  *      the MAC address of the target system.
  *    Note that this is a six-part MAC address in hexadecimal. Each hex number
  *    is exactly two digits long. If you need to start it with a zero, do so.
+ *    Because I am a lazy coder.
  *  
  *  <COMMAND STRING> is a short (maximum 249 characters + zero termination) command
- *    The receiving MAC address will receive it as a zero-terminated string.
+ *    The receiving MAC address will receive it as a zero-terminated string (including
+ *    the zero terminator).
  *
  * <DESCRIPTION STRING> can be zero length or more, but for QR code consistency
  *    checking the <TAB> prior to the string is required. The description is
@@ -35,6 +39,9 @@
  *    install the "qrcode" package, using conda or pip or whatever.
  *    I use the command line "python QRcode.py -s intructions.txt"
  *    Each QR code is generated with a short *.html to allow printing.
+ *
+ * Future plans - perhaps include voice commands and a display screen and
+ *    a few buttons.
  */
 
  // This code was developed after reading the Random Nerd Tutorial below.
