@@ -24,6 +24,8 @@ I may include one or more of these ways to input my desires:
 - BlueTooth keyboard
 
 ## Expected Flow for V1.0
+[Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
+
 **WAIT_QR**
 - alert OK for next QR
 - wait for QR
