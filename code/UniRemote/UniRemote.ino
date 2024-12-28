@@ -1,7 +1,40 @@
 /* Author: https://github.com/Mark-MDO47  Dec. 21, 2023
  *  https://github.com/Mark-MDO47/UniRemote
  *  
+ *  This code will read a command from a QR code and send it to
+ *     the appropriate MAC address using ESP-NOW point-to-point on WiFi.
+ *     It is sent in plain text, not encrypted.
+ *
+ * The QR code contains the MAC address and the command string. This code will
+ *     dynamically register the MAC addresses but ESP_NOW has a limit of 20 MAC
+ *     addresses that can be registered at once.
+ *     
+ *   
+ *  The QR code reader for this code is Tiny Code Reader from Useful Sensors
+ *     see https://github.com/usefulsensors/tiny_code_reader_arduino.git
+ *     
+ *  The QR code should be a text tab-separated-variable file of the following form:
+ *  <MAC ADDRESS><TAB><COMMAND STRING><TAB><DESCRIPTION STRING>
  *  
+ *  <MAC ADDRESS> is a string of this exact form (without quotations):
+ *      ##:##:##:##:##:##
+ *    This is the MAC Address that will be used in the ESP-NOW message;
+ *      the MAC address of the target system.
+ *    Note that this is a six-part MAC address in hexadecimal. Each hex number
+ *    is exactly two digits long. If you need to start it with a zero, do so.
+ *  
+ *  <COMMAND STRING> is a short (maximum 249 characters + zero termination) command
+ *    The receiving MAC address will receive it as a zero-terminated string.
+ *
+ * <DESCRIPTION STRING> can be zero length or more, but for QR code consistency
+ *    checking the <TAB> prior to the string is required. The description is
+ *    just for your purposes; it is not sent to the ESP-NOW target.
+ *
+ *    QRcode.py in https://github.com/Mark-MDO47/MDOpythonUtils
+ *     will create such a QR code from text input. It requires that you
+ *    install the "qrcode" package, using conda or pip or whatever.
+ *    I use the command line "python QRcode.py -s intructions.txt"
+ *    Each QR code is generated with a short *.html to allow printing.
  */
 
  // This code was developed after reading the Random Nerd Tutorial below.
@@ -18,7 +51,7 @@
 
 #include <esp_now.h>   // for ESP-NOW
 #include <WiFi.h>      // for ESP-NOW
-#include "wifi_key.h"  // WiFi secrets
+#include "../wifi_key.h"  // WiFi secrets
 
 #include <Wire.h>     // for QR sensor (Tiny Code Reader) and anything else
 
