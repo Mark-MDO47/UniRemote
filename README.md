@@ -22,6 +22,30 @@ I may include one or more of these ways to input my desires:
 - Joystick or rotary encoder, buttons
 - BlueTooth keyboard
 
+## Expected Flow for V1.0
+**WAIT_QR**
+- alert OK for next QR
+- wait for QR
+  - if not "too soon", scan QR code into RAM
+  - check validity & if valid register peer and alert that have VALID_CMD
+
+**VALID_CMD**
+- alert wait for send
+- wait for SEND
+  - if receive another QR, alert that ignoring
+  - if receive CLEAR, clear cmd and go to WAITING
+  - if receive SEND, go to SENDING
+
+**SENDING**
+- alert that SENDING
+- send command, set timer for "too soon", go to WAIT_CALLBACK
+
+**WAIT_CALLBACK**
+- alert that WAIT_CALLBACK
+- wait for callback
+  - if timeout or bad, go to VALID_CMD
+  - if OK, go to WAIT_QR
+
 ## Licensing
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
 This repository has a LICENSE file for Apache 2.0. There may be code included that I have modified from other open sources (such as Arduino, Espressif, SparkFun, Seeed Studio, DFRobot, etc.). These other sources may possibly be licensed using a different license model. In such a case I will include some notation of this. Typically I will include verbatim the license in the included/modified source code, but alternatively there might be a LICENSE file in the source code area that points out exceptions to the Apache 2.0 license.
