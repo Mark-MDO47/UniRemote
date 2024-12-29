@@ -101,7 +101,7 @@ static char g_qr_code_queue[2][ESP_NOW_MAX_DATA_LEN+2]; // queue for msgs; 0==se
 #define UNI_VALID_CMD    1    // command validated and in queue, waiting for GO or CLEAR
 #define UNI_SENDING_CMD  2    // command being sent (very short state)
 #define UNI_WAIT_CB      3    // waiting for send callback
-#define UNI_STATE_NUM   4    // number of states
+#define UNI_STATE_NUM    4    // number of states
 static uint8_t g_uni_state = UNI_WAIT_CMD;
 static uint32_t g_uni_state_times[UNI_STATE_NUM];
 
@@ -200,7 +200,9 @@ void uni_esp_now_msg_send_callback(const uint8_t *mac_addr, esp_now_send_status_
     DBG_SERIALPRINT("ERROR: uni_esp_now_msg_send_callback msg status ");
     DBG_SERIALPRINT(status);
     DBG_SERIALPRINT(" msg ");
-    DBG_SERIALPRINTLN(g_last_send_callback_msg_count);
+    DBG_SERIALPRINT(g_last_send_callback_msg_count);
+    uni_esp_now_decode_dbgprint_error(g_last_send_callback_msg_count);
+    DBG_SERIALPRINTLN(" ");
   }
 } // end uni_esp_now_msg_send_callback()
 
