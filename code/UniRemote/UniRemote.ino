@@ -148,9 +148,9 @@ void alert_4_wait_callback() {
 } // end alert_4_wait_callback()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// esp_now_decode_dbgprint_error() - ESP-NOW print string with error
+// uni_esp_now_decode_dbgprint_error() - ESP-NOW print string with error
 //
-void esp_now_decode_dbgprint_error(uint16_t errcode) {
+void uni_esp_now_decode_dbgprint_error(uint16_t errcode) {
   DBG_SERIALPRINT(errcode);
   switch (errcode)
   {
@@ -181,28 +181,28 @@ void esp_now_decode_dbgprint_error(uint16_t errcode) {
     default:
       DBG_SERIALPRINT(" ESPNOW UNKNOWN ERROR CODE");
   }
-} // end esp_now_decode_dbgprint_error()
+} // end uni_esp_now_decode_dbgprint_error()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// esp_now_msg_send_callback() - ESP-NOW sending callback function
+// uni_esp_now_msg_send_callback() - ESP-NOW sending callback function
 //       returns: nothing
 //
-void esp_now_msg_send_callback(const uint8_t *mac_addr, esp_now_send_status_t status) {
+void uni_esp_now_msg_send_callback(const uint8_t *mac_addr, esp_now_send_status_t status) {
   // crude way to save last status - works OK if not sending to fast
   g_last_send_callback_status = status;
   g_last_send_callback_msg_count = rcvr_msg_count;
 
   // display in case some one is watching
   if (ESP_NOW_SEND_SUCCESS == status) {
-    DBG_SERIALPRINT("esp_now_msg_send_callback OK msg ");
+    DBG_SERIALPRINT("uni_esp_now_msg_send_callback OK msg ");
     DBG_SERIALPRINTLN(g_last_send_callback_msg_count);
   } else {
-    DBG_SERIALPRINT("ERROR: esp_now_msg_send_callback msg status ");
+    DBG_SERIALPRINT("ERROR: uni_esp_now_msg_send_callback msg status ");
     DBG_SERIALPRINT(status);
     DBG_SERIALPRINT(" msg ");
     DBG_SERIALPRINTLN(g_last_send_callback_msg_count);
   }
-} // end esp_now_msg_send_callback()
+} // end uni_esp_now_msg_send_callback()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // qr_decode_get_mac_addr_to_send()
@@ -250,9 +250,9 @@ uint8_t * qr_decode_get_mac_addr_to_send(char * qr_code) {
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// esp_now_register_peer() - 
+// uni_esp_now_register_peer() - 
 //       returns: index to peer
-int16_t esp_now_register_peer(uint8_t * mac_addr) {
+int16_t uni_esp_now_register_peer(uint8_t * mac_addr) {
   
   esp_err_t reg_status = ESP_OK;
   int16_t  reg_index = -1;
@@ -293,17 +293,17 @@ int16_t esp_now_register_peer(uint8_t * mac_addr) {
     DBG_SERIALPRINTLN(reg_status);
   }
   return(reg_index);
-} // end esp_now_register_peer
+} // end uni_esp_now_register_peer
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// esp_now_msg_send() - decipher QR code and send as needed
+// uni_esp_now_msg_send() - decipher QR code and send as needed
 //       returns: status from call
 //   sends a string up to length ESP_NOW_MAX_DATA_LEN; includes the zero termination of the string   
 //
 // FIXME TODO this is only for initial testing
 // FIXME TODO WARNING this can modify qr_code
 //
-esp_err_t esp_now_msg_send(char * qr_code) {
+esp_err_t uni_esp_now_msg_send(char * qr_code) {
   esp_err_t send_status = ESP_OK;
   static char msg_data[ESP_NOW_MAX_DATA_LEN+1];
   static uint32_t msec_prev_send = 0;
@@ -320,7 +320,7 @@ esp_err_t esp_now_msg_send(char * qr_code) {
   uint8_t * mac_addr_ptr = qr_decode_get_mac_addr_to_send(qr_code);
   int16_t mac_addr_index;
   if ((uint8_t *)0 != mac_addr_ptr) {
-    mac_addr_index = esp_now_register_peer(mac_addr_ptr);
+    mac_addr_index = uni_esp_now_register_peer(mac_addr_ptr);
   } else {
     DBG_SERIALPRINTLN("ERROR: qr_decode_get_mac_addr_to_send returned 0");
     return(ESP_ERR_ESPNOW_INTERNAL); // could not decode QR code
@@ -339,7 +339,7 @@ esp_err_t esp_now_msg_send(char * qr_code) {
   rcvr_msg_count += 1;
   send_status = esp_now_send(mac_addr_ptr, (uint8_t *) msg_data, strlen(msg_data)+1);
   return (send_status);
-} // end esp_now_msg_send()
+} // end uni_esp_now_msg_send()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // setup() - initialize hardware and software
@@ -376,7 +376,7 @@ void setup() {
   }
 
   // register Send CallBack
-  esp_err_t status_register_send_cb = esp_now_register_send_cb(esp_now_msg_send_callback);
+  esp_err_t status_register_send_cb = esp_now_register_send_cb(uni_esp_now_msg_send_callback);
   if (status_register_send_cb != ESP_OK){
     DBG_SERIALPRINT("ERROR: ESP-NOW register send callback error ");
     DBG_SERIALPRINTLN(status_register_send_cb);
@@ -414,14 +414,14 @@ void loop() {
     DBG_SERIALPRINTLN("'");
 #endif // DEBUG_QR_INPUT
     QRcodeSeen = 1; // found something
-    esp_err_t send_status = esp_now_msg_send((char*)QRresults.content_bytes);
+    esp_err_t send_status = uni_esp_now_msg_send((char*)QRresults.content_bytes);
     if (send_status == ESP_OK) {
       DBG_SERIALPRINT("ESP-NOW send success msg ");
       DBG_SERIALPRINTLN(rcvr_msg_count);
     }
     else {
       DBG_SERIALPRINT("ERROR: ESP-NOW sending error ");
-      esp_now_decode_dbgprint_error(send_status);
+      uni_esp_now_decode_dbgprint_error(send_status);
       DBG_SERIALPRINTLN(" ");
     }
   }
