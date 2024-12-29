@@ -26,25 +26,29 @@ I may include one or more of these ways to input my desires:
 ## Expected Flow for V1.0
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
 
-**WAIT_QR**
+**UNI_WAIT_CMD**
+- *last cmd all done, wait for next cmd (probably QR but any source OK)*
 - alert OK for next QR
 - wait for QR
   - if not "too soon"
     - scan QR code into RAM
     - check validity & if valid register peer and alert that have VALID_CMD
 
-**VALID_CMD**
+**UNI_VALID_CMD**
+- *command validated and in queue, waiting for GO or CLEAR*
 - alert wait for send
 - wait for SEND
   - if receive another QR, alert that ignoring
   - if receive CLEAR, clear cmd and go to WAITING
   - if receive SEND, go to SENDING
 
-**SENDING**
+**UNI_SENDING_CMD**
+- *command being sent (very short state)*
 - alert that SENDING
 - send command, set timer for "too soon", go to WAIT_CALLBACK
 
-**WAIT_CALLBACK**
+**UNI_WAIT_CB**
+- *waiting for send callback*
 - alert that WAIT_CALLBACK
 - wait for callback
   - if timeout or bad, go to VALID_CMD
