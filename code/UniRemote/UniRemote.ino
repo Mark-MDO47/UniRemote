@@ -151,6 +151,7 @@ void alert_4_wait_callback() {
 // uni_esp_now_decode_dbgprint_error() - ESP-NOW print string with error
 //
 void uni_esp_now_decode_dbgprint_error(uint16_t errcode) {
+  DBG_SERIALPRINT(" errcode: ");
   DBG_SERIALPRINT(errcode);
   switch (errcode)
   {
@@ -197,11 +198,9 @@ void uni_esp_now_msg_send_callback(const uint8_t *mac_addr, esp_now_send_status_
     DBG_SERIALPRINT("uni_esp_now_msg_send_callback OK msg ");
     DBG_SERIALPRINTLN(g_last_send_callback_msg_count);
   } else {
-    DBG_SERIALPRINT("ERROR: uni_esp_now_msg_send_callback msg status ");
-    DBG_SERIALPRINT(status);
-    DBG_SERIALPRINT(" msg ");
+    DBG_SERIALPRINT("ERROR: uni_esp_now_msg_send_callback msg ");
     DBG_SERIALPRINT(g_last_send_callback_msg_count);
-    uni_esp_now_decode_dbgprint_error(g_last_send_callback_msg_count);
+    uni_esp_now_decode_dbgprint_error(status);
     DBG_SERIALPRINTLN(" ");
   }
 } // end uni_esp_now_msg_send_callback()
@@ -422,7 +421,7 @@ void loop() {
       DBG_SERIALPRINTLN(rcvr_msg_count);
     }
     else {
-      DBG_SERIALPRINT("ERROR: ESP-NOW sending error ");
+      DBG_SERIALPRINT("ERROR: ESP-NOW sending");
       uni_esp_now_decode_dbgprint_error(send_status);
       DBG_SERIALPRINTLN(" ");
     }
