@@ -20,7 +20,3 @@ For starters, I am using these Random Nerd tutorials:
 
 Then I downloaded this Random Nerd course Ebook and materials:
 - https://rntlab.com/module-1/esp32-lvgl-ebook/
-
-Copies of files that I use from those tutorials can be found in the RandomNerdFiles directory.
-
-I am not quite sure about the course files yet; need to find out how to treat the files properly.
