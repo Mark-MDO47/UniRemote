@@ -108,7 +108,7 @@
 #define DEBUG_QR_INPUT 1 // set 1 to get debug messages from QR code sensor
 
 // QR Code definitions
-const int32_t QRsampleDelayMsec = 200;
+const int32_t QRsampleDelayMsec = 2000;
 
 // ESP-NOW definitions
 static uint8_t g_rcvr_mac_addr[ESP_NOW_ETH_ALEN * ESP_NOW_MAX_TOTAL_PEER_NUM];
@@ -430,7 +430,8 @@ void loop() {
   // current face information detected.
   if ((MILLIS_BETWEEN_FAKE_QR > 0) &&
        ((msec_prev+MILLIS_BETWEEN_FAKE_QR) <= msec_now)) {
-    strncpy(QRresults.content_bytes, fake_qr, ESP_NOW_MAX_DATA_LEN-1); // max ESP-NOW msg size
+    strncpy((char *)QRresults.content_bytes, fake_qr, ESP_NOW_MAX_DATA_LEN-1); // max ESP-NOW msg size
+    QRresults.content_length = strlen(fake_qr);
   } else if (!tiny_code_reader_read(&QRresults)) {
     DBG_SERIALPRINTLN("No QR code results found on the i2c bus");
     delay(QRsampleDelayMsec);

@@ -62,7 +62,7 @@
 
 #include <Wire.h>     // for QR sensor (Tiny Code Reader) and anything else
 
-#include "tiny_code_reader/tiny_code_reader.h" // see https://github.com/usefulsensors/tiny_code_reader_arduino.git
+#include "../tiny_code_reader/tiny_code_reader.h" // see https://github.com/usefulsensors/tiny_code_reader_arduino.git
 
 // PIN definitions
 #define PIN_MSG_RDY 13
