@@ -136,45 +136,45 @@ static uint32_t g_uni_state_times[UNI_STATE_NUM];
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// alert_4_ok_new_cmd
+// cyd_alert_4_ok_new_cmd
 //
-void alert_4_ok_new_cmd() {
+void cyd_alert_4_ok_new_cmd() {
   return;
-} // end alert_4_ok_new_cmd()
+} // end cyd_alert_4_ok_new_cmd()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// alert_4_wait_send_or_clear_cmd
+// cyd_alert_4_wait_send_or_clear_cmd
 //
-void alert_4_wait_send_or_clear_cmd() {
+void cyd_alert_4_wait_send_or_clear_cmd() {
   return;
-} // end alert_4_wait_send_or_clear_cmd()
+} // end cyd_alert_4_wait_send_or_clear_cmd()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// alert_4_invalid_cmd
+// cyd_alert_4_invalid_cmd
 //
-void alert_4_invalid_cmd() {
+void cyd_alert_4_invalid_cmd() {
   return;
-} // end alert_4_invalid_cmd()
+} // end cyd_alert_4_invalid_cmd()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// alert_4_ignore_cmd
-void alert_4_ignore_cmd() {
+// cyd_alert_4_ignore_cmd
+void cyd_alert_4_ignore_cmd() {
   return;
-} // end alert_4_ignore_cmd()
+} // end cyd_alert_4_ignore_cmd()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// alert_4_sending_cmd
+// cyd_alert_4_sending_cmd
 //
-void alert_4_sending_cmd() {
+void cyd_alert_4_sending_cmd() {
   return;
-} // end alert_4_sending_cmd()
+} // end cyd_alert_4_sending_cmd()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// alert_4_wait_callback
+// cyd_alert_4_wait_callback
 //
-void alert_4_wait_callback() {
+void cyd_alert_4_wait_callback() {
   return;
-} // end alert_4_wait_callback()
+} // end cyd_alert_4_wait_callback()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // qr_decode_get_mac_addr_to_send()
@@ -418,7 +418,7 @@ void setup() {
 //  give a slight delay
 //
 #define MILLIS_BETWEEN_FAKE_QR 0 // 05000
-char * fake_qr = "11:22:33:44:55:66|Fake Command";
+char * fake_qr = "74:4d:bd:11:11:11|Fake Command";
 void loop() {
   static int QRcodeSeen = 1; // 0 == no code found, 1 == code found
   tiny_code_reader_results_t QRresults = {};
