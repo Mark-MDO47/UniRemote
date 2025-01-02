@@ -86,15 +86,41 @@
 
 #include "../tiny_code_reader/tiny_code_reader.h" // see https://github.com/usefulsensors/tiny_code_reader_arduino.git
 
-// PIN definitions
-
-#define CYD_SDA 22 // for "Cheap Yellow Display" ESP32-2432S028R
-#define CYD_SCL 27 // for "Cheap Yellow Display" ESP32-2432S028R
-
-
 #include <lvgl.h>
 #include <TFT_eSPI.h>
 #include <XPT2046_Touchscreen.h>
+
+// PIN definitions
+
+// Install the "XPT2046_Touchscreen" library by Paul Stoffregen to use the Touchscreen - https://github.com/PaulStoffregen/XPT2046_Touchscreen - Note: this library doesn't require further configuration
+#include <XPT2046_Touchscreen.h>
+
+// Touchscreen pins
+#define XPT2046_IRQ 36   // T_IRQ
+#define XPT2046_MOSI 32  // T_DIN
+#define XPT2046_MISO 39  // T_OUT
+#define XPT2046_CLK 25   // T_CLK
+#define XPT2046_CS 33    // T_CS
+
+// these definitions have the QR code reader wire colors matching the CYD wire colors
+//    yellow = SCL
+//    blue   = SDA
+#define CYD_SDA 22 // for "Cheap Yellow Display" ESP32-2432S028R
+#define CYD_SCL 27 // for "Cheap Yellow Display" ESP32-2432S028R
+
+// define touchscreen 
+SPIClass touchscreenSPI = SPIClass(VSPI);
+XPT2046_Touchscreen touchscreen(XPT2046_CS, XPT2046_IRQ);
+
+#define SCREEN_WIDTH 240
+#define SCREEN_HEIGHT 320
+
+// Touchscreen coordinates: (x, y) and pressure (z)
+int x, y, z;
+
+#define DRAW_BUF_SIZE (SCREEN_WIDTH * SCREEN_HEIGHT / 10 * (LV_COLOR_DEPTH / 8))
+uint32_t draw_buf[DRAW_BUF_SIZE / 4];
+
 
 // DEBUG definitions
 
@@ -109,6 +135,7 @@
 
 // QR Code definitions
 const int32_t QRsampleDelayMsec = 200;
+const int32_t CYDsampleDelayMsec = 5;
 
 // ESP-NOW definitions
 static uint8_t g_rcvr_mac_addr[ESP_NOW_ETH_ALEN * ESP_NOW_MAX_TOTAL_PEER_NUM];
@@ -175,6 +202,51 @@ void cyd_alert_4_sending_cmd() {
 void cyd_alert_4_wait_callback() {
   return;
 } // end cyd_alert_4_wait_callback()
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// static void cyd_input_read(lv_indev_t * indev, lv_indev_data_t * data)
+//
+#include "cyd_input_read.h"
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// button_event_cb()
+//
+static void button_event_cb(lv_event_t * e) {
+  static uint8_t counter = 0;
+  static lv_event_code_t code;
+  static lv_obj_t * button;
+  static lv_obj_t * label;
+
+  code = lv_event_get_code(e);
+  if(code == LV_EVENT_CLICKED) {
+    button = (lv_obj_t*) lv_event_get_target(e);
+    label = (lv_obj_t*) lv_event_get_user_data(e);
+    counter++;
+    lv_label_set_text_fmt(label, "Counter: %d", counter);
+    // LV_LOG_USER("Counter: %d", counter);
+  }
+} // end button_event_cb()
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+void lv_create_main_gui(void) {
+  // Create a Button 
+  lv_obj_t * button = lv_button_create(lv_screen_active());    
+  lv_obj_set_size(button, 120, 50);                                  // Set the button size
+  lv_obj_align(button, LV_ALIGN_CENTER, 0, 0);
+  
+  // Add a label to the button
+  lv_obj_t * button_label = lv_label_create(button);     
+  lv_label_set_text(button_label, "Click here!");        // Set the labels text
+  // lv_obj_add_style(button, &style_button_red, 0);
+  lv_obj_center(button_label);
+
+  lv_obj_t * text_label_counter = lv_label_create(lv_screen_active());
+  lv_label_set_text(text_label_counter, "Counter: 0");
+  lv_obj_align(text_label_counter, LV_ALIGN_BOTTOM_MID, 0, -50);
+
+  lv_obj_add_event_cb(button, button_event_cb, LV_EVENT_ALL, text_label_counter);  // Assign a callback to the button
+} // end lv_create_main_gui()
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // qr_decode_get_mac_addr_to_send()
@@ -406,7 +478,30 @@ void setup() {
     DBG_SERIALPRINTLN(status_register_send_cb);
     return;
   }
+
+  // Start LVGL
+  lv_init();
+
+  // Start the SPI for the touchscreen and init the touchscreen
+  touchscreenSPI.begin(XPT2046_CLK, XPT2046_MISO, XPT2046_MOSI, XPT2046_CS);
+  touchscreen.begin(touchscreenSPI);
+  // Set the Touchscreen rotation in landscape mode
+  // Note: in some displays, the touchscreen might be upside down, so you might need to set the rotation to 0: touchscreen.setRotation(0);
+  touchscreen.setRotation(2);
+
+  // Create a display object
+  lv_display_t * disp;
+  // Initialize the TFT display using the TFT_eSPI library
+  disp = lv_tft_espi_create(SCREEN_WIDTH, SCREEN_HEIGHT, draw_buf, sizeof(draw_buf));
+  lv_display_set_rotation(disp, LV_DISPLAY_ROTATION_270);
   
+  // Initialize an LVGL input device object (Touchscreen)
+  lv_indev_t * indev = lv_indev_create();
+  lv_indev_set_type(indev, LV_INDEV_TYPE_POINTER);
+  lv_indev_set_read_cb(indev, cyd_input_read);
+
+  // Function to draw the GUI
+  lv_create_main_gui();
 } // end setup()
 
 
@@ -417,8 +512,6 @@ void setup() {
 //    send to ESP-NOW destination
 //  give a slight delay
 //
-#define MILLIS_BETWEEN_FAKE_QR 0 // 05000
-char * fake_qr = "74:4d:bd:11:11:11|Fake Command";
 void loop() {
   static int QRcodeSeen = 1; // 0 == no code found, 1 == code found
   tiny_code_reader_results_t QRresults = {};
@@ -427,11 +520,7 @@ void loop() {
 
   // Perform a read action on the I2C address of the sensor to get the
   // current face information detected.
-  if ((MILLIS_BETWEEN_FAKE_QR > 0) &&
-       ((msec_prev+MILLIS_BETWEEN_FAKE_QR) <= msec_now)) {
-    strncpy((char *)QRresults.content_bytes, fake_qr, ESP_NOW_MAX_DATA_LEN-1); // max ESP-NOW msg size
-    QRresults.content_length = strlen(fake_qr);
-  } else if (!tiny_code_reader_read(&QRresults)) {
+  if (!tiny_code_reader_read(&QRresults)) {
     DBG_SERIALPRINTLN("No QR code results found on the i2c bus");
     delay(QRsampleDelayMsec);
     return;
@@ -460,5 +549,8 @@ void loop() {
     }
   }
 
-  delay(QRsampleDelayMsec);
+  lv_task_handler();  // let the GUI do its work
+  lv_tick_inc(CYDsampleDelayMsec); // tell LVGL how much time has passed
+  delay(CYDsampleDelayMsec);
+  // delay(QRsampleDelayMsec); FIXME TODO wait between intervals
 } // end loop()

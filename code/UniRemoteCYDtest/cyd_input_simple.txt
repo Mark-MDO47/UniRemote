@@ -1,0 +1,20 @@
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// cyd_input_read() - extremely simple touchscreen read
+//    maybe could use calibrated read such as in Random Nerd Tutorial
+//
+static void cyd_input_read(lv_indev_t * indev, lv_indev_data_t * data)
+{
+  // Checks if Touchscreen was touched
+  if(touchscreen.tirqTouched() && touchscreen.touched()) {
+
+    // Get Touchscreen points
+    TS_Point p = touchscreen.getPoint();
+
+    data->point.x = p.x;
+    data->point.y = p.y;
+    data->state = LV_INDEV_STATE_PRESSED;
+  } else {
+    data->state = LV_INDEV_STATE_RELEASED;
+  }
+} // end cyd_input_read()
+
