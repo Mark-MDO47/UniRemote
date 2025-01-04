@@ -28,12 +28,12 @@ I may include one or more of these ways to input my desires:
 Here is what the code is:<br>
 | Link | Description |
 | --- | --- |
-| [code/CYDtest](#https://github.com/Mark-MDO47/UniRemote/code/CYDtest "CYDtest") | ESP32-2432S028R (Cheap Yellow Display or CYD) throwaway test code |
-| [code/UniRemote](#https://github.com/Mark-MDO47/UniRemote/code/UniRemote "UniRemote") | UniRemote code with QR code reader above and generic ESP32 module |
-| [code/UniRemoteCYD](#https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniRemoteCYD "UniRemoteCYD") | UniRemote code with QR code reader above and CYD |
-| [code/UniTestRcvr](#https://github.com/Mark-MDO47/UniRemote/code/UniTestRcvr "UniTestRcvr") | UniRemote code template for generic receiver of the commands |
-| [code/readMacAddress](#https://github.com/Mark-MDO47/UniRemote/code/readMacAddress "readMacAddress") | Code from RandomNerds to read the WiFi MAC address of an ESP32 - attribution in its README |
-| [code/tiny_code_reader](#https://github.com/Mark-MDO47/UniRemote/code/tiny_code_reader "tiny_code_reader") | *.h file for using the QR code reader above |
+| [code/CYDtest](https://github.com/Mark-MDO47/UniRemote/code/CYDtest "CYDtest") | ESP32-2432S028R (Cheap Yellow Display or CYD) throwaway test code |
+| [code/UniRemote](https://github.com/Mark-MDO47/UniRemote/code/UniRemote "UniRemote") | UniRemote code with QR code reader above and generic ESP32 module |
+| [code/UniRemoteCYD](https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniRemoteCYD "UniRemoteCYD") | UniRemote code with QR code reader above and CYD |
+| [code/UniTestRcvr](https://github.com/Mark-MDO47/UniRemote/code/UniTestRcvr "UniTestRcvr") | UniRemote code template for generic receiver of the commands |
+| [code/readMacAddress](https://github.com/Mark-MDO47/UniRemote/code/readMacAddress "readMacAddress") | Code from RandomNerds to read the WiFi MAC address of an ESP32 - attribution in its README |
+| [code/tiny_code_reader](https://github.com/Mark-MDO47/UniRemote/code/tiny_code_reader "tiny_code_reader") | *.h file for using the QR code reader above |
 
 ## Expected Flow for V1.0
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
