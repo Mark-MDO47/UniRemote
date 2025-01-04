@@ -10,6 +10,8 @@
 The display I am using was purchased here:
 - https://www.aliexpress.us/item/3256805697430313.html
 
+In the Arduino IDE, select the board as "ESP32 Dev Module". It is based on the ESP32 D0WDQ6.
+
 ## Tutorials and Courses
 [Top](#cheap-yellow-display-(cyd)-testing "Top")<br>
 For starters, I am using these Random Nerd tutorials:
