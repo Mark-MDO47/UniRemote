@@ -11,12 +11,12 @@ static void cyd_input_read(lv_indev_t * indev, lv_indev_data_t * data) {
     float alpha_x, beta_x, alpha_y, beta_y, delta_x, delta_y;
 
     // REPLACE WITH YOUR OWN CALIBRATION VALUES » https://RandomNerdTutorials.com/touchscreen-calibration/
-    alpha_x = -0.000;
-    beta_x = 0.090;
-    delta_x = -33.771;
-    alpha_y = 0.066;
-    beta_y = 0.000;
-    delta_y = -14.632;
+    alpha_x = 0.001;
+    beta_x = 0.092;
+    delta_x = -38.259;
+    alpha_y = 0.067;
+    beta_y = -0.001;
+    delta_y = -18.374;
 
     x = alpha_y * p.x + beta_y * p.y + delta_y;
     // clamp x between 0 and SCREEN_WIDTH - 1
