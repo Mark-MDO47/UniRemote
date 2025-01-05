@@ -108,7 +108,8 @@
 #define CYD_SDA 22 // for "Cheap Yellow Display" ESP32-2432S028R
 #define CYD_SCL 27 // for "Cheap Yellow Display" ESP32-2432S028R
 
-// define touchscreen 
+// define touchscreen and LVGL definitions
+
 SPIClass touchscreenSPI = SPIClass(VSPI);
 XPT2046_Touchscreen touchscreen(XPT2046_CS, XPT2046_IRQ);
 
@@ -120,6 +121,9 @@ int x, y, z;
 
 #define DRAW_BUF_SIZE (SCREEN_WIDTH * SCREEN_HEIGHT / 10 * (LV_COLOR_DEPTH / 8))
 uint32_t draw_buf[DRAW_BUF_SIZE / 4];
+
+lv_style_t g_style_blue, g_style_yellow, g_style_red, g_style_ghost;
+
 
 
 // DEBUG definitions
@@ -158,9 +162,34 @@ static char g_qr_code_queue[2][ESP_NOW_MAX_DATA_LEN+2]; // queue for msgs; 0==se
 #define UNI_SENDING_CMD  2    // command being sent (very short state)
 #define UNI_WAIT_CB      3    // waiting for send callback
 #define UNI_STATE_NUM    4    // number of states
-static uint8_t g_uni_state = UNI_WAIT_CMD;
-static uint32_t g_uni_state_times[UNI_STATE_NUM];
+uint8_t g_uni_state = UNI_WAIT_CMD;
 
+#define UNI_STATE_NO_ERROR 0  // this UNI_STATE is in error
+#define UNI_STATE_IN_ERROR 1  // this UNI_STATE is in error
+uint8_t g_uni_state_error = UNI_STATE_NO_ERROR;
+
+uint32_t g_uni_state_times[UNI_STATE_NUM];
+
+#define ACTION_BUTTON_NUM 3     // number of action buttons at top of screen
+typedef struct {
+  lv_obj_t * button;            // object pointer for button itself
+  lv_obj_t * button_label;      // for text on the button
+  lv_obj_t * button_text_label; // object pointer for external button text
+  uint16_t btn_idx;             // index to the action button
+} action_button_t;
+action_button_t g_action_buttons[ACTION_BUTTON_NUM];
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// cyd_alert_4_wait_new_cmd
+//
+void cyd_alert_4_wait_new_cmd() {
+  if (UNI_STATE_NO_ERROR == g_uni_state_error) {
+
+  } else {
+
+  }
+} // end cyd_alert_4_wait_new_cmd()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // cyd_alert_4_ok_new_cmd
@@ -204,6 +233,26 @@ void cyd_alert_4_wait_callback() {
 } // end cyd_alert_4_wait_callback()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
+// uni_display_state
+//
+void uni_display_state() {
+  switch (g_uni_state) {
+    case  UNI_WAIT_CMD:    // last cmd all done, wait for next cmd (probably QR but any source OK)
+      cyd_alert_4_wait_new_cmd();
+      break;
+    case  UNI_VALID_CMD:   // command validated and in queue, waiting for GO or CLEAR
+      break;
+    case  UNI_SENDING_CMD: // command being sent (very short state)
+      break;
+    case  UNI_WAIT_CB:     // waiting for send callback
+      break;
+    default:
+      // FIXME TODO should never get here
+      break;
+  }
+} // end uni_display_state()
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 // static void cyd_input_read(lv_indev_t * indev, lv_indev_data_t * data)
 //
 #include "cyd_input_read.h"
@@ -215,64 +264,90 @@ static void button_event_callback(lv_event_t * e) {
   static uint8_t counter = 0;
   static lv_event_code_t code;
   static lv_obj_t * button;
-  static lv_obj_t * label;
+  static action_button_t * action_button_ptr;
 
   code = lv_event_get_code(e);
   if(code == LV_EVENT_CLICKED) {
     button = (lv_obj_t*) lv_event_get_target(e);
-    label = (lv_obj_t*) lv_event_get_user_data(e);
+    action_button_ptr = (action_button_t*) lv_event_get_user_data(e); // &action_buttons[idx]
     counter++;
-    lv_label_set_text_fmt(label, "Counter: %d", counter);
+    lv_label_set_text_fmt(action_button_ptr->button_text_label, "Counter: %d", counter);
     // LV_LOG_USER("Counter: %d", counter);
   }
 } // end button_event_callback()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// uni_lv_button_create()
-//    p_align - alignment (ex: LV_ALIGN_CENTER)
-//    p_label - initial button label
-//    p_text  - initial text under button
+// uni_lv_button_text_style - set button texts and style
+//    p_btn_idx - within g_action_buttons[]
+//    p_label   - label within button
+//    p_text    - text under button
+//    p_style   - button style to use
 //    
-void uni_lv_button_create(lv_align_t p_align, char * p_label, char * p_text, lv_style_t * p_style) {
-  // Create a Button 
-  lv_obj_t * button = lv_button_create(lv_screen_active());    
-  lv_obj_add_style(button, p_style, 0);
-  lv_obj_set_size(button, 90, 50); // Set the button size
-  lv_obj_align(button, p_align, 0, 0);
+void uni_lv_button_text_style(uint8_t p_btn_idx, char * p_label, char * p_text, lv_style_t * p_style) {
+  lv_obj_add_style(g_action_buttons[p_btn_idx].button, p_style, 0);
+  lv_label_set_text(g_action_buttons[p_btn_idx].button_label, p_label);
+  lv_label_set_text(g_action_buttons[p_btn_idx].button_text_label, p_text);
+} // end uni_lv_button_text_style()
 
-  // Add a label to the button
-  lv_obj_t * button_label = lv_label_create(button);     
-  lv_label_set_text(button_label, p_label);        // Set the labels text
-  lv_obj_center(button_label);
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// uni_lv_button_create()
+//    p_btn_idx - within g_action_buttons[]
+//    p_align   - alignment (ex: LV_ALIGN_CENTER)
+//    p_label   - initial label within button
+//    p_text    - initial text under button
+//    p_style   - initial button style to use
+//    
+void uni_lv_button_create(uint8_t p_btn_idx, lv_align_t p_align, char * p_label, char * p_text, lv_style_t * p_style) {
+  // Create a Button
+  g_action_buttons[p_btn_idx].btn_idx = p_btn_idx;
+  g_action_buttons[p_btn_idx].button = lv_button_create(lv_screen_active());    
+  lv_obj_set_size(g_action_buttons[p_btn_idx].button, 90, 50); // Set the button size
+  lv_obj_align(g_action_buttons[p_btn_idx].button, p_align, 0, 0);
 
-  lv_obj_t * text_label_counter = lv_label_create(lv_screen_active());
-  lv_label_set_text(text_label_counter, p_text);
-  lv_obj_align_to(text_label_counter, button, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 0);
+  // Add label object inside the button
+  g_action_buttons[p_btn_idx].button_label = lv_label_create(g_action_buttons[p_btn_idx].button);     
+  lv_obj_center(g_action_buttons[p_btn_idx].button_label);
 
-  lv_obj_add_event_cb(button, button_event_callback, LV_EVENT_ALL, text_label_counter);  // Assign a callback to the button
+  // Add button text object below the button
+  g_action_buttons[p_btn_idx].button_text_label = lv_label_create(lv_screen_active());
+  lv_obj_align_to(g_action_buttons[p_btn_idx].button_text_label, g_action_buttons[p_btn_idx].button, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 0);
+
+  // Put text and set styles
+  uni_lv_button_text_style(p_btn_idx, p_label, p_text, p_style);
+
+  // Set the callback function and set the "data" to the g_action_buttons[] index
+  lv_obj_add_event_cb(g_action_buttons[p_btn_idx].button, button_event_callback, LV_EVENT_ALL, (void*)&g_action_buttons[p_btn_idx]);  // Assign a callback to the button
 } // end uni_lv_button_create()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
+// uni_lv_style_init - initialize all the button styles
+//
+void uni_lv_style_init() {
+  lv_style_init(&g_style_blue);
+  lv_style_set_bg_color(&g_style_blue, lv_palette_main(LV_PALETTE_LIGHT_BLUE));
+  lv_style_set_text_color(&g_style_blue, lv_palette_darken(LV_PALETTE_GREY, 4));
+
+  lv_style_init(&g_style_yellow);
+  lv_style_set_bg_color(&g_style_yellow, lv_palette_main(LV_PALETTE_YELLOW));
+  lv_style_set_text_color(&g_style_yellow, lv_palette_darken(LV_PALETTE_GREY, 4));
+
+  lv_style_init(&g_style_red);
+  lv_style_set_bg_color(&g_style_red, lv_palette_main(LV_PALETTE_RED));
+  lv_style_set_text_color(&g_style_red, lv_palette_darken(LV_PALETTE_GREY, 4));
+
+  lv_style_init(&g_style_ghost);
+  lv_style_set_bg_color(&g_style_ghost,  lv_palette_lighten(LV_PALETTE_GREY, 3));
+  lv_style_set_text_color(&g_style_ghost, lv_palette_lighten(LV_PALETTE_GREY, 3));
+} // end uni_lv_style_init()
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 void lv_create_main_gui(void) {
+  // Initialize the styles
+  uni_lv_style_init();
   // Create the Buttons
-  static lv_style_t style_blue;
-  lv_style_init(&style_blue);
-  lv_style_set_bg_color(&style_blue, lv_palette_main(LV_PALETTE_LIGHT_BLUE));
-  lv_style_set_text_color(&style_blue, lv_palette_darken(LV_PALETTE_GREY, 4));
-
-  static lv_style_t style_yellow;
-  lv_style_init(&style_yellow);
-  lv_style_set_bg_color(&style_yellow, lv_palette_main(LV_PALETTE_YELLOW));
-  lv_style_set_text_color(&style_yellow, lv_palette_darken(LV_PALETTE_GREY, 4));
-
-  static lv_style_t style_red;
-  lv_style_init(&style_red);
-  lv_style_set_bg_color(&style_red, lv_palette_main(LV_PALETTE_RED));
-  lv_style_set_text_color(&style_red, lv_palette_darken(LV_PALETTE_GREY, 4));
-
-  uni_lv_button_create(LV_ALIGN_TOP_LEFT, "1 Label", "Some Text 1\nMore and\n   ... more", &style_blue);
-  uni_lv_button_create(LV_ALIGN_TOP_MID, "2 Label", "Some Text 2\nMore and\n   ... more", &style_yellow);
-  uni_lv_button_create(LV_ALIGN_TOP_RIGHT, "3 Label", "Some Text 3\nMore and\n   ... more", &style_red);
+  uni_lv_button_create(0, LV_ALIGN_TOP_LEFT,  "1234567890\n12345678901\n1234", "Some Text 1\nMore and\n   ... more", &g_style_blue);
+  uni_lv_button_create(1, LV_ALIGN_TOP_MID,   "2 Label", "Some Text 2\nMore and\n   ... more", &g_style_yellow);
+  uni_lv_button_create(2, LV_ALIGN_TOP_RIGHT, "3 Label", "Some Text 3\nMore and\n   ... more", &g_style_red);
 } // end lv_create_main_gui()
 
 
@@ -542,21 +617,37 @@ void setup() {
 //
 void loop() {
   static int QRcodeSeen = 1; // 0 == no code found, 1 == code found
-  tiny_code_reader_results_t QRresults = {};
+  static tiny_code_reader_results_t QRresults = {};
   static uint32_t msec_prev;
   uint32_t msec_now = millis();
+
+  switch (g_uni_state) {
+    case  UNI_WAIT_CMD:    // last cmd all done, wait for next cmd (probably QR but any source OK)
+      break;
+    case  UNI_VALID_CMD:   // command validated and in queue, waiting for GO or CLEAR
+      break;
+    case  UNI_SENDING_CMD: // command being sent (very short state)
+      break;
+    case  UNI_WAIT_CB:     // waiting for send callback
+      break;
+    default:
+      // FIXME TODO should never get here
+      break;
+  }
+  uni_display_state();
 
   // Perform a read action on the I2C address of the sensor to get the
   // current face information detected.
   if (!tiny_code_reader_read(&QRresults)) {
     DBG_SERIALPRINTLN("No QR code results found on the i2c bus");
-    delay(QRsampleDelayMsec);
-    return;
+    QRresults.content_length = 0;
   }
   msec_prev = msec_now;
 
   if (0 == QRresults.content_length) {
-    if (0 != QRcodeSeen) { Serial.println("No QR code found, waiting...\n"); }
+    if (0 != QRcodeSeen) { 
+      Serial.println("No QR code found, waiting...\n");
+    }
     QRcodeSeen = 0; // found nothing
   } else {
 #if (DEBUG_QR_INPUT)
