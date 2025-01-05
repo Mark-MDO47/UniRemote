@@ -9,6 +9,8 @@ Plan is to communicate with my projects via ESP-NOW WiFi
 * [The Plan](#the-plan "The Plan")
 * [Guide to the Code](#guide-to-the-code "Guide to the Code")
 * [Expected Flow for V1.0](#expected-flow-for-v10 "Expected Flow for V1.0")
+* [Interesting Considerations](#interesting-considerations "Interesting Considerations")
+  * [DRAM_STR - Move Constant Strings to RAM instead of Program Storage](#dram_str-\--move-constant-strings-to-ram-instead-of-program-storage "DRAM_STR - Move Constant Strings to RAM instead of Program Storage")
 * [Licensing](#licensing "Licensing")
 
 ## The Plan
