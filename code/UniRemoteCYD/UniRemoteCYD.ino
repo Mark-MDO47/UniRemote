@@ -209,9 +209,9 @@ void cyd_alert_4_wait_callback() {
 #include "cyd_input_read.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// button_event_cb()
+// button_event_callback()
 //
-static void button_event_cb(lv_event_t * e) {
+static void button_event_callback(lv_event_t * e) {
   static uint8_t counter = 0;
   static lv_event_code_t code;
   static lv_obj_t * button;
@@ -225,26 +225,54 @@ static void button_event_cb(lv_event_t * e) {
     lv_label_set_text_fmt(label, "Counter: %d", counter);
     // LV_LOG_USER("Counter: %d", counter);
   }
-} // end button_event_cb()
+} // end button_event_callback()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-void lv_create_main_gui(void) {
+// uni_lv_button_create()
+//    p_align - alignment (ex: LV_ALIGN_CENTER)
+//    p_label - initial button label
+//    p_text  - initial text under button
+//    
+void uni_lv_button_create(lv_align_t p_align, char * p_label, char * p_text, lv_style_t * p_style) {
   // Create a Button 
   lv_obj_t * button = lv_button_create(lv_screen_active());    
-  lv_obj_set_size(button, 120, 50);                                  // Set the button size
-  lv_obj_align(button, LV_ALIGN_CENTER, 0, 0);
-  
+  lv_obj_add_style(button, p_style, 0);
+  lv_obj_set_size(button, 90, 50); // Set the button size
+  lv_obj_align(button, p_align, 0, 0);
+
   // Add a label to the button
   lv_obj_t * button_label = lv_label_create(button);     
-  lv_label_set_text(button_label, "Click here!");        // Set the labels text
-  // lv_obj_add_style(button, &style_button_red, 0);
+  lv_label_set_text(button_label, p_label);        // Set the labels text
   lv_obj_center(button_label);
 
   lv_obj_t * text_label_counter = lv_label_create(lv_screen_active());
-  lv_label_set_text(text_label_counter, "Counter: 0");
-  lv_obj_align(text_label_counter, LV_ALIGN_BOTTOM_MID, 0, -50);
+  lv_label_set_text(text_label_counter, p_text);
+  lv_obj_align_to(text_label_counter, button, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 0);
 
-  lv_obj_add_event_cb(button, button_event_cb, LV_EVENT_ALL, text_label_counter);  // Assign a callback to the button
+  lv_obj_add_event_cb(button, button_event_callback, LV_EVENT_ALL, text_label_counter);  // Assign a callback to the button
+} // end uni_lv_button_create()
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+void lv_create_main_gui(void) {
+  // Create the Buttons
+  static lv_style_t style_blue;
+  lv_style_init(&style_blue);
+  lv_style_set_bg_color(&style_blue, lv_palette_main(LV_PALETTE_LIGHT_BLUE));
+  lv_style_set_text_color(&style_blue, lv_palette_darken(LV_PALETTE_GREY, 4));
+
+  static lv_style_t style_yellow;
+  lv_style_init(&style_yellow);
+  lv_style_set_bg_color(&style_yellow, lv_palette_main(LV_PALETTE_YELLOW));
+  lv_style_set_text_color(&style_yellow, lv_palette_darken(LV_PALETTE_GREY, 4));
+
+  static lv_style_t style_red;
+  lv_style_init(&style_red);
+  lv_style_set_bg_color(&style_red, lv_palette_main(LV_PALETTE_RED));
+  lv_style_set_text_color(&style_red, lv_palette_darken(LV_PALETTE_GREY, 4));
+
+  uni_lv_button_create(LV_ALIGN_TOP_LEFT, "1 Label", "Some Text 1\nMore and\n   ... more", &style_blue);
+  uni_lv_button_create(LV_ALIGN_TOP_MID, "2 Label", "Some Text 2\nMore and\n   ... more", &style_yellow);
+  uni_lv_button_create(LV_ALIGN_TOP_RIGHT, "3 Label", "Some Text 3\nMore and\n   ... more", &style_red);
 } // end lv_create_main_gui()
 
 
