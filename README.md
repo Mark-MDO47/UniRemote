@@ -15,16 +15,22 @@ Plan is to communicate with my projects via ESP-NOW WiFi
 
 ## The Plan
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
-I may include one or more of these ways to input my desires:
-- CYD - Cheap Yellow Display - perhaps this one
-  - https://www.aliexpress.us/item/3256805697430313.html
-- QR code reader - perhaps this one
-  - https://www.sparkfun.com/products/21231
+I have settled on the following hardware for the Universal Remote Control:
+- CYD - Cheap Yellow Display
+  - I am using the ESP32-2432S028R (Cheap Yellow Display or CYD) based on ESP32-D0WDQ6 controller.
+  - I purchased this one: https://www.aliexpress.us/item/3256805697430313.html
+- QR code reader
+  - I am using the Tiny Code Reader from Useful Sensors
+  - I purchased this one: https://www.sparkfun.com/products/23352
+
+I may include one or more of these ways to select the commands on the remote:
 - Voice Input - perhaps one of these
   - https://www.seeedstudio.com/XIAO-ESP32S3-Sense-p-5639.html
   - https://www.dfrobot.com/product-2665.html
 - Joystick or rotary encoder, buttons
 - BlueTooth keyboard
+
+The hardware that receives the commands can use basically any ESP32 that includes WiFi.
 
 ## Guide to the Code
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
