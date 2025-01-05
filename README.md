@@ -68,6 +68,17 @@ Here is what the code is:<br>
   - if timeout or bad, go to VALID_CMD
   - if OK, go to WAIT_QR
 
+## Interesting Considerations
+[Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
+
+### DRAM_STR - Move Constant Strings to RAM instead of Program Storage
+Since I am using an ESP-32 CYD with WiFi and LVGL, there is a lot of code and I quickly ran to the limits of program storage versus RAM.
+```
+Sketch uses 1208557 bytes (92%) of program storage space. Maximum is 1310720 bytes.
+Global variables use 61544 bytes (18%) of dynamic memory, leaving 266136 bytes for local variables. Maximum is 327680 bytes.
+```
+I discovered that I need to do the opposite of what I do with the Arduino Nano. I need use the "DRAM_STR" macro to move constant strings (easiest to find) from program storage into dynamic memory. On the Arduino Nano it was often helpful to use the "F" macro to move constant strings in the other direction since the dynamic memory was so limited.
+
 ## Licensing
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
 This repository has a LICENSE file for Apache 2.0. There may be code included that I have modified from other open sources (such as Arduino, Espressif, SparkFun, Seeed Studio, DFRobot, RandomNerds, etc.). These other sources may possibly be licensed using a different license model. In such a case I will include some notation of this. Typically I will include verbatim the license in the included/modified source code, but alternatively there might be a LICENSE file in the source code area that points out exceptions to the Apache 2.0 license.
