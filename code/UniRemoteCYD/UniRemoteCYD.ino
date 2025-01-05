@@ -122,7 +122,8 @@ int x, y, z;
 #define DRAW_BUF_SIZE (SCREEN_WIDTH * SCREEN_HEIGHT / 10 * (LV_COLOR_DEPTH / 8))
 uint32_t draw_buf[DRAW_BUF_SIZE / 4];
 
-lv_style_t g_style_blue, g_style_yellow, g_style_red, g_style_ghost;
+lv_style_t g_style_blue, g_style_yellow, g_style_red, g_style_green, g_style_ghost;
+lv_style_t g_style_screen_width_btn_height;
 
 
 
@@ -179,6 +180,11 @@ typedef struct {
 } action_button_t;
 action_button_t g_action_buttons[ACTION_BUTTON_NUM];
 
+typedef struct {
+  lv_obj_t * label_obj;
+  lv_obj_t * label_text;
+} styled_label_t;
+styled_label_t g_styled_label_last_status; // storage for last error
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // cyd_alert_4_wait_new_cmd
@@ -335,9 +341,17 @@ void uni_lv_style_init() {
   lv_style_set_bg_color(&g_style_red, lv_palette_main(LV_PALETTE_RED));
   lv_style_set_text_color(&g_style_red, lv_palette_darken(LV_PALETTE_GREY, 4));
 
+  lv_style_init(&g_style_green);
+  lv_style_set_bg_color(&g_style_green, lv_palette_main(LV_PALETTE_GREEN));
+  lv_style_set_text_color(&g_style_green, lv_palette_darken(LV_PALETTE_GREY, 4));
+
   lv_style_init(&g_style_ghost);
   lv_style_set_bg_color(&g_style_ghost,  lv_palette_lighten(LV_PALETTE_GREY, 3));
   lv_style_set_text_color(&g_style_ghost, lv_palette_lighten(LV_PALETTE_GREY, 3));
+
+  lv_style_init(&g_style_screen_width_btn_height);
+  lv_style_set_width(&g_style_screen_width_btn_height, SCREEN_HEIGHT);
+  lv_style_set_height(&g_style_screen_width_btn_height, 50);
 } // end uni_lv_style_init()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -348,6 +362,14 @@ void lv_create_main_gui(void) {
   uni_lv_button_create(0, LV_ALIGN_TOP_LEFT,  "1234567890\n12345678901\n1234", "Some Text 1\nMore and\n   ... more", &g_style_blue);
   uni_lv_button_create(1, LV_ALIGN_TOP_MID,   "2 Label", "Some Text 2\nMore and\n   ... more", &g_style_yellow);
   uni_lv_button_create(2, LV_ALIGN_TOP_RIGHT, "3 Label", "Some Text 3\nMore and\n   ... more", &g_style_red);
+
+  g_styled_label_last_status.label_obj = lv_obj_create(lv_screen_active());
+  lv_obj_add_style(g_styled_label_last_status.label_obj, &g_style_green, 0);
+  lv_obj_add_style(g_styled_label_last_status.label_obj, &g_style_screen_width_btn_height, 0);
+  lv_obj_align(g_styled_label_last_status.label_obj, LV_ALIGN_BOTTOM_LEFT, 0, 0);
+  g_styled_label_last_status.label_text = lv_label_create(g_styled_label_last_status.label_obj);
+  lv_obj_align_to(g_styled_label_last_status.label_text, g_styled_label_last_status.label_obj, LV_ALIGN_BOTTOM_LEFT, 0, 0);
+  lv_label_set_text(g_styled_label_last_status.label_text, "No Error Yet");
 } // end lv_create_main_gui()
 
 
