@@ -115,6 +115,8 @@ XPT2046_Touchscreen touchscreen(XPT2046_CS, XPT2046_IRQ);
 
 #define SCREEN_WIDTH 240
 #define SCREEN_HEIGHT 320
+#define SCREEN_LSCAPE_WIDTH  SCREEN_HEIGHT
+#define SCREEN_LSCAPE_HEIGHT SCREEN_WIDTH
 
 // Touchscreen coordinates: (x, y) and pressure (z)
 int x, y, z;
@@ -122,8 +124,12 @@ int x, y, z;
 #define DRAW_BUF_SIZE (SCREEN_WIDTH * SCREEN_HEIGHT / 10 * (LV_COLOR_DEPTH / 8))
 uint32_t draw_buf[DRAW_BUF_SIZE / 4];
 
-lv_style_t g_style_blue, g_style_yellow, g_style_red, g_style_green, g_style_ghost;
+// coloration
+lv_style_t g_style_blue, g_style_yellow, g_style_red, g_style_green, g_style_grey, g_style_ghost;
+
+// size
 lv_style_t g_style_screen_width_btn_height;
+lv_style_t g_style_screen_width_comm_height;
 
 
 
@@ -178,13 +184,14 @@ typedef struct {
   lv_obj_t * button_text_label; // object pointer for external button text
   uint16_t btn_idx;             // index to the action button
 } action_button_t;
-action_button_t g_action_buttons[ACTION_BUTTON_NUM];
+action_button_t g_action_buttons[ACTION_BUTTON_NUM]; // for three buttons on top screen
 
 typedef struct {
   lv_obj_t * label_obj;
   lv_obj_t * label_text;
 } styled_label_t;
-styled_label_t g_styled_label_last_status; // storage for last error
+styled_label_t g_styled_label_last_status; // 2 lines storage for last error on bottom screen
+styled_label_t g_styled_label_opr_comm;    // 5 lines storage for opr communication in middle screen
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // cyd_alert_4_wait_new_cmd
@@ -345,13 +352,21 @@ void uni_lv_style_init() {
   lv_style_set_bg_color(&g_style_green, lv_palette_main(LV_PALETTE_GREEN));
   lv_style_set_text_color(&g_style_green, lv_palette_darken(LV_PALETTE_GREY, 4));
 
+  lv_style_init(&g_style_grey);
+  lv_style_set_bg_color(&g_style_grey,  lv_palette_lighten(LV_PALETTE_GREY, 3));
+  lv_style_set_text_color(&g_style_grey, lv_palette_darken(LV_PALETTE_GREY, 4));
+
   lv_style_init(&g_style_ghost);
   lv_style_set_bg_color(&g_style_ghost,  lv_palette_lighten(LV_PALETTE_GREY, 3));
   lv_style_set_text_color(&g_style_ghost, lv_palette_lighten(LV_PALETTE_GREY, 3));
 
   lv_style_init(&g_style_screen_width_btn_height);
-  lv_style_set_width(&g_style_screen_width_btn_height, SCREEN_HEIGHT);
+  lv_style_set_width(&g_style_screen_width_btn_height, SCREEN_LSCAPE_WIDTH);
   lv_style_set_height(&g_style_screen_width_btn_height, 50);
+
+  lv_style_init(&g_style_screen_width_comm_height);
+  lv_style_set_width(&g_style_screen_width_comm_height, SCREEN_LSCAPE_WIDTH);
+  lv_style_set_height(&g_style_screen_width_comm_height, 80);
 } // end uni_lv_style_init()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -368,8 +383,16 @@ void lv_create_main_gui(void) {
   lv_obj_add_style(g_styled_label_last_status.label_obj, &g_style_screen_width_btn_height, 0);
   lv_obj_align(g_styled_label_last_status.label_obj, LV_ALIGN_BOTTOM_LEFT, 0, 0);
   g_styled_label_last_status.label_text = lv_label_create(g_styled_label_last_status.label_obj);
-  lv_obj_align_to(g_styled_label_last_status.label_text, g_styled_label_last_status.label_obj, LV_ALIGN_BOTTOM_LEFT, 0, 0);
-  lv_label_set_text(g_styled_label_last_status.label_text, "No Error Yet");
+  lv_obj_align_to(g_styled_label_last_status.label_text, g_styled_label_last_status.label_obj, LV_ALIGN_TOP_LEFT, 0, -8);
+  lv_label_set_text(g_styled_label_last_status.label_text, "Waiting for\nQR Code Command");
+
+  g_styled_label_opr_comm.label_obj = lv_obj_create(lv_screen_active());
+  lv_obj_add_style(g_styled_label_opr_comm.label_obj, &g_style_grey, 0);
+  lv_obj_add_style(g_styled_label_opr_comm.label_obj, &g_style_screen_width_comm_height, 0);
+  lv_obj_align_to(g_styled_label_opr_comm.label_obj, g_styled_label_last_status.label_obj, LV_ALIGN_OUT_TOP_LEFT, 0, 0);
+  g_styled_label_opr_comm.label_text = lv_label_create(g_styled_label_opr_comm.label_obj);
+  lv_obj_align_to(g_styled_label_opr_comm.label_text, g_styled_label_opr_comm.label_obj, LV_ALIGN_TOP_LEFT, 0, -14);
+  lv_label_set_text(g_styled_label_opr_comm.label_text, "No Instructions Yet\nNext 2\nNext  3\nNext   4\nNext    5");
 } // end lv_create_main_gui()
 
 
@@ -618,7 +641,7 @@ void setup() {
   lv_display_t * disp;
   // Initialize the TFT display using the TFT_eSPI library
   disp = lv_tft_espi_create(SCREEN_WIDTH, SCREEN_HEIGHT, draw_buf, sizeof(draw_buf));
-  lv_display_set_rotation(disp, LV_DISPLAY_ROTATION_270);
+  lv_display_set_rotation(disp, LV_DISPLAY_ROTATION_270); // landscape
   
   // Initialize an LVGL input device object (Touchscreen)
   lv_indev_t * indev = lv_indev_create();
