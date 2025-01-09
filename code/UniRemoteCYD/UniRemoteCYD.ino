@@ -216,6 +216,9 @@ styled_label_t g_styled_label_opr_comm;    // 5 lines storage for opr communicat
 
 char g_msg[1025]; // for generating text strings
 
+#define DBG_FAKE_QR 1 // special fake QR button
+uint8_t g_do_dbg_fake_qr = 0;
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_lv_button_text_style - set button texts and style
 //    p_btn_idx - within g_action_buttons[]
@@ -234,7 +237,11 @@ void uni_lv_button_text_style(uint8_t p_btn_idx, char * p_label, char * p_text, 
 //
 void uni_alert_4_wait_new_cmd() {
   uni_lv_button_text_style(ACTION_BUTTON_LEFT, "LED ON", "Lights on", &g_style_blue);
+#if DBG_FAKE_QR
+  uni_lv_button_text_style(ACTION_BUTTON_MID, "Dbg FakeQR", "Debug Fake", &g_style_grey);
+#else // not DBG_FAKE_QR
   uni_lv_button_text_style(ACTION_BUTTON_MID, "", "", &g_style_ghost);
+#endif // not DBG_FAKE_QR
   uni_lv_button_text_style(ACTION_BUTTON_RIGHT, "LED OFF", "Lights off", &g_style_red);
   lv_label_set_text(g_styled_label_opr_comm.label_text, "Scan QR Code");
   if (UNI_STATE_NO_ERROR == g_uni_state_error) {
@@ -402,7 +409,14 @@ int32_t handle_button_press() {
         // turn on LEDs
       } else if (ACTION_BUTTON_RIGHT == g_button_press.btn_idx) {
         // turn off LEDs
+#if DBG_FAKE_QR
+      } else if (ACTION_BUTTON_MID == g_button_press.btn_idx) {
+        // fake QR
+        g_do_dbg_fake_qr = 1;
       }
+#else // not DBG_FAKE_QR
+      }
+#endif // DBG_FAKE_QR
       break;
     case UNI_QR_SEEN:   // command in queue, waiting for GO or CLEAR
       if (ACTION_BUTTON_LEFT == g_button_press.btn_idx) {
@@ -797,21 +811,30 @@ void loop() {
   static tiny_code_reader_results_t QRresults = {};
   uint32_t msec_now = millis();
   esp_err_t send_status;
+  static char * fake_qr_code = "74:4d:bd:11:11:11|TestMessage non-existing";
 
   if (0 != g_button_press.pressed) { handle_button_press(); }
   else switch (g_uni_state) {
     case UNI_WAIT_CMD:    // last cmd all done, wait for next cmd (probably QR but any source OK)
-      if (!tiny_code_reader_read(&QRresults)) { // Perform a read action on the I2C address of the sensor
+      if (0 != g_do_dbg_fake_qr) {
+        g_uni_state_times[g_uni_state] = msec_now;
+        strncpy(g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg, fake_qr_code, sizeof(g_qr_code_queue[0].qr_msg));
+        g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg_len = QRresults.content_length = strlen(fake_qr_code);
+        sprintf(g_msg, "DBG Fake QR CMD:\n %s", g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg);
+        lv_label_set_text(g_styled_label_last_status.label_text, g_msg);
+        g_uni_state = UNI_QR_SEEN;
+        DBG_SERIALPRINTLN("Change state to UNI_QR_SEEN");
+      } else if (!tiny_code_reader_read(&QRresults)) { // Perform a read action on the I2C address of the sensor
         lv_label_set_text(g_styled_label_last_status.label_text, "I2C bus QR code sensor no response");
         QRresults.content_length = 0;
       } else {
-        g_uni_state_times[g_uni_state] = msec_now;
         if (0 == QRresults.content_length) {
           lv_label_set_text(g_styled_label_last_status.label_text, "No QR code found, waiting...\n");
         } else {
+          g_uni_state_times[g_uni_state] = msec_now;
           strncpy(g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg, (char *)QRresults.content_bytes, sizeof(g_qr_code_queue[0].qr_msg));
           g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg_len = QRresults.content_length;
-          sprintf(g_msg, "QR CMD scanned:\n %s", QRresults.content_bytes);
+          sprintf(g_msg, "QR CMD scanned:\n %s", g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg);
           lv_label_set_text(g_styled_label_last_status.label_text, g_msg);
           g_uni_state = UNI_QR_SEEN;
           DBG_SERIALPRINTLN("Change state to UNI_QR_SEEN");
@@ -821,16 +844,16 @@ void loop() {
     case UNI_QR_SEEN:   // command in queue, waiting for GO or CLEAR
       break;
     case UNI_SENDING_CMD: // command being sent (very short state)
-      send_status = uni_esp_now_msg_send((char *)QRresults.content_bytes);
+      send_status = uni_esp_now_msg_send((char *)g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg);
       if (send_status == ESP_OK) {
-        sprintf(g_msg, "ESP-NOW send success msg %d %s", rcvr_msg_count, QRresults.content_bytes);
+        sprintf(g_msg, "ESP-NOW send success msg %d %s", rcvr_msg_count, g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg);
         lv_label_set_text(g_styled_label_last_status.label_text, g_msg);
         QRresults.content_length = 0;
         g_uni_state = UNI_WAIT_CB;
         DBG_SERIALPRINTLN("Change state to UNI_WAIT_CB");
       }
       else {
-        sprintf(g_msg, "ESP-NOW ERROR: sending msg %d: %s\n  %s", rcvr_msg_count, QRresults.content_bytes, uni_esp_now_decode_error(send_status));
+        sprintf(g_msg, "ESP-NOW ERROR: sending msg %d: %s\n  %s", rcvr_msg_count, g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg, uni_esp_now_decode_error(send_status));
         lv_label_set_text(g_styled_label_last_status.label_text, g_msg);
         QRresults.content_length = 0;
         g_uni_state = UNI_WAIT_CMD;
