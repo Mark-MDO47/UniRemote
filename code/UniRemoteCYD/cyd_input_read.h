@@ -40,6 +40,7 @@ static void cyd_input_read(lv_indev_t * indev, lv_indev_data_t * data) {
     data->point.x = x;
     data->point.y = y;
 
+/*
     // Print Touchscreen info about X, Y and Pressure (Z) on the Serial Monitor
     Serial.print("X = ");
     Serial.print(x);
@@ -48,6 +49,7 @@ static void cyd_input_read(lv_indev_t * indev, lv_indev_data_t * data) {
     Serial.print(" | Pressure = ");
     Serial.print(z);
     Serial.println();
+ */
   }
   else {
     data->state = LV_INDEV_STATE_RELEASED;
