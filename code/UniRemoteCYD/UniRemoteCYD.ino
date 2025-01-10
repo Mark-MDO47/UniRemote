@@ -108,6 +108,13 @@
 #define CYD_SDA 22 // for "Cheap Yellow Display" ESP32-2432S028R
 #define CYD_SCL 27 // for "Cheap Yellow Display" ESP32-2432S028R
 
+// internal CYD RGB LED Pins
+#define CYD_LED_RED    4
+#define CYD_LED_GREEN 16
+#define CYD_LED_BLUE  17
+#define CYD_LED_ON  LOW  // inverted
+#define CYD_LED_OFF HIGH // inverted
+
 // define touchscreen and LVGL definitions
 
 SPIClass touchscreenSPI = SPIClass(VSPI);
@@ -167,17 +174,23 @@ static uni_qr_code_queue_t g_qr_code_queue[UNI_QR_CODE_QNUM_NUM]; // queue for m
 // UNI REMOTE definitions
 #define UNI_ESP_NOW_MSEC_PER_MSG_MIN 500 // minimum millisec between sending messages
 
-#define UNI_WAIT_CMD     0    // last cmd all done, wait for next cmd (probably QR but any source OK)
-#define UNI_QR_SEEN      1    // command in queue, waiting for GO or CLEAR
-#define UNI_SENDING_CMD  2    // command being sent (very short state)
-#define UNI_WAIT_CB      3    // waiting for send callback (very short state)
-#define UNI_RCVD_CB      4    // Received CB; show status
+#define UNI_STATE_WAIT_CMD     0    // last cmd all done, wait for next cmd (probably QR but any source OK)
+#define UNI_STATE_QR_SEEN      1    // command in queue, waiting for GO or CLEAR
+#define UNI_STATE_SENDING_CMD  2    // command being sent (very short state)
+#define UNI_STATE_WAIT_CB      3    // waiting for send callback (very short state)
+#define UNI_STATE_SHOW_STAT    4    // show error status and allow abort
 #define UNI_STATE_NUM    5    // number of states
-uint8_t g_uni_state = UNI_WAIT_CMD;
+uint8_t g_uni_state = UNI_STATE_WAIT_CMD;
 
 #define UNI_STATE_NO_ERROR 0  // this UNI_STATE is in error
 #define UNI_STATE_IN_ERROR 1  // this UNI_STATE is in error
 uint8_t g_uni_state_error = UNI_STATE_NO_ERROR;
+
+// some error codes that can be displayed just as if ESP_ERR_ESPNOW_ code
+#define UNI_ERR_TOO_SOON        501 // too soon to send another ESP-NOW message
+#define UNI_ERR_CMD_DECODE_FAIL 502 // could not decode MAC from CMD
+
+
 
 uint32_t g_uni_state_times[UNI_STATE_NUM];
 
@@ -346,19 +359,19 @@ void uni_alert_4_rcvd_callback() {
 //
 void uni_display_state() {
   switch (g_uni_state) {
-    case UNI_WAIT_CMD:    // last cmd all done, wait for next cmd (probably QR but any source OK)
+    case UNI_STATE_WAIT_CMD:    // last cmd all done, wait for next cmd (probably QR but any source OK)
       uni_alert_4_wait_new_cmd();
       break;
-    case UNI_QR_SEEN:   // command in queue, waiting for GO or CLEAR
+    case UNI_STATE_QR_SEEN:   // command in queue, waiting for GO or CLEAR
       uni_alert_4_wait_send_or_clear_cmd();
       break;
-    case UNI_SENDING_CMD: // command being sent (very short state)
+    case UNI_STATE_SENDING_CMD: // command being sent (very short state)
       uni_alert_4_sending_cmd();
       break;
-    case UNI_WAIT_CB:     // waiting for send callback (very short state)
+    case UNI_STATE_WAIT_CB:     // waiting for send callback (very short state)
       uni_alert_4_wait_callback();
       break;
-    case UNI_RCVD_CB:      // got callback; show status (show error)
+    case UNI_STATE_SHOW_STAT:      // show error status and allow abort
       uni_alert_4_rcvd_callback();
       break;
     default:
@@ -405,11 +418,17 @@ int32_t handle_button_press() {
   g_button_press.pressed = (uint8_t) 0;
   DBG_SERIALPRINTLN("handle_button_press() 0");
   switch (g_button_press.uni_state) {
-    case UNI_WAIT_CMD:    // last cmd all done, wait for next cmd (probably QR but any source OK)
+    case UNI_STATE_WAIT_CMD:    // last cmd all done, wait for next cmd (probably QR but any source OK)
       if (ACTION_BUTTON_LEFT == g_button_press.btn_idx) {
         // turn on LEDs
+        digitalWrite(CYD_LED_RED, CYD_LED_ON);
+        digitalWrite(CYD_LED_GREEN, CYD_LED_ON);
+        digitalWrite(CYD_LED_BLUE, CYD_LED_ON);
       } else if (ACTION_BUTTON_RIGHT == g_button_press.btn_idx) {
         // turn off LEDs
+        digitalWrite(CYD_LED_RED, CYD_LED_OFF);
+        digitalWrite(CYD_LED_GREEN, CYD_LED_OFF);
+        digitalWrite(CYD_LED_BLUE, CYD_LED_OFF);
 #if DBG_FAKE_QR
       } else if (ACTION_BUTTON_MID == g_button_press.btn_idx) {
         // fake QR
@@ -419,30 +438,30 @@ int32_t handle_button_press() {
       }
 #endif // DBG_FAKE_QR
       break;
-    case UNI_QR_SEEN:   // command in queue, waiting for GO or CLEAR
+    case UNI_STATE_QR_SEEN:   // command in queue, waiting for GO or CLEAR
       if (ACTION_BUTTON_LEFT == g_button_press.btn_idx) {
         // send ESP_NOW command
-        g_uni_state = UNI_SENDING_CMD;
-        DBG_SERIALPRINTLN("Change state to UNI_SENDING_CMD");
+        g_uni_state = UNI_STATE_SENDING_CMD;
+        DBG_SERIALPRINTLN("Change state to UNI_STATE_SENDING_CMD");
       } else if (ACTION_BUTTON_RIGHT == g_button_press.btn_idx) {
         // clear ESP_NOW command
-        g_uni_state = UNI_WAIT_CMD;
-        DBG_SERIALPRINTLN("Change state to UNI_WAIT_CMD");
+        g_uni_state = UNI_STATE_WAIT_CMD;
+        DBG_SERIALPRINTLN("Change state to UNI_STATE_WAIT_CMD");
       }
       break;
-    case UNI_SENDING_CMD: // command being sent (very short state)
+    case UNI_STATE_SENDING_CMD: // command being sent (very short state)
       break;
-    case UNI_WAIT_CB:     // waiting for send callback (very short state)
+    case UNI_STATE_WAIT_CB:     // waiting for send callback (very short state)
       break;
-    case UNI_RCVD_CB:      // got callback; show status (displaying status)
+    case UNI_STATE_SHOW_STAT:      // show error status and allow abort
       if (ACTION_BUTTON_LEFT == g_button_press.btn_idx) {
         // send ESP_NOW command
-        g_uni_state = UNI_SENDING_CMD;
-        DBG_SERIALPRINTLN("Change state to UNI_SENDING_CMD");
+        g_uni_state = UNI_STATE_SENDING_CMD;
+        DBG_SERIALPRINTLN("Change state to UNI_STATE_SENDING_CMD");
       } else if (ACTION_BUTTON_RIGHT == g_button_press.btn_idx) {
         // clear ESP_NOW command
-        g_uni_state = UNI_WAIT_CMD;
-        DBG_SERIALPRINTLN("Change state to UNI_WAIT_CMD");
+        g_uni_state = UNI_STATE_WAIT_CMD;
+        DBG_SERIALPRINTLN("Change state to UNI_STATE_WAIT_CMD");
       }
       break;
     default:
@@ -621,11 +640,15 @@ char * uni_esp_now_decode_error(uint16_t errcode) {
     case ESP_ERR_ESPNOW_IF:
       str = " ESPNOW Interface error";
       break;
-    case ESP_NOW_SEND_SUCCESS:
-      str = " ESPNOW Send Callback Good";
+    case ESP_OK:
+      str = " ESPNOW call OK";
       break;
-    case ESP_NOW_SEND_FAIL:
-      str = " ESPNOW Send Callback FAIL";
+    // my own internal error codes
+    case UNI_ERR_TOO_SOON:
+      str = " too soon to send ESP-NOW message";
+      break;
+    case UNI_ERR_CMD_DECODE_FAIL:
+      str = " could not decode MAC from CMD";
       break;
     default:
       str = " ESPNOW UNKNOWN ERROR CODE";
@@ -646,18 +669,18 @@ void uni_esp_now_msg_send_callback(const uint8_t *mac_addr, esp_now_send_status_
     sprintf(g_msg, "ESP-Now callback OK CMD #%d", g_last_scanned_cmd_count);
     lv_label_set_text(g_styled_label_last_status.label_text, g_msg);
     g_uni_state_error = UNI_STATE_NO_ERROR;
-    g_uni_state = UNI_WAIT_CMD;
+    g_uni_state = UNI_STATE_WAIT_CMD;
   } else { // ESP_NOW_SEND_FAIL
     sprintf(g_msg, "ESP-Now callback FAIL CMD #%d", g_last_scanned_cmd_count);
     lv_label_set_text(g_styled_label_last_status.label_text, g_msg);
     g_uni_state_error = UNI_STATE_IN_ERROR;
-    g_uni_state = UNI_RCVD_CB;
+    g_uni_state = UNI_STATE_SHOW_STAT; // show error status and allow abort
   }
 } // end uni_esp_now_msg_send_callback()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_esp_now_register_peer() - 
-//       returns: index to peer
+//       returns: index to peer or -1 for failure
 int16_t uni_esp_now_register_peer(uint8_t * mac_addr) {
   
   esp_err_t reg_status = ESP_OK;
@@ -718,7 +741,7 @@ esp_err_t uni_esp_now_msg_send(char * qr_code) {
   // see if waited long enough to send another ESP-NOW message
   if (msec_now < (UNI_ESP_NOW_MSEC_PER_MSG_MIN+msec_prev_send)) {
     DBG_SERIALPRINTLN("ERROR: too soon to send");
-    return(ESP_ERR_ESPNOW_INTERNAL); // too soon to send another message
+    return(UNI_ERR_TOO_SOON); // too soon to send another message
   }
   msec_prev_send = msec_now;
 
@@ -729,7 +752,7 @@ esp_err_t uni_esp_now_msg_send(char * qr_code) {
     mac_addr_index = uni_esp_now_register_peer(mac_addr_ptr);
   } else {
     DBG_SERIALPRINTLN("ERROR: qr_decode_get_mac_addr_to_send returned 0");
-    return(ESP_ERR_ESPNOW_INTERNAL); // could not decode QR code
+    return(UNI_ERR_CMD_DECODE_FAIL); // could not decode MAC from CMD
   }
   if (mac_addr_index < 0) {
     DBG_SERIALPRINTLN("ERROR: could not register MAC");
@@ -752,6 +775,15 @@ esp_err_t uni_esp_now_msg_send(char * qr_code) {
 //   WiFi   - for ESP-NOW communications
 //
 void setup() {
+  // turn off LEDs
+  pinMode(CYD_LED_RED, OUTPUT);
+  digitalWrite(CYD_LED_RED, CYD_LED_OFF);
+  pinMode(CYD_LED_GREEN, OUTPUT);
+  digitalWrite(CYD_LED_GREEN, CYD_LED_OFF);
+  pinMode(CYD_LED_BLUE, OUTPUT);
+  digitalWrite(CYD_LED_BLUE, CYD_LED_OFF);
+
+
 #if DEBUG_SERIALPRINT
   Serial.begin(115200); // basically for debugging...
   while (!Serial) {
@@ -833,7 +865,7 @@ void loop() {
 
   if (0 != g_button_press.pressed) { handle_button_press(); }
   else switch (g_uni_state) {
-    case UNI_WAIT_CMD:    // last cmd all done, wait for next cmd (probably QR but any source OK)
+    case UNI_STATE_WAIT_CMD:    // last cmd all done, wait for next cmd (probably QR but any source OK)
       if (0 != g_do_dbg_fake_qr) {
         g_do_dbg_fake_qr = 0;
         g_last_scanned_cmd_count += 1;
@@ -848,8 +880,8 @@ void loop() {
         g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg_len = QRresults.content_length = strlen(g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg);
         sprintf(g_msg, "DBG Fake QR CMD #%d:\n %s", g_last_scanned_cmd_count, g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg);
         lv_label_set_text(g_styled_label_last_status.label_text, g_msg);
-        g_uni_state = UNI_QR_SEEN;
-        DBG_SERIALPRINTLN("Change state to UNI_QR_SEEN");
+        g_uni_state = UNI_STATE_QR_SEEN;
+        DBG_SERIALPRINTLN("Change state to UNI_STATE_QR_SEEN");
       } else if (!tiny_code_reader_read(&QRresults)) { // Perform a read action on the I2C address of the sensor
         lv_label_set_text(g_styled_label_last_status.label_text, "I2C bus QR code sensor no response");
         QRresults.content_length = 0;
@@ -863,33 +895,33 @@ void loop() {
           g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg_len = strlen(g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg);
           sprintf(g_msg, "QR CMD #%d scanned:\n %s", g_last_scanned_cmd_count, g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg);
           lv_label_set_text(g_styled_label_last_status.label_text, g_msg);
-          g_uni_state = UNI_QR_SEEN;
-          DBG_SERIALPRINTLN("Change state to UNI_QR_SEEN");
+          g_uni_state = UNI_STATE_QR_SEEN;
+          DBG_SERIALPRINTLN("Change state to UNI_STATE_QR_SEEN");
         }
       }
       break;
-    case UNI_QR_SEEN:   // command in queue, waiting for GO or CLEAR
+    case UNI_STATE_QR_SEEN:   // command in queue, waiting for GO or CLEAR
       break;
-    case UNI_SENDING_CMD: // command being sent (very short state)
+    case UNI_STATE_SENDING_CMD: // command being sent (very short state)
       send_status = uni_esp_now_msg_send((char *)g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg);
       if (send_status == ESP_OK) {
         sprintf(g_msg, "ESP-NOW send success CMD #%d %s", g_last_scanned_cmd_count, g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg);
         lv_label_set_text(g_styled_label_last_status.label_text, g_msg);
         QRresults.content_length = 0;
-        g_uni_state = UNI_WAIT_CB;
-        DBG_SERIALPRINTLN("Change state to UNI_WAIT_CB");
+        g_uni_state = UNI_STATE_WAIT_CB;
+        DBG_SERIALPRINTLN("Change state to UNI_STATE_WAIT_CB");
       }
       else {
         sprintf(g_msg, "ESP-NOW ERROR: sending CMD #%d: %s\n  %s", g_last_scanned_cmd_count, g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg, uni_esp_now_decode_error(send_status));
         lv_label_set_text(g_styled_label_last_status.label_text, g_msg);
         QRresults.content_length = 0;
-        g_uni_state = UNI_WAIT_CMD;
-        DBG_SERIALPRINTLN("Change state to UNI_WAIT_CMD");
+        g_uni_state = UNI_STATE_SHOW_STAT; // show error status and allow abort
+        DBG_SERIALPRINTLN("Change state to UNI_STATE_WAIT_CMD");
       }
       break;
-    case UNI_WAIT_CB:     // waiting for send callback
+    case UNI_STATE_WAIT_CB:     // waiting for send callback
       break;
-    case UNI_RCVD_CB:      // got callback; show status (very short state)
+    case UNI_STATE_SHOW_STAT:   // show error status and allow abort
       break;
     default:
       // FIXME TODO should never get here
