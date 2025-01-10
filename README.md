@@ -11,6 +11,7 @@ Plan is to communicate with my projects via ESP-NOW WiFi
 * [Expected Flow for V1.0](#expected-flow-for-v10 "Expected Flow for V1.0")
 * [Interesting Considerations](#interesting-considerations "Interesting Considerations")
   * [DRAM_STR - Move Constant Strings to RAM instead of Program Storage](#dram_str-\--move-constant-strings-to-ram-instead-of-program-storage "DRAM_STR - Move Constant Strings to RAM instead of Program Storage")
+  * [Entire Screen Pans or Scrolls](#entire-screen-pans-or-scrolls "Entire Screen Pans or Scrolls")
 * [Licensing](#licensing "Licensing")
 
 ## The Plan
