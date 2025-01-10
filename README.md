@@ -87,6 +87,15 @@ Global variables use 61544 bytes (18%) of dynamic memory, leaving 266136 bytes f
 ```
 I discovered that I need to do the opposite of what I do with the Arduino Nano. I need use the "DRAM_STR" macro to move constant strings (easiest to find) from program storage into dynamic memory. On the Arduino Nano it was often helpful to use the "F" macro to move constant strings in the other direction since the dynamic memory was so limited.
 
+## Entire Screen Pans or Scrolls
+[Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
+I didn't find a good way to prevent the entire screen from "panning" or "scrolling". I tried the following without success.
+
+| Routine | Description |
+| --- | --- |
+| void lv_indev_set_long_press_time(lv_indev_t * indev, uint16_t long_press_time); | Setting value to 65,535 after creating indev did not help |
+| void lv_indev_reset_long_press(lv_indev_t * indev); | Calling within indev read_cb function (cyd_input_read() in my code) when .tirqTouched() or .touched() caused buttons to not operate |
+
 ## Licensing
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
 This repository has a LICENSE file for Apache 2.0. There may be code included that I have modified from other open sources (such as Arduino, Espressif, SparkFun, Seeed Studio, DFRobot, RandomNerds, etc.). These other sources may possibly be licensed using a different license model. In such a case I will include some notation of this. Typically I will include verbatim the license in the included/modified source code, but alternatively there might be a LICENSE file in the source code area that points out exceptions to the Apache 2.0 license.
