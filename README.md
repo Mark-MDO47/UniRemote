@@ -87,7 +87,7 @@ Global variables use 61544 bytes (18%) of dynamic memory, leaving 266136 bytes f
 ```
 I discovered that I need to do the opposite of what I do with the Arduino Nano. I need use the "DRAM_STR" macro to move constant strings (easiest to find) from program storage into dynamic memory. On the Arduino Nano it was often helpful to use the "F" macro to move constant strings in the other direction since the dynamic memory was so limited.
 
-## Entire Screen Pans or Scrolls
+### Entire Screen Pans or Scrolls
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
 I didn't find a good way to prevent the entire screen from "panning" or "scrolling". I tried the following without success.
 
