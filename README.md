@@ -54,33 +54,43 @@ Here is what the code is:<br>
 ## Expected Flow for V1.0
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
 
-**UNI_WAIT_CMD**
+**UNI_STATE_WAIT_CMD**
 - *last cmd all done, wait for next cmd (probably QR but any source OK)*
 - alert OK for next QR
 - wait for QR
   - if not "too soon"
     - scan QR code into RAM
-    - check validity & if valid register peer and alert that have VALID_CMD
 
-**UNI_VALID_CMD**
-- *command validated and in queue, waiting for GO or CLEAR*
+**UNI_STATE_QR_SEEN**
+- *command in queue, waiting for GO or CLEAR*
 - alert wait for send
-- wait for SEND
-  - if receive another QR, alert that ignoring
-  - if receive CLEAR, clear cmd and go to WAITING
+- wait for SEND or CLEAR
+  - if receive CLEAR, clear cmd and go to WAIT_CMD
   - if receive SEND, go to SENDING
 
-**UNI_SENDING_CMD**
+**UNI_STATE_SENDING_CMD**
 - *command being sent (very short state)*
 - alert that SENDING
-- send command, set timer for "too soon", go to WAIT_CALLBACK
+- send command
+  - check if too soon, go to UNI_STATE_SHOW_STAT
+  - check MAC addr validity & able to register MAC peer; if error go to SHOW_STAT
+  - call send ESP-NOW routine
+    - if OK go to WAIT_CB
+    - if error go to SHOW_STAT
 
-**UNI_WAIT_CB**
-- *waiting for send callback*
-- alert that WAIT_CALLBACK
+**UNI_STATE_WAIT_CB**
+- *waiting for send callback (very short state)*
+- alert that WAIT_CB
 - wait for callback
-  - if timeout or bad, go to VALID_CMD
-  - if OK, go to WAIT_QR
+  - if timeout or bad, go to SHOW_STAT
+  - if OK, go to WAIT_CMD
+
+**UNI_STATE_SHOW_STAT**
+- *show error status and allow cmd abort*
+- alert that SHOW_STAT
+- wait for SEND or ABORT
+  - if receive ABORT, clear cmd and go to WAIT_CMD
+  - if receive SEND, go to SENDING
 
 ## Interesting Considerations
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
