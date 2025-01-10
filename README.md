@@ -90,7 +90,7 @@ I discovered that I need to do the opposite of what I do with the Arduino Nano. 
 
 ### Entire Screen Pans or Scrolls
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
-I didn't find a good way to prevent the entire screen from "panning" or "scrolling". I tried the following without success.
+I didn't find a good way to prevent the entire screen from "panning" or "scrolling" during a "long press". I tried the following without success.
 
 | Routine | Description |
 | --- | --- |
