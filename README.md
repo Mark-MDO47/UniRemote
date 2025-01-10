@@ -25,6 +25,11 @@ I have settled on the following hardware for the Universal Remote Control:
   - I purchased this one: https://www.sparkfun.com/products/23352
 
 I may include one or more of these ways to select the commands on the remote:
+- RFID reader
+  - maybe HiLetgo 3pcs RFID Kit - Mifare RC522 RF IC Card Sensor Module + S50 Blank Card + Key Ring
+    - https://www.amazon.com/dp/B07VLDSYRW
+  - maybe using Meikuler 13.56MHz MIFARE Classic 1K, RFID Smart Cards / M1 Cards, ISO14443A Printable Blank RFID PVC Cards
+    - https://www.amazon.com/dp/B07S63VT7X
 - Voice Input - perhaps one of these
   - https://www.seeedstudio.com/XIAO-ESP32S3-Sense-p-5639.html
   - https://www.dfrobot.com/product-2665.html
