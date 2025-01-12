@@ -1,9 +1,12 @@
 # RFID RC522 test
 
 **Table Of Contents**
+* [Top](#rfid-rc522-test "Top")
+* [Hardware](#hardware "Hardware")
+* [Software](#software "Software")
 
 ## Hardware
-
+[Top](#rfid-rc522-test "Top")<br>
 | Link | Description |
 | --- | --- |
 | https://www.amazon.com/dp/B07VLDSYRW | **READER/WRITER** HiLetgo 3pcs RFID Kit - Mifare RC522 RF IC Card Sensor Module + S50 Blank Card + Key Ring |
@@ -17,8 +20,15 @@
   - one SPI channel is routed to the MicroSD card reader; maybe could pick up signals with a "sniffer" card
 
 ## Software
-
-The original plan was to store the command string directly in the card and have the RFID reader/writer on the I2C bus along with the QR reader. See the HW section; this is not feasible.
+[Top](#rfid-rc522-test "Top")<br>
+The original plan was to store the command string directly in the card and have the RFID reader/writer on the I2C bus along with the QR reader. See the [Hardware](#hardware "Hardware") section; this is not feasible.
 Options:
 - have another ESP32 or 3.3V microcontroller that is on the I2C bus and use it to control the SPI bus to the RFID reader/writer.
 - use MicroSD sniffer on the CYD and control both devices that way
+
+### Documentation
+[Top](#rfid-rc522-test "Top")<br>
+I used the Random Nerds tutorials to get up to speed.
+- https://randomnerdtutorials.com/esp32-spi-communication-arduino/
+- https://randomnerdtutorials.com/esp32-mfrc522-rfid-reader-arduino/
+
