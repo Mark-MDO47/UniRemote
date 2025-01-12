@@ -1,6 +1,9 @@
 # RFID RC522 test
 
 **Table Of Contents**
+* [Top](#rfid-rc522-test "Top")
+* [Hardware](#hardware "Hardware")
+* [Software](#software "Software")
 
 ## Hardware
 
