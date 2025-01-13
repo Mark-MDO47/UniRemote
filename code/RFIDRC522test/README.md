@@ -25,6 +25,8 @@ The original plan was to store the command string directly in the card and have 
 Options:
 - have another ESP32 or 3.3V microcontroller that is on the I2C bus and use it to control the SPI bus to the RFID reader/writer.
 - use MicroSD sniffer on the CYD and control both devices that way
+  - https://www.sparkfun.com/sparkfun-microsd-sniffer.html
+  - https://learn.sparkfun.com/tutorials/microsd-sniffer-hookup-guide/introduction
 
 ### Documentation
 [Top](#rfid-rc522-test "Top")<br>
