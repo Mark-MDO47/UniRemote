@@ -1,24 +1,37 @@
 /* Author: https://github.com/Mark-MDO47  Dec. 21, 2023
  *  https://github.com/Mark-MDO47/UniRemote
  *  
- *  This code will read a command from a QR code and send it to
+ *  This code will scan a command (QR code or RFID or ??) and send it to
  *     the appropriate MAC address using ESP-NOW point-to-point on WiFi.
- *     It is sent in plain text, not encrypted.
- *
- *  The QR code reader for this code is Tiny Code Reader from Useful Sensors
- *     see https://github.com/usefulsensors/tiny_code_reader_arduino.git
- *
- *  Uses the "Cheap Yellow Display" ESP32-2432S028R. A little fun getting two
- *     GPIO pins to use the QR code reader.
+ *  The command is sent in plain text, not encrypted.
  *
  * ESP-NOW is a protocol designed by Espressif Systems https://www.espressif.com/
- *     This code should run on just about any ESP32 device that includes WiFi. 
+ *     This UniRemote code expects to run on particular hardware as described below.
+ *     The receiver(s) of the command(s) can be based on just about any ESP32 that includes WiFi.
  *
- * The QR code contains the MAC address and the command string. This code will
+ * UniRemote runs on the "Cheap Yellow Display" ESP32-2432S028R based on ESP32-D0WDQ6.
+ *     I used this one: https://www.aliexpress.us/item/3256805697430313.html
+ *
+ * The QR code reader used is the Tiny Code Reader from Useful Sensors
+ *     I used this one: https://www.sparkfun.com/products/23352
+ *     See https://github.com/usefulsensors/tiny_code_reader_arduino.git
+ *
+ * The RFID reader used is (as far as I can tell) pretty common.
+ *     I used this one: https://www.amazon.com/dp/B07VLDSYRW
+ *     It is capable of reading and/or writing RFID Smart Cards.
+ *     The controller chip could support UART or I2C or SPI interfaces,
+ *        but the only interface supported without board modification is the
+ *        SPI interface. Since the CYD didn't have enough pins available without board
+ *        modification, I am using a "sniffer" that takes the signals from the CYD MicroSD slot.
+ *     I used this sniffer: https://www.sparkfun.com/sparkfun-microsd-sniffer.html
+ *        See also https://learn.sparkfun.com/tutorials/microsd-sniffer-hookup-guide/introduction
+ *     I used these RFID Smart Cards ISO14443A: https://www.amazon.com/dp/B07S63VT7X
+ *
+ * The scanned command contains the MAC address and the command string. This code will
  *     dynamically register the MAC addresses but ESP_NOW has a limit of 20 MAC
  *     addresses that can be registered at once.
  *   
- *  The QR code should be a text tab-separated-variable text file of the following form:
+ *  The scanned command should be a text tab-separated-variable text file of the following form:
  *  <MAC ADDRESS><TAB><COMMAND STRING><TAB><DESCRIPTION STRING>
  *  
  *  <MAC ADDRESS> is a string of the following exact form:
@@ -27,18 +40,18 @@
  *      the MAC address of the target system.
  *    Note that this is a six-part MAC address in hexadecimal. Each hex number
  *    is exactly two digits long. If you need to start it with a zero, do so.
- *    Because I am a lazy coder.
+ *    Because I am a lazy coder, formatting the string properly is up to you.
  *  
  *  <COMMAND STRING> is a short (maximum 249 characters + zero termination) command
  *    The receiving MAC address will receive it as a zero-terminated string (including
  *    the zero terminator).
  *
- * <DESCRIPTION STRING> can be zero length or more, but for QR code consistency
- *    checking the <TAB> prior to the string is required. The description is
- *    just for your purposes; it is not sent to the ESP-NOW target.
+ * <DESCRIPTION STRING> can be zero length or more, but for consistency
+ *    the <TAB> prior to the description string is required.
+ *    The description is just for your purposes; it is not sent to the ESP-NOW target.
  *
- *    QRcode.py in https://github.com/Mark-MDO47/MDOpythonUtils
- *     will create such a QR code from text input. It requires that you
+ * QRcode.py in https://github.com/Mark-MDO47/MDOpythonUtils
+ *    will create such a QR code from text input. It requires that you
  *    install the "qrcode" package, using conda or pip or whatever.
  *    I use the command line "python QRcode.py -s intructions.txt"
  *    Each QR code is generated with a short *.html to allow printing.
@@ -162,20 +175,20 @@ typedef int32_t uni_esp_now_status;
 #define UNI_ESP_NOW_CB_NEVER_HAPPENED -1 // my own status
 static uni_esp_now_status g_last_send_callback_status = UNI_ESP_NOW_CB_NEVER_HAPPENED; // -1 means never happened
 
-#define UNI_QR_CODE_QNUM_NOW    0 // 0==sending now, 1==next up
-#define UNI_QR_CODE_QNUM_NEXT   1 // 0==sending now, 1==next up
-#define UNI_QR_CODE_QNUM_NUM    2 // 0==sending now, 1==next up
+#define UNI_CMD_QNUM_NOW    0 // 0==sending now, 1==next up
+#define UNI_CMD_QNUM_NEXT   1 // 0==sending now, 1==next up
+#define UNI_CMD_QNUM_NUM    2 // 0==sending now, 1==next up
 typedef struct {
   char qr_msg[ESP_NOW_MAX_DATA_LEN+2];
   uint16_t qr_msg_len;
-} uni_qr_code_queue_t;
-static uni_qr_code_queue_t g_qr_code_queue[UNI_QR_CODE_QNUM_NUM]; // queue for msgs; 0==sending now, 1==next up
+} uni_cmd_queue_t;
+static uni_cmd_queue_t g_cmd_queue[UNI_CMD_QNUM_NUM]; // queue for msgs; 0==sending now, 1==next up
 
 // UNI REMOTE definitions
 #define UNI_ESP_NOW_MSEC_PER_MSG_MIN 500 // minimum millisec between sending messages
 
 #define UNI_STATE_WAIT_CMD     0    // last cmd all done, wait for next cmd (probably QR but any source OK)
-#define UNI_STATE_QR_SEEN      1    // command in queue, waiting for GO or CLEAR
+#define UNI_STATE_CMD_SEEN      1    // command in queue, waiting for GO or CLEAR
 #define UNI_STATE_SENDING_CMD  2    // command being sent (very short state)
 #define UNI_STATE_WAIT_CB      3    // waiting for send callback (very short state)
 #define UNI_STATE_SHOW_STAT    4    // show error status and allow abort
@@ -224,7 +237,7 @@ styled_label_t g_styled_label_opr_comm;    // 5 lines storage for opr communicat
 
 char g_msg[1025]; // for generating text strings
 
-#define DBG_FAKE_QR 1 // special fake QR button
+#define DBG_FAKE_CMD 1 // special fake QR button
 uint8_t g_do_dbg_fake_qr = 0;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -245,13 +258,13 @@ void uni_lv_button_text_style(uint8_t p_btn_idx, char * p_label, char * p_text, 
 //
 void uni_alert_4_wait_new_cmd() {
   uni_lv_button_text_style(ACTION_BUTTON_LEFT, "LED ON", "Lights on", &g_style_blue);
-#if DBG_FAKE_QR
+#if DBG_FAKE_CMD
   uni_lv_button_text_style(ACTION_BUTTON_MID, "Dbg FakeQR", "Debug Fake", &g_style_grey);
-#else // not DBG_FAKE_QR
+#else // not DBG_FAKE_CMD
   uni_lv_button_text_style(ACTION_BUTTON_MID, "", "", &g_style_ghost);
-#endif // not DBG_FAKE_QR
+#endif // not DBG_FAKE_CMD
   uni_lv_button_text_style(ACTION_BUTTON_RIGHT, "LED OFF", "Lights off", &g_style_red);
-  lv_label_set_text(g_styled_label_opr_comm.label_text, "Scan QR Code");
+  lv_label_set_text(g_styled_label_opr_comm.label_text, "Scan Command");
   if (UNI_STATE_NO_ERROR == g_uni_state_error) {
     // NO ERROR
   } else {
@@ -274,10 +287,10 @@ void uni_alert_4_ok_new_cmd() {
 // uni_alert_4_wait_send_or_clear_cmd
 //
 void uni_alert_4_wait_send_or_clear_cmd() {
-  uni_lv_button_text_style(ACTION_BUTTON_LEFT, "SEND", "Send QR command", &g_style_blue);
+  uni_lv_button_text_style(ACTION_BUTTON_LEFT, "SEND", "Send Command", &g_style_blue);
   uni_lv_button_text_style(ACTION_BUTTON_MID, "", "", &g_style_ghost);
-  uni_lv_button_text_style(ACTION_BUTTON_RIGHT, "CLEAR", "Clear QR command", &g_style_red);
-  lv_label_set_text(g_styled_label_opr_comm.label_text, "Scan QR Code");
+  uni_lv_button_text_style(ACTION_BUTTON_RIGHT, "CLEAR", "Clear Command", &g_style_red);
+  lv_label_set_text(g_styled_label_opr_comm.label_text, "Scan Command");
   if (UNI_STATE_NO_ERROR == g_uni_state_error) {
     // NO ERROR
   } else {
@@ -312,7 +325,7 @@ void uni_alert_4_ignore_cmd() {
 void uni_alert_4_sending_cmd() {
   uni_lv_button_text_style(ACTION_BUTTON_LEFT, "", "", &g_style_ghost);
   uni_lv_button_text_style(ACTION_BUTTON_MID, "", "", &g_style_ghost);
-  uni_lv_button_text_style(ACTION_BUTTON_RIGHT, "ABORT", "Abort send and\nClear QR command", &g_style_red);
+  uni_lv_button_text_style(ACTION_BUTTON_RIGHT, "ABORT", "Abort send and\nClear Command", &g_style_red);
   lv_label_set_text(g_styled_label_opr_comm.label_text, "Sending QR Command\n  please wait...");
   if (UNI_STATE_NO_ERROR == g_uni_state_error) {
     // NO ERROR
@@ -327,7 +340,7 @@ void uni_alert_4_sending_cmd() {
 void uni_alert_4_wait_callback() {
   uni_lv_button_text_style(ACTION_BUTTON_LEFT, "", "", &g_style_ghost);
   uni_lv_button_text_style(ACTION_BUTTON_MID, "", "", &g_style_ghost);
-  uni_lv_button_text_style(ACTION_BUTTON_RIGHT, "ABORT", "Abort send and\nClear QR command", &g_style_red);
+  uni_lv_button_text_style(ACTION_BUTTON_RIGHT, "ABORT", "Abort send and\nClear Command", &g_style_red);
   lv_label_set_text(g_styled_label_opr_comm.label_text, "Waiting callback from QR Command\n  please wait...");
   if (UNI_STATE_NO_ERROR == g_uni_state_error) {
     // NO ERROR
@@ -341,12 +354,12 @@ void uni_alert_4_wait_callback() {
 //
 void uni_alert_4_rcvd_callback() {
   // callback routine already showed error status
-  // TODO sprintf(g_msg, "ESP-NOW ERROR: sending msg %d\n  %s", g_last_scanned_cmd_count, g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg, uni_esp_now_decode_error(g_last_send_callback_status));
+  // TODO sprintf(g_msg, "ESP-NOW ERROR: sending msg %d\n  %s", g_last_scanned_cmd_count, g_cmd_queue[UNI_CMD_QNUM_NOW].qr_msg, uni_esp_now_decode_error(g_last_send_callback_status));
   // lv_label_set_text(g_styled_label_last_status.label_text, g_msg);
   uni_lv_button_text_style(ACTION_BUTTON_LEFT, "SEND", "Send again", &g_style_blue);
   uni_lv_button_text_style(ACTION_BUTTON_MID, "", "", &g_style_ghost);
-  uni_lv_button_text_style(ACTION_BUTTON_RIGHT, "ABORT", "Abort send and\nClear QR command", &g_style_red);
-  lv_label_set_text(g_styled_label_opr_comm.label_text, "QR Send callback failed\n  SEND again or ABORT this command...");
+  uni_lv_button_text_style(ACTION_BUTTON_RIGHT, "ABORT", "Abort send and\nClear Command", &g_style_red);
+  lv_label_set_text(g_styled_label_opr_comm.label_text, "Command Send callback failed\n  SEND again or ABORT this command...");
   if (UNI_STATE_NO_ERROR == g_uni_state_error) {
     // NO ERROR
   } else {
@@ -362,7 +375,7 @@ void uni_display_state() {
     case UNI_STATE_WAIT_CMD:    // last cmd all done, wait for next cmd (probably QR but any source OK)
       uni_alert_4_wait_new_cmd();
       break;
-    case UNI_STATE_QR_SEEN:   // command in queue, waiting for GO or CLEAR
+    case UNI_STATE_CMD_SEEN:   // command in queue, waiting for GO or CLEAR
       uni_alert_4_wait_send_or_clear_cmd();
       break;
     case UNI_STATE_SENDING_CMD: // command being sent (very short state)
@@ -429,16 +442,16 @@ int32_t handle_button_press() {
         digitalWrite(CYD_LED_RED, CYD_LED_OFF);
         digitalWrite(CYD_LED_GREEN, CYD_LED_OFF);
         digitalWrite(CYD_LED_BLUE, CYD_LED_OFF);
-#if DBG_FAKE_QR
+#if DBG_FAKE_CMD
       } else if (ACTION_BUTTON_MID == g_button_press.btn_idx) {
         // fake QR
         g_do_dbg_fake_qr = 1;
       }
-#else // not DBG_FAKE_QR
+#else // not DBG_FAKE_CMD
       }
-#endif // DBG_FAKE_QR
+#endif // DBG_FAKE_CMD
       break;
-    case UNI_STATE_QR_SEEN:   // command in queue, waiting for GO or CLEAR
+    case UNI_STATE_CMD_SEEN:   // command in queue, waiting for GO or CLEAR
       if (ACTION_BUTTON_LEFT == g_button_press.btn_idx) {
         // send ESP_NOW command
         g_uni_state = UNI_STATE_SENDING_CMD;
@@ -553,7 +566,7 @@ void lv_create_main_gui(void) {
   lv_obj_align(g_styled_label_last_status.label_obj, LV_ALIGN_BOTTOM_LEFT, 0, 0);
   g_styled_label_last_status.label_text = lv_label_create(g_styled_label_last_status.label_obj);
   lv_obj_align_to(g_styled_label_last_status.label_text, g_styled_label_last_status.label_obj, LV_ALIGN_TOP_LEFT, 0, -8);
-  lv_label_set_text(g_styled_label_last_status.label_text, "Waiting for\nQR Code Command");
+  lv_label_set_text(g_styled_label_last_status.label_text, "Waiting for\nCommand scan");
 
   g_styled_label_opr_comm.label_obj = lv_obj_create(lv_screen_active());
   lv_obj_add_style(g_styled_label_opr_comm.label_obj, &g_style_grey, 0);
@@ -566,40 +579,40 @@ void lv_create_main_gui(void) {
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// qr_decode_get_mac_addr_to_send()
+// uni_cmd_decode_get_mac_addr()
 //       returns: (uint8_t *) pointer to MAC address; pointer is zero if bad decode
 //
-// qr_code is string starting with MAC address; something like this
+// p_cmd is string starting with MAC address; something like this
 // 74:4d:bd:11:22:33|the-rest-is-the-command
 // 000000000011111111
 // 012345678901234567
 //
-static uint8_t qr_decode_mac_addr[ESP_NOW_ETH_ALEN];
-uint8_t * qr_decode_get_mac_addr_to_send(char * qr_code) {
-  uint8_t * ret_addr = qr_decode_mac_addr;
+static uint8_t cmd_decode_mac_addr[ESP_NOW_ETH_ALEN];
+uint8_t * uni_cmd_decode_get_mac_addr(char * p_cmd) {
+  uint8_t * ret_addr = cmd_decode_mac_addr;
   uint8_t tmp;
 
   // make sure MAC address is of the correct form and decode piece by piece
-  if ((3*ESP_NOW_ETH_ALEN+1) > strlen(qr_code)) {
+  if ((3*ESP_NOW_ETH_ALEN+1) > strlen(p_cmd)) {
     ret_addr = ((uint8_t *) 0);
   } else { // at least one character after MAC address
     for (int i = 0; i < 3*ESP_NOW_ETH_ALEN; i += 3) {
-      if (!isHexadecimalDigit(qr_code[i]) || !isHexadecimalDigit(qr_code[i+1])) {
+      if (!isHexadecimalDigit(p_cmd[i]) || !isHexadecimalDigit(p_cmd[i+1])) {
         ret_addr = ((uint8_t *) 0);
         break;
       }
       tmp = 0;
-      if ( ((3*(ESP_NOW_ETH_ALEN-1) != i) && (':' != qr_code[i+2])) ||
-           ((3*(ESP_NOW_ETH_ALEN-1) == i) && ('|' != qr_code[i+2])) ) {
+      if ( ((3*(ESP_NOW_ETH_ALEN-1) != i) && (':' != p_cmd[i+2])) ||
+           ((3*(ESP_NOW_ETH_ALEN-1) == i) && ('|' != p_cmd[i+2])) ) {
         ret_addr = ((uint8_t *) 0);
         break;
       }
       // these two hex digits are good
       for (int j = 0; j < 2; j += 1) {
         tmp <<= 4;
-        if      (qr_code[i+j] <= '9') tmp |= qr_code[i+j] - '0';
-        else if (qr_code[i+j] <= 'F') tmp |= qr_code[i+j] - 'A' + 10;
-        else                          tmp |= qr_code[i+j] - 'a' + 10;
+        if      (p_cmd[i+j] <= '9') tmp |= p_cmd[i+j] - '0';
+        else if (p_cmd[i+j] <= 'F') tmp |= p_cmd[i+j] - 'A' + 10;
+        else                          tmp |= p_cmd[i+j] - 'a' + 10;
       }
       ret_addr[i/3] = tmp;
     } // end check MAC address
@@ -607,7 +620,7 @@ uint8_t * qr_decode_get_mac_addr_to_send(char * qr_code) {
 
   // if ret_addr is not 0 then the address is good
   return(ret_addr);
-} // qr_decode_get_mac_addr_to_send
+} // uni_cmd_decode_get_mac_addr
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_esp_now_decode_error() - return string with ESP-NOW error
@@ -657,10 +670,10 @@ char * uni_esp_now_decode_error(uint16_t errcode) {
 } // end uni_esp_now_decode_error()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// uni_esp_now_msg_send_callback() - ESP-NOW sending callback function
+// uni_esp_now_cmd_send_callback() - ESP-NOW sending callback function
 //       returns: nothing
 //
-void uni_esp_now_msg_send_callback(const uint8_t *mac_addr, esp_now_send_status_t status) {
+void uni_esp_now_cmd_send_callback(const uint8_t *mac_addr, esp_now_send_status_t status) {
   // crude way to save last status - works OK if not sending too fast
   g_last_send_callback_status = (uni_esp_now_status)status;
 
@@ -676,7 +689,7 @@ void uni_esp_now_msg_send_callback(const uint8_t *mac_addr, esp_now_send_status_
     g_uni_state_error = UNI_STATE_IN_ERROR;
     g_uni_state = UNI_STATE_SHOW_STAT; // show error status and allow abort
   }
-} // end uni_esp_now_msg_send_callback()
+} // end uni_esp_now_cmd_send_callback()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_esp_now_register_peer() - 
@@ -725,14 +738,14 @@ int16_t uni_esp_now_register_peer(uint8_t * mac_addr) {
 } // end uni_esp_now_register_peer
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// uni_esp_now_msg_send() - decipher QR code and send as needed
+// uni_esp_now_cmd_send() - decipher QR code and send as needed
 //       returns: status from call
 //   sends a string up to length ESP_NOW_MAX_DATA_LEN; includes the zero termination of the string   
 //
 // FIXME TODO this is only for initial testing
-// FIXME TODO WARNING this can modify qr_code
+// FIXME TODO WARNING this can modify p_cmd
 //
-esp_err_t uni_esp_now_msg_send(char * qr_code) {
+esp_err_t uni_esp_now_cmd_send(char * p_cmd) {
   esp_err_t send_status = ESP_OK;
   static char esp_now_msg_data[ESP_NOW_MAX_DATA_LEN+1];
   static uint32_t msec_prev_send = 0;
@@ -746,12 +759,12 @@ esp_err_t uni_esp_now_msg_send(char * qr_code) {
   msec_prev_send = msec_now;
 
   // see if we can obtain and register the MAC address for sending
-  uint8_t * mac_addr_ptr = qr_decode_get_mac_addr_to_send(qr_code);
+  uint8_t * mac_addr_ptr = uni_cmd_decode_get_mac_addr(p_cmd);
   int16_t mac_addr_index;
   if ((uint8_t *)0 != mac_addr_ptr) {
     mac_addr_index = uni_esp_now_register_peer(mac_addr_ptr);
   } else {
-    DBG_SERIALPRINTLN("ERROR: qr_decode_get_mac_addr_to_send returned 0");
+    DBG_SERIALPRINTLN("ERROR: uni_cmd_decode_get_mac_addr returned 0");
     return(UNI_ERR_CMD_DECODE_FAIL); // could not decode MAC from CMD
   }
   if (mac_addr_index < 0) {
@@ -761,11 +774,11 @@ esp_err_t uni_esp_now_msg_send(char * qr_code) {
 
   // copy message over starting after the MAC address
   memset(esp_now_msg_data, '\0', sizeof(esp_now_msg_data));
-  strncpy(esp_now_msg_data, &qr_code[3*ESP_NOW_ETH_ALEN], ESP_NOW_MAX_DATA_LEN-1); // max ESP-NOW msg size
+  strncpy(esp_now_msg_data, &p_cmd[3*ESP_NOW_ETH_ALEN], ESP_NOW_MAX_DATA_LEN-1); // max ESP-NOW msg size
   int len = strlen(esp_now_msg_data)+1; // length to send
   send_status = esp_now_send(mac_addr_ptr, (uint8_t *) esp_now_msg_data, strlen(esp_now_msg_data)+1);
   return (send_status);
-} // end uni_esp_now_msg_send()
+} // end uni_esp_now_cmd_send()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // setup() - initialize hardware and software
@@ -808,7 +821,7 @@ void setup() {
   }
 
   // register Send CallBack
-  esp_err_t status_register_send_cb = esp_now_register_send_cb(uni_esp_now_msg_send_callback);
+  esp_err_t status_register_send_cb = esp_now_register_send_cb(uni_esp_now_cmd_send_callback);
   if (status_register_send_cb != ESP_OK){
     DBG_SERIALPRINT("ERROR: ESP-NOW register send callback error ");
     DBG_SERIALPRINTLN(status_register_send_cb);
@@ -853,14 +866,14 @@ void loop() {
   static tiny_code_reader_results_t QRresults = {};
   uint32_t msec_now = millis();
   esp_err_t send_status;
-  static char * fake_qr_code[] = { 
+  static char * fake_cmd[] = { 
     "74:4d:bd:11:11:11|dbg non-existing",
     "74:4d:bd:11:11:1|dbg address too short",
     "74:4d:bd:11:11:11c|dbg address too long",
     "74:4d:bd:98:7f:1c|dbg XIAO ESP32-Sense"
    };
-#define FAKE_QR_CODE_NUM 4
-   static uint8_t fake_qr_code_idx = 0;
+#define FAKE_CMD_NUM 4
+   static uint8_t fake_cmd_idx = 0;
    static uint8_t tmp;
 
   if (0 != g_button_press.pressed) { handle_button_press(); }
@@ -870,18 +883,18 @@ void loop() {
         g_do_dbg_fake_qr = 0;
         g_last_scanned_cmd_count += 1;
         g_uni_state_times[g_uni_state] = msec_now;
-        strncpy(g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg, fake_qr_code[fake_qr_code_idx], sizeof(g_qr_code_queue[0].qr_msg));
-        tmp = fake_qr_code_idx + 1;
-        if (tmp < FAKE_QR_CODE_NUM) {
-          fake_qr_code_idx = tmp;
-        } else { // not really required here but this way fake_qr_code_idx is NEVER out of bounds
-          fake_qr_code_idx = 0;
+        strncpy(g_cmd_queue[UNI_CMD_QNUM_NOW].qr_msg, fake_cmd[fake_cmd_idx], sizeof(g_cmd_queue[0].qr_msg));
+        tmp = fake_cmd_idx + 1;
+        if (tmp < FAKE_CMD_NUM) {
+          fake_cmd_idx = tmp;
+        } else { // not really required here but this way fake_cmd_idx is NEVER out of bounds
+          fake_cmd_idx = 0;
         }
-        g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg_len = QRresults.content_length = strlen(g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg);
-        sprintf(g_msg, "DBG Fake QR CMD #%d:\n %s", g_last_scanned_cmd_count, g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg);
+        g_cmd_queue[UNI_CMD_QNUM_NOW].qr_msg_len = QRresults.content_length = strlen(g_cmd_queue[UNI_CMD_QNUM_NOW].qr_msg);
+        sprintf(g_msg, "DBG Fake QR CMD #%d:\n %s", g_last_scanned_cmd_count, g_cmd_queue[UNI_CMD_QNUM_NOW].qr_msg);
         lv_label_set_text(g_styled_label_last_status.label_text, g_msg);
-        g_uni_state = UNI_STATE_QR_SEEN;
-        DBG_SERIALPRINTLN("Change state to UNI_STATE_QR_SEEN");
+        g_uni_state = UNI_STATE_CMD_SEEN;
+        DBG_SERIALPRINTLN("Change state to UNI_STATE_CMD_SEEN");
       } else if (!tiny_code_reader_read(&QRresults)) { // Perform a read action on the I2C address of the sensor
         lv_label_set_text(g_styled_label_last_status.label_text, "I2C bus QR code sensor no response");
         QRresults.content_length = 0;
@@ -891,28 +904,28 @@ void loop() {
         } else {
           g_last_scanned_cmd_count += 1;
           g_uni_state_times[g_uni_state] = msec_now;
-          strncpy(g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg, (char *)QRresults.content_bytes, sizeof(g_qr_code_queue[0].qr_msg));
-          g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg_len = strlen(g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg);
-          sprintf(g_msg, "QR CMD #%d scanned:\n %s", g_last_scanned_cmd_count, g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg);
+          strncpy(g_cmd_queue[UNI_CMD_QNUM_NOW].qr_msg, (char *)QRresults.content_bytes, sizeof(g_cmd_queue[0].qr_msg));
+          g_cmd_queue[UNI_CMD_QNUM_NOW].qr_msg_len = strlen(g_cmd_queue[UNI_CMD_QNUM_NOW].qr_msg);
+          sprintf(g_msg, "QR CMD #%d scanned:\n %s", g_last_scanned_cmd_count, g_cmd_queue[UNI_CMD_QNUM_NOW].qr_msg);
           lv_label_set_text(g_styled_label_last_status.label_text, g_msg);
-          g_uni_state = UNI_STATE_QR_SEEN;
-          DBG_SERIALPRINTLN("Change state to UNI_STATE_QR_SEEN");
+          g_uni_state = UNI_STATE_CMD_SEEN;
+          DBG_SERIALPRINTLN("Change state to UNI_STATE_CMD_SEEN");
         }
       }
       break;
-    case UNI_STATE_QR_SEEN:   // command in queue, waiting for GO or CLEAR
+    case UNI_STATE_CMD_SEEN:   // command in queue, waiting for GO or CLEAR
       break;
     case UNI_STATE_SENDING_CMD: // command being sent (very short state)
-      send_status = uni_esp_now_msg_send((char *)g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg);
+      send_status = uni_esp_now_cmd_send((char *)g_cmd_queue[UNI_CMD_QNUM_NOW].qr_msg);
       if (send_status == ESP_OK) {
-        sprintf(g_msg, "ESP-NOW send success CMD #%d %s", g_last_scanned_cmd_count, g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg);
+        sprintf(g_msg, "ESP-NOW send success CMD #%d %s", g_last_scanned_cmd_count, g_cmd_queue[UNI_CMD_QNUM_NOW].qr_msg);
         lv_label_set_text(g_styled_label_last_status.label_text, g_msg);
         QRresults.content_length = 0;
         g_uni_state = UNI_STATE_WAIT_CB;
         DBG_SERIALPRINTLN("Change state to UNI_STATE_WAIT_CB");
       }
       else {
-        sprintf(g_msg, "ESP-NOW ERROR: sending CMD #%d: %s\n  %s", g_last_scanned_cmd_count, g_qr_code_queue[UNI_QR_CODE_QNUM_NOW].qr_msg, uni_esp_now_decode_error(send_status));
+        sprintf(g_msg, "ESP-NOW ERROR: sending CMD #%d: %s\n  %s", g_last_scanned_cmd_count, g_cmd_queue[UNI_CMD_QNUM_NOW].qr_msg, uni_esp_now_decode_error(send_status));
         lv_label_set_text(g_styled_label_last_status.label_text, g_msg);
         QRresults.content_length = 0;
         g_uni_state = UNI_STATE_SHOW_STAT; // show error status and allow abort
