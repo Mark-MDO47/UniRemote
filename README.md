@@ -32,6 +32,8 @@ I may include one or more of these ways to select the commands on the remote:
       - look for Adrianotiger post #4 on Mar 2023 on https://forum.arduino.cc/t/esp32-rfid-rc522-i2c/1100200/3
   - maybe using Meikuler 13.56MHz MIFARE Classic 1K, RFID Smart Cards / M1 Cards, ISO14443A Printable Blank RFID PVC Cards
     - https://www.amazon.com/dp/B07S63VT7X
+  - this option looking good; see following for more details:
+    - https://github.com/Mark-MDO47/UniRemote/tree/master/code/RFIDRC522test
 - Voice Input - perhaps one of these
   - https://www.seeedstudio.com/XIAO-ESP32S3-Sense-p-5639.html
   - https://www.dfrobot.com/product-2665.html
