@@ -95,13 +95,22 @@
 #include <WiFi.h>      // for ESP-NOW
 #include "../wifi_key.h"  // WiFi secrets
 
-#include <Wire.h>     // for QR sensor (Tiny Code Reader) and anything else
+#define INCLUDE_RFID_SENSOR 1
+#define INCLUDE_QR_SENSOR   1
 
-#include "../tiny_code_reader/tiny_code_reader.h" // see https://github.com/usefulsensors/tiny_code_reader_arduino.git
+#if INCLUDE_QR_SENSOR
+  #include <Wire.h>     // for QR sensor (Tiny Code Reader) and anything else
+  #include "../tiny_code_reader/tiny_code_reader.h" // see https://github.com/usefulsensors/tiny_code_reader_arduino.git
+#endif // INCLUDE_QR_SENSOR
 
+// includes for Cheap Yellow Display
 #include <lvgl.h>
 #include <TFT_eSPI.h>
 #include <XPT2046_Touchscreen.h>
+
+// DEBUG definitions
+#define DBG_SERIALPRINT Serial.print
+#define DBG_SERIALPRINTLN Serial.println
 
 // PIN definitions
 
@@ -770,6 +779,74 @@ esp_err_t uni_esp_now_cmd_send(char * p_cmd) {
 } // end uni_esp_now_cmd_send()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
+// uni_get_command() - get next scanned command
+//     p_msec_now is time stamp for start of process
+// returns 0 if no command scanned and 1 if a command was scanned
+// command would be copied into g_cmd_queue[UNI_CMD_QNUM_NOW]
+//
+uint16_t uni_get_command(uint32_t p_msec_now) {
+  uint16_t num_cmds_scanned = 0;
+
+  static char * fake_cmd[] = { 
+    "74:4d:bd:11:11:11|dbg non-existing",
+    "74:4d:bd:11:11:1|dbg address too short",
+    "74:4d:bd:11:11:11c|dbg address too long",
+    "74:4d:bd:98:7f:1c|dbg XIAO ESP32-Sense"
+   };
+#define FAKE_CMD_NUM 4
+   static uint8_t fake_cmd_idx = 0;
+   static uint8_t tmp;
+
+  if (0 != g_do_dbg_fake_cmd) {
+    // do next fake command
+    num_cmds_scanned = 1;
+    g_do_dbg_fake_cmd = 0;
+    g_last_scanned_cmd_count += 1;
+    g_uni_state_times[g_uni_state] = p_msec_now;
+    strncpy(g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd, fake_cmd[fake_cmd_idx], sizeof(g_cmd_queue[0].scanned_cmd));
+    tmp = fake_cmd_idx + 1;
+    if (tmp < FAKE_CMD_NUM) {
+      fake_cmd_idx = tmp;
+    } else { // not really required here but this way fake_cmd_idx is NEVER out of bounds
+      fake_cmd_idx = 0;
+    }
+    g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd_len = strlen(g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
+    sprintf(g_msg, "DBG Fake CMD #%d:\n %s", g_last_scanned_cmd_count, g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
+  }
+#if INCLUDE_RFID_SENSOR
+  if (0 == num_cmds_scanned) {
+    // try RFID scanner
+  }
+#endif // INCLUDE_RFID_SENSOR
+#if INCLUDE_QR_SENSOR
+  static tiny_code_reader_results_t QRresults = {};
+  if (0 == num_cmds_scanned) {
+    // try QR code reader
+    if (!tiny_code_reader_read(&QRresults)) { // Perform a read action on the I2C address of the sensor
+      lv_label_set_text(g_styled_label_last_status.label_text, "I2C bus QR code sensor no response");
+    } else {
+      num_cmds_scanned = 1;
+      g_last_scanned_cmd_count += 1;
+      g_uni_state_times[g_uni_state] = p_msec_now;
+      strncpy(g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd, (char *)QRresults.content_bytes, sizeof(g_cmd_queue[0].scanned_cmd));
+      g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd_len = strlen(g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
+      sprintf(g_msg, "QR CMD #%d scanned:\n %s", g_last_scanned_cmd_count, g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
+    }
+    QRresults.content_length = 0;
+  }
+#endif // INCLUDE_QR_SENSOR
+
+  if (0 != num_cmds_scanned) {
+    // Show new status and change state
+    lv_label_set_text(g_styled_label_last_status.label_text, g_msg);
+    g_uni_state = UNI_STATE_CMD_SEEN;
+    DBG_SERIALPRINTLN("Change state to UNI_STATE_CMD_SEEN");
+  }
+
+  return(num_cmds_scanned);
+} // end uni_get_command()
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 // setup() - initialize hardware and software
 //       returns: nothing
 //   Serial - only if serial debugging enabled
@@ -792,7 +869,6 @@ void setup() {
   delay(1000); // 1 second delay - XIAO ESP32S3 Sense and others need this
   Serial.println(""); // print a blank line in case there is some junk from power-on
   Serial.println("\nStarting UniRemote\n");
-#endif // DEBUG_SERIALPRINT
 
   Wire.begin(CYD_SDA, CYD_SCL); // for the QR code sensor
 
@@ -849,55 +925,14 @@ void setup() {
 //  give a slight delay
 //
 void loop() {
-  static int QRcodeSeen = 1; // 0 == no code found, 1 == code found
-  static tiny_code_reader_results_t QRresults = {};
   uint32_t msec_now = millis();
   esp_err_t send_status;
-  static char * fake_cmd[] = { 
-    "74:4d:bd:11:11:11|dbg non-existing",
-    "74:4d:bd:11:11:1|dbg address too short",
-    "74:4d:bd:11:11:11c|dbg address too long",
-    "74:4d:bd:98:7f:1c|dbg XIAO ESP32-Sense"
-   };
-#define FAKE_CMD_NUM 4
-   static uint8_t fake_cmd_idx = 0;
-   static uint8_t tmp;
 
   if (0 != g_button_press.pressed) { handle_button_press(); }
   else switch (g_uni_state) {
     case UNI_STATE_WAIT_CMD:    // last cmd all done, wait for next cmd
-      if (0 != g_do_dbg_fake_cmd) {
-        g_do_dbg_fake_cmd = 0;
-        g_last_scanned_cmd_count += 1;
-        g_uni_state_times[g_uni_state] = msec_now;
-        strncpy(g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd, fake_cmd[fake_cmd_idx], sizeof(g_cmd_queue[0].scanned_cmd));
-        tmp = fake_cmd_idx + 1;
-        if (tmp < FAKE_CMD_NUM) {
-          fake_cmd_idx = tmp;
-        } else { // not really required here but this way fake_cmd_idx is NEVER out of bounds
-          fake_cmd_idx = 0;
-        }
-        g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd_len = QRresults.content_length = strlen(g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
-        sprintf(g_msg, "DBG Fake CMD #%d:\n %s", g_last_scanned_cmd_count, g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
-        lv_label_set_text(g_styled_label_last_status.label_text, g_msg);
-        g_uni_state = UNI_STATE_CMD_SEEN;
-        DBG_SERIALPRINTLN("Change state to UNI_STATE_CMD_SEEN");
-      } else if (!tiny_code_reader_read(&QRresults)) { // Perform a read action on the I2C address of the sensor
-        lv_label_set_text(g_styled_label_last_status.label_text, "I2C bus QR code sensor no response");
-        QRresults.content_length = 0;
-      } else {
-        if (0 == QRresults.content_length) {
-          lv_label_set_text(g_styled_label_last_status.label_text, "No QR code found, waiting...\n");
-        } else {
-          g_last_scanned_cmd_count += 1;
-          g_uni_state_times[g_uni_state] = msec_now;
-          strncpy(g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd, (char *)QRresults.content_bytes, sizeof(g_cmd_queue[0].scanned_cmd));
-          g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd_len = strlen(g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
-          sprintf(g_msg, "QR CMD #%d scanned:\n %s", g_last_scanned_cmd_count, g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
-          lv_label_set_text(g_styled_label_last_status.label_text, g_msg);
-          g_uni_state = UNI_STATE_CMD_SEEN;
-          DBG_SERIALPRINTLN("Change state to UNI_STATE_CMD_SEEN");
-        }
+      if (0 == uni_get_command(msec_now)) {
+        lv_label_set_text(g_styled_label_last_status.label_text, "No scanned command found, waiting...\n");
       }
       break;
     case UNI_STATE_CMD_SEEN:   // command in queue, waiting for GO or CLEAR
@@ -907,14 +942,12 @@ void loop() {
       if (send_status == ESP_OK) {
         sprintf(g_msg, "ESP-NOW send success CMD #%d %s", g_last_scanned_cmd_count, g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
         lv_label_set_text(g_styled_label_last_status.label_text, g_msg);
-        QRresults.content_length = 0;
         g_uni_state = UNI_STATE_WAIT_CB;
         DBG_SERIALPRINTLN("Change state to UNI_STATE_WAIT_CB");
       }
       else {
         sprintf(g_msg, "ESP-NOW ERROR: sending CMD #%d: %s\n  %s", g_last_scanned_cmd_count, g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd, uni_esp_now_decode_error(send_status));
         lv_label_set_text(g_styled_label_last_status.label_text, g_msg);
-        QRresults.content_length = 0;
         g_uni_state = UNI_STATE_SHOW_STAT; // show error status and allow abort
         DBG_SERIALPRINTLN("Change state to UNI_STATE_WAIT_CMD");
       }
