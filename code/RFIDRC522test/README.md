@@ -39,3 +39,5 @@ I used the Random Nerds tutorials to get up to speed.
 - https://randomnerdtutorials.com/esp32-spi-communication-arduino/
 - https://randomnerdtutorials.com/esp32-mfrc522-rfid-reader-arduino/
 
+This has complete documentation on the CYD internal pinouts and the connector types in a compact, useful format
+- https://debugdiaries.co.uk/esp32-cheap-display-cyd-pinouts/
