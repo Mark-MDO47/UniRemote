@@ -46,13 +46,13 @@ More documentation on the CYD internal pinouts and the connector types.
 ## SPI Sniffer Info
 [Top](#rfid-rc522-test "Top")<br>
 Work In Progress - Here is my best guess so far as to I/O channels and SD card sniffer
-| Sniffer | Alt | ESP32 pin | Comment |
-| --- | --- | --- | --- |
-| DAT2 |  |  | ??? |
-| CD | CS | 5 | TF_CS |
-| CMD | MOSI | 23 |  |
-| GND | GND |  |  |
-| VCC | VDD |  | 3.3V |
-| CLK | CLX | 18 | TF_CLK |
-| DAT0 | MISO | 19 |  |
-| DAT1 |  |  | ??? |
+| Sniffer | Alt | ESP32 pin | RC522 | Color | Comment |
+| --- | --- | --- | --- | --- | --- |
+| DAT2 |  |  |  |  | ??? |
+| CD | CS | 5 | SDA | Green | TF_CS |
+| CMD | MOSI | 23 | MOSI | Yellow |  |
+| GND | GND |  |  |  |  |
+| VCC | VDD |  |  |  | 3.3V |
+| CLK | CLX | 18 | SCK | Orange | TF_CLK |
+| DAT0 | MISO | 19 |  |  |  |
+| DAT1 |  |  |  |  | ??? |
