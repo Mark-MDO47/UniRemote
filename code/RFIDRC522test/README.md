@@ -27,6 +27,8 @@ Options:
 - use MicroSD sniffer on the CYD and control both devices that way
   - https://www.sparkfun.com/sparkfun-microsd-sniffer.html
   - https://learn.sparkfun.com/tutorials/microsd-sniffer-hookup-guide/introduction
+  - https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display
+  - may be a problem with using the SD card interface: "I'll have another play and try and figure out the conflicting pin, I've identified that it only happens after adding XPT2046_Touchscreen" in https://forum.arduino.cc/t/cheap-yellow-display-touch-and-sd/1279772/7
 
 ### Documentation
 [Top](#rfid-rc522-test "Top")<br>
