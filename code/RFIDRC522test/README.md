@@ -17,7 +17,7 @@
   - look for Adrianotiger post #4 on Mar 2023 on https://forum.arduino.cc/t/esp32-rfid-rc522-i2c/1100200/3
 - On the other hand, the CYD board doesn't have enough SPI pins coming out natively
   - requires 5 lines in addition to GND and 3.3V
-  - one SPI channel is routed to the MicroSD card reader; maybe could pick up signals with a "sniffer" card
+  - theoretically the MicroSD card reader uses SPI; maybe I can pick up the signals with a "sniffer" card and use that
 
 ## Software
 [Top](#rfid-rc522-test "Top")<br>
