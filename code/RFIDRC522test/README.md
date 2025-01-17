@@ -30,7 +30,7 @@ Options:
   - https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display
   - may be a problem with using the SD card interface: "I'll have another play and try and figure out the conflicting pin, I've identified that it only happens after adding XPT2046_Touchscreen" in https://forum.arduino.cc/t/cheap-yellow-display-touch-and-sd/1279772/7
 
-### Documentation
+## Documentation
 [Top](#rfid-rc522-test "Top")<br>
 I used the Random Nerds tutorials to get up to speed.
 - https://randomnerdtutorials.com/esp32-spi-communication-arduino/
@@ -42,3 +42,17 @@ I used the Random Nerds tutorials to get up to speed.
 More documentation on the CYD internal pinouts and the connector types.
 - https://debugdiaries.co.uk/esp32-cheap-display-cyd-pinouts/ - compact, useful format
 - https://macsbug.wordpress.com/2022/08/17/esp32-2432s028/ - need to Google-translate from Japanese but quite good
+
+## SPI Sniffer Info
+[Top](#rfid-rc522-test "Top")<br>
+Work In Progress - Here is my best guess so far as to I/O channels and SD card sniffer
+| Sniffer | Alt | ESP32 pin | Comment |
+| --- | --- | --- | --- |
+| DAT2 |  |  | ??? |
+| CD | CS | 5 | TF_CS |
+| CMD | MOSIS | 23 | MOSI |
+| GND | GND |  |  |
+| VCC | VDD |  | 3.3V |
+| CLK | CLX | 18 | TF_CLK |
+| DAT0 | MISO | 19 |  |
+| DAT1 |  |  | ??? |
