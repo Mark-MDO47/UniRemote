@@ -50,7 +50,7 @@ Work In Progress - Here is my best guess so far as to I/O channels and SD card s
 | --- | --- | --- | --- |
 | DAT2 |  |  | ??? |
 | CD | CS | 5 | TF_CS |
-| CMD | MOSIS | 23 | MOSI |
+| CMD | MOSI | 23 |  |
 | GND | GND |  |  |
 | VCC | VDD |  | 3.3V |
 | CLK | CLX | 18 | TF_CLK |
