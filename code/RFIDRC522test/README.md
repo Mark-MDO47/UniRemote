@@ -36,5 +36,6 @@ I used the Random Nerds tutorials to get up to speed.
 - https://randomnerdtutorials.com/esp32-spi-communication-arduino/
 - https://randomnerdtutorials.com/esp32-i2c-communication-arduino-ide/
 - https://randomnerdtutorials.com/esp32-i2c-master-slave-arduino/
+- https://randomnerdtutorials.com/esp32-spi-communication-arduino/
 - https://randomnerdtutorials.com/esp32-mfrc522-rfid-reader-arduino/
 
