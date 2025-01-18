@@ -58,7 +58,7 @@ Work In Progress - Here is my best guess so far as to I/O channels and SD card s
 | CMD | MOSI | 23 | MOSI | Yellow |  |
 | GND | GND |  | GND | Black | ground |
 | VCC | VDD |  | 3.3V | Red | 3.3V |
-| CLK | CLX | 18 | SCK | Orange | TF_CLK |
+| CLK | CLX | 18 | SCK | White | TF_CLK |
 | DAT0 | MISO | 19 | MISO | Blue |  |
 | DAT1 |  |  |  | N/C | unused |
 |  |  | 21 | RST | N/C | unused |
