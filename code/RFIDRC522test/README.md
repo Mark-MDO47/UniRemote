@@ -32,6 +32,9 @@ Options:
 
 ## Documentation
 [Top](#rfid-rc522-test "Top")<br>
+Documentation of the MIFARE Classic 1K card
+- https://www.nxp.com/docs/en/data-sheet/MF1S50YYX_V1.pdf
+
 I used the Random Nerds tutorials to get up to speed.
 - https://randomnerdtutorials.com/esp32-spi-communication-arduino/
 - https://randomnerdtutorials.com/esp32-i2c-communication-arduino-ide/
