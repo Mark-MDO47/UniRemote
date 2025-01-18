@@ -53,7 +53,7 @@ I am using the Arduino library RFID_MFRC522v2 by GithubCommunity. An important p
 Work In Progress - Here is my best guess so far as to I/O channels and SD card sniffer
 | Sniffer | Alt | ESP32 pin | RC522 | Color | Comment |
 | --- | --- | --- | --- | --- | --- |
-| DAT2 |  |  |  |  | unused |
+| DAT2 |  |  |  | N/C | unused |
 | CD | CS | 5 | SDA | Green | TF_CS |
 | CMD | MOSI | 23 | MOSI | Yellow |  |
 | GND | GND |  | GND | Black | ground |
