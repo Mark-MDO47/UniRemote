@@ -90,13 +90,45 @@
 //   https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display/blob/main/ADDONS.md#wiring
 //   https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display/blob/155f70e485994c9423c3af1035bb5ce72899ff01/Examples/InputTests/NunchuckTest/NunchuckTest.ino#L78
 
+// Below is the attribution from the Random Nerd Tutorial on ESP32 with MFRC522 RFID Reader/Writer (Arduino IDE).
+/*
+  Rui Santos & Sara Santos - Random Nerd Tutorials
+  Complete project details at https://RandomNerdTutorials.com/esp32-mfrc522-rfid-reader-arduino/
+  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files.  
+  The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+*/
+
+#define INCLUDE_RFID_SENSOR 1  // set to 1 to include RFID Sensor scan for commands
+#define INCLUDE_QR_SENSOR   1  // set to 1 to include QR Cbode Reader scan for commands
+
+#if INCLUDE_RFID_SENSOR
+#include <MFRC522v2.h>
+#include <MFRC522DriverSPI.h>
+//#include <MFRC522DriverI2C.h>
+#include <MFRC522DriverPinSimple.h>
+#include <MFRC522Debug.h>
+
+// Learn more about using SPI/I2C or check the pin assigment for your board: https://github.com/OSSLibraries/Arduino_MFRC522v2#pin-layout
+MFRC522DriverPinSimple ss_pin(5);
+
+MFRC522DriverSPI driver{ss_pin}; // Create SPI driver
+//MFRC522DriverI2C driver{};     // Create I2C driver
+MFRC522 mfrc522{driver};         // Create MFRC522 instance
+
+MFRC522::MIFARE_Key key;
+
+byte blockAddress = 2;
+// byte newBlockData[17] = {"Rui Santos - RNT"};
+byte newBlockData[17] = {"_MDO_MDO_MDO_MDO"};
+//byte newBlockData[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};   // CLEAR DATA
+byte bufferblocksize = 18;
+byte blockDataRead[18];
+#endif // INCLUDE_RFID_SENSOR
 
 #include <esp_now.h>   // for ESP-NOW
 #include <WiFi.h>      // for ESP-NOW
 #include "../wifi_key.h"  // WiFi secrets
 
-#define INCLUDE_RFID_SENSOR 1
-#define INCLUDE_QR_SENSOR   1
 
 #if INCLUDE_QR_SENSOR
   #include <Wire.h>     // for QR sensor (Tiny Code Reader) and anything else
@@ -789,6 +821,9 @@ esp_err_t uni_esp_now_cmd_send(char * p_cmd) {
 // command would be copied into g_cmd_queue[UNI_CMD_QNUM_NOW]
 //
 uint16_t uni_get_command(uint32_t p_msec_now) {
+  static uint8_t first_time = 0;      // 0 on first time through uni_get_command()
+  static uint32_t next_rfid_msec = 0; // p_msec_now must be >= this to do another RFID action
+
   uint16_t num_cmds_scanned = 0;
 
   static char * fake_cmd[] = { 
@@ -801,6 +836,7 @@ uint16_t uni_get_command(uint32_t p_msec_now) {
    static uint8_t fake_cmd_idx = 0;
    static uint8_t tmp;
 
+  if (0 == first_time) { DBG_SERIALPRINTLN("first_time fake command code"); }
   if (0 != g_do_dbg_fake_cmd) {
     // do next fake command
     DBG_SERIALPRINTLN("Doing fake command");
@@ -819,12 +855,14 @@ uint16_t uni_get_command(uint32_t p_msec_now) {
     sprintf(g_msg, "DBG Fake CMD #%d:\n %s", g_last_scanned_cmd_count, g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
   }
 #if INCLUDE_RFID_SENSOR
-  if (0 == num_cmds_scanned) {
+  if (0 == first_time) { DBG_SERIALPRINTLN("first_time RFID code"); }
+  if ((0 == num_cmds_scanned) && (next_rfid_msec <= p_msec_now)) {
     // try RFID scanner
   }
 #endif // INCLUDE_RFID_SENSOR
 #if INCLUDE_QR_SENSOR
   static tiny_code_reader_results_t QRresults = {};
+  if (0 == first_time) { DBG_SERIALPRINTLN("first_time QR code"); }
   if (0 == num_cmds_scanned) {
     // try QR code reader
     if (!tiny_code_reader_read(&QRresults)) { // Perform a read action on the I2C address of the sensor
@@ -849,6 +887,7 @@ uint16_t uni_get_command(uint32_t p_msec_now) {
     DBG_SERIALPRINTLN("Change state to UNI_STATE_CMD_SEEN");
   }
 
+  first_time = 1;
   return(num_cmds_scanned);
 } // end uni_get_command()
 
@@ -876,7 +915,9 @@ void setup() {
   Serial.println(""); // print a blank line in case there is some junk from power-on
   Serial.println("\nStarting UniRemote\n");
 
+#if INCLUDE_QR_SENSOR
   Wire.begin(CYD_CN1_SDA, CYD_CN1_SCL); // for the QR code sensor
+#endif // INCLUDE_QR_SENSOR
 
   // Set device as a Wi-Fi Station
   WiFi.mode(WIFI_STA);
@@ -896,6 +937,15 @@ void setup() {
     DBG_SERIALPRINTLN(status_register_send_cb);
     return;
   }
+
+#if INCLUDE_RFID_SENSOR
+  // init RFID sensor
+  mfrc522.PCD_Init();    // Init MFRC522 board.
+  // Prepare key - all keys are set to FFFFFFFFFFFF at chip delivery from the factory.
+  for (byte i = 0; i < 6; i++) {
+    key.keyByte[i] = 0xFF;
+  }
+#endif // INCLUDE_RFID_SENSOR
 
   // Start LVGL
   lv_init();
