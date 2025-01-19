@@ -112,6 +112,7 @@ Here is what the code is:<br>
 - https://www.youtube.com/watch?v=4r6YZlLfKfw - Ralph S. Bacon "#203 SPIFFS vs LITTLEFS for ESP32 & ESP8266 (not Arduino UNO)"
 
 ### DRAM_STR - Move Constant Strings to RAM instead of Program Storage
+[Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
 Since I am using an ESP-32 CYD with WiFi and LVGL, there is a lot of code and I quickly ran to the limits of program storage versus RAM.
 ```
 Sketch uses 1208557 bytes (92%) of program storage space. Maximum is 1310720 bytes.
