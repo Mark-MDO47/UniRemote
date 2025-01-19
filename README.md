@@ -104,10 +104,12 @@ Here is what the code is:<br>
 ## Interesting Considerations
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
 
-### General CYD Info
+### General CYD and Related Info
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
 - https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display.git
 - https://github.com/bitbank2/CYD_Projects.git
+  - https://github.com/TheNitek/CYD-LVGL-Template.git
+- https://www.youtube.com/watch?v=4r6YZlLfKfw - Ralph S. Bacon "#203 SPIFFS vs LITTLEFS for ESP32 & ESP8266 (not Arduino UNO)"
 
 ### DRAM_STR - Move Constant Strings to RAM instead of Program Storage
 Since I am using an ESP-32 CYD with WiFi and LVGL, there is a lot of code and I quickly ran to the limits of program storage versus RAM.
