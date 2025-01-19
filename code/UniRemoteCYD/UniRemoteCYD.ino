@@ -124,11 +124,15 @@
 #define XPT2046_CLK 25   // T_CLK
 #define XPT2046_CS 33    // T_CS
 
+// Connector P1 - 
+// Connector P3 - GND,35,22,21 (note 21 is shared, don't mess with it)
+
+// Connector CN1 - GND,22,27,3V3
 // these definitions have the QR code reader wire colors matching the CYD wire colors
 //    yellow = SCL
 //    blue   = SDA
-#define CYD_SDA 22 // for "Cheap Yellow Display" ESP32-2432S028R
-#define CYD_SCL 27 // for "Cheap Yellow Display" ESP32-2432S028R
+#define CYD_CN1_SDA 22 // for "Cheap Yellow Display" ESP32-2432S028R
+#define CYD_CN1_SCL 27 // for "Cheap Yellow Display" ESP32-2432S028R
 
 // internal CYD RGB LED Pins
 #define CYD_LED_RED    4
@@ -799,6 +803,7 @@ uint16_t uni_get_command(uint32_t p_msec_now) {
 
   if (0 != g_do_dbg_fake_cmd) {
     // do next fake command
+    DBG_SERIALPRINTLN("Doing fake command");
     num_cmds_scanned = 1;
     g_do_dbg_fake_cmd = 0;
     g_last_scanned_cmd_count += 1;
@@ -824,7 +829,8 @@ uint16_t uni_get_command(uint32_t p_msec_now) {
     // try QR code reader
     if (!tiny_code_reader_read(&QRresults)) { // Perform a read action on the I2C address of the sensor
       lv_label_set_text(g_styled_label_last_status.label_text, "I2C bus QR code sensor no response");
-    } else {
+    } else if (QRresults.content_length > 0) {
+      DBG_SERIALPRINTLN("Doing QR Code");
       num_cmds_scanned = 1;
       g_last_scanned_cmd_count += 1;
       g_uni_state_times[g_uni_state] = p_msec_now;
@@ -870,7 +876,7 @@ void setup() {
   Serial.println(""); // print a blank line in case there is some junk from power-on
   Serial.println("\nStarting UniRemote\n");
 
-  Wire.begin(CYD_SDA, CYD_SCL); // for the QR code sensor
+  Wire.begin(CYD_CN1_SDA, CYD_CN1_SCL); // for the QR code sensor
 
   // Set device as a Wi-Fi Station
   WiFi.mode(WIFI_STA);
@@ -905,7 +911,7 @@ void setup() {
   lv_display_t * disp;
   // Initialize the TFT display using the TFT_eSPI library
   disp = lv_tft_espi_create(SCREEN_WIDTH, SCREEN_HEIGHT, draw_buf, sizeof(draw_buf));
-  lv_display_set_rotation(disp, LV_DISPLAY_ROTATION_270); // landscape
+  lv_display_set_rotation(disp, LV_DISPLAY_ROTATION_90); // landscape
   
   // Initialize an LVGL input device object (Touchscreen)
   lv_indev_t * indev = lv_indev_create();
