@@ -17,20 +17,49 @@
   - look for Adrianotiger post #4 on Mar 2023 on https://forum.arduino.cc/t/esp32-rfid-rc522-i2c/1100200/3
 - On the other hand, the CYD board doesn't have enough SPI pins coming out natively
   - requires 5 lines in addition to GND and 3.3V
-  - one SPI channel is routed to the MicroSD card reader; maybe could pick up signals with a "sniffer" card
+  - theoretically the MicroSD card reader uses SPI; maybe I can pick up the signals with a "sniffer" card and use that
 
 ## Software
 [Top](#rfid-rc522-test "Top")<br>
-The original plan was to store the command string directly in the card and have the RFID reader/writer on the CYD I2C bus along with the QR reader. See the [Hardware](#hardware "Hardware") section; this is not feasible.
+The original plan was to store the command string directly in the RFID card and have the RFID reader/writer on the CYD I2C bus along with the QR reader. See the [Hardware](#hardware "Hardware") section; this is not feasible.
 Options:
 - have another ESP32 or 3.3V microcontroller that is on the I2C bus and use it to control the SPI bus to the RFID reader/writer.
 - use MicroSD sniffer on the CYD and control both devices that way
   - https://www.sparkfun.com/sparkfun-microsd-sniffer.html
   - https://learn.sparkfun.com/tutorials/microsd-sniffer-hookup-guide/introduction
+  - https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display
+  - may be a problem with using the SD card interface: "I'll have another play and try and figure out the conflicting pin, I've identified that it only happens after adding XPT2046_Touchscreen" in https://forum.arduino.cc/t/cheap-yellow-display-touch-and-sd/1279772/7
 
-### Documentation
+## Documentation
 [Top](#rfid-rc522-test "Top")<br>
+Documentation of the MIFARE Classic 1K card
+- https://www.nxp.com/docs/en/data-sheet/MF1S50YYX_V1.pdf
+
 I used the Random Nerds tutorials to get up to speed.
+- https://randomnerdtutorials.com/esp32-spi-communication-arduino/
+- https://randomnerdtutorials.com/esp32-i2c-communication-arduino-ide/
+- https://randomnerdtutorials.com/esp32-i2c-master-slave-arduino/
 - https://randomnerdtutorials.com/esp32-spi-communication-arduino/
 - https://randomnerdtutorials.com/esp32-mfrc522-rfid-reader-arduino/
 
+More documentation on the CYD internal pinouts and the connector types.
+- https://debugdiaries.co.uk/esp32-cheap-display-cyd-pinouts/ - compact, useful format
+- https://macsbug.wordpress.com/2022/08/17/esp32-2432s028/ - need to Google-translate from Japanese but quite good
+
+## SPI Sniffer Info
+[Top](#rfid-rc522-test "Top")<br>
+I am using the Arduino library RFID_MFRC522v2 by GithubCommunity. An important point when using this library in the CYD is that the reset pin RST (ESP32 pin 21) is unused since 25 Jun 2020 v2.0.0. That is fortunate, since in the CYD pin 21 is used for other purposes. I tried an experiment leaving it floating and that seemed to work.
+
+Work In Progress - Here is my best guess so far as to I/O channels and SD card sniffer
+| Sniffer | Alt | ESP32 pin | RC522 | Color | Comment |
+| --- | --- | --- | --- | --- | --- |
+| DAT2 |  |  |  | N/C | unused |
+| CD | CS | 5 | SDA | Green | TF_CS |
+| CMD | MOSI | 23 | MOSI | Yellow |  |
+| GND | GND |  | GND | Black | ground |
+| VCC | VDD |  | 3.3V | Red | 3.3V |
+| CLK | CLX | 18 | SCK | White | TF_CLK |
+| DAT0 | MISO | 19 | MISO | Blue |  |
+| DAT1 |  |  |  | N/C | unused |
+|  |  | 21 | RST | N/C | unused |
+|  |  |  | IRQ | N/C | unused |
