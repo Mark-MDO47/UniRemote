@@ -13,6 +13,7 @@ Here is my breadboard setup with the Cheap Yellow Display, the QR code reader an
 * [Guide to the Code](#guide-to-the-code "Guide to the Code")
 * [Expected Flow for V1.0](#expected-flow-for-v10 "Expected Flow for V1.0")
 * [Interesting Considerations](#interesting-considerations "Interesting Considerations")
+  * [General CYD and Related Info](#general-cyd-and-related-info "General CYD and Related Info")
   * [DRAM_STR - Move Constant Strings to RAM instead of Program Storage](#dram_str-\--move-constant-strings-to-ram-instead-of-program-storage "DRAM_STR - Move Constant Strings to RAM instead of Program Storage")
   * [Entire Screen Pans or Scrolls](#entire-screen-pans-or-scrolls "Entire Screen Pans or Scrolls")
 * [Licensing](#licensing "Licensing")
