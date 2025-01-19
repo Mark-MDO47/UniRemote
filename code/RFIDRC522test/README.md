@@ -30,6 +30,38 @@ Options:
   - https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display
   - may be a problem with using the SD card interface: "I'll have another play and try and figure out the conflicting pin, I've identified that it only happens after adding XPT2046_Touchscreen" in https://forum.arduino.cc/t/cheap-yellow-display-touch-and-sd/1279772/7
 
+### Multiple SPI Devices on Same SPI Bus
+[Top](#rfid-rc522-test "Top")<br>
+Some resources
+- https://docs.arduino.cc/learn/communication/spi/
+- https://forum.arduino.cc/t/multiple-spi-chip-select-question/101140
+- https://forum.arduino.cc/t/how-to-use-spi-for-multiple-devices/427739
+
+Google AI Overview popped up this short example; no idea where it came from
+
+```C
+// Define CS pins for two SPI devices
+const int CS_device1 = 10;
+const int CS_device2 = 12;
+
+void setup() {
+  // Initialize SPI communication
+  SPI.begin();
+}
+
+void loop() {
+  // Select device 1 and send data
+  digitalWrite(CS_device1, LOW); 
+  SPI.transfer(data_to_send); 
+  digitalWrite(CS_device1, HIGH); 
+
+  // Select device 2 and send data
+  digitalWrite(CS_device2, LOW); 
+  SPI.transfer(data_to_send); 
+  digitalWrite(CS_device2, HIGH); 
+}
+```
+
 ## Documentation
 [Top](#rfid-rc522-test "Top")<br>
 Documentation of the MIFARE Classic 1K card
