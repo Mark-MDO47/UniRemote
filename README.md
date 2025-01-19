@@ -27,15 +27,15 @@ I have settled on the following hardware for the Universal Remote Control:
 - QR code reader
   - I am using the Tiny Code Reader from Useful Sensors
   - I purchased this one: https://www.sparkfun.com/products/23352
-- RFID reader
+- RFID Reader
   - I am using the HiLetgo 3pcs RFID Kit - Mifare RC522 RF IC Card Sensor Module + S50 Blank Card + Key Ring
-    - https://www.amazon.com/dp/B07VLDSYRW
+    - I purchased this one: https://www.amazon.com/dp/B07VLDSYRW
     - This doesn't support I2C or UART without board modifications; just SPI
       - look for Adrianotiger post #4 on Mar 2023 on https://forum.arduino.cc/t/esp32-rfid-rc522-i2c/1100200/3
   - I am using the Meikuler 13.56MHz MIFARE Classic 1K, RFID Smart Cards / M1 Cards, ISO14443A Printable Blank RFID PVC Cards
-    - https://www.amazon.com/dp/B07S63VT7X
+    - I purchased this one: https://www.amazon.com/dp/B07S63VT7X
     - https://www.nxp.com/docs/en/data-sheet/MF1S50YYX_V1.pdf
-  - this option looking good; see following for more details:
+  - See following for more RFID Reader details:
     - https://github.com/Mark-MDO47/UniRemote/tree/master/code/RFIDRC522test
 
 May use one or more of the following
