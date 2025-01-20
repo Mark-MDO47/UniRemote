@@ -67,6 +67,9 @@ void loop() {
 Documentation of the MIFARE Classic 1K card
 - https://www.nxp.com/docs/en/data-sheet/MF1S50YYX_V1.pdf
 
+Documentation of the MFRC522v2 library
+- https://osslibraries.github.io/Arduino_MFRC522v2/
+
 I used the Random Nerds tutorials to get up to speed.
 - https://randomnerdtutorials.com/esp32-spi-communication-arduino/
 - https://randomnerdtutorials.com/esp32-i2c-communication-arduino-ide/
