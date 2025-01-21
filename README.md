@@ -39,6 +39,8 @@ I have settled on the following hardware for the Universal Remote Control:
     - https://github.com/Mark-MDO47/UniRemote/tree/master/code/RFIDRC522test
 
 May use one or more of the following
+- Alternative QR code reader
+  - https://github.com/IndustrialArduino/NORVI-ESP32-CAMERA/tree/main/ESP32-CAMERA-QR_CODE_SCANNER_WITH_DISPLAY
 - Voice Input - perhaps one of these
   - https://www.seeedstudio.com/XIAO-ESP32S3-Sense-p-5639.html
   - https://www.dfrobot.com/product-2665.html
