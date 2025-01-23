@@ -107,12 +107,21 @@ Here is what the code is:<br>
 ## Interesting Considerations
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
 
-### General CYD and Related Info
+### General CYD and LVGL and Related Info
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
-- https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display.git
-- https://github.com/bitbank2/CYD_Projects.git
-  - https://github.com/TheNitek/CYD-LVGL-Template.git
-- https://www.youtube.com/watch?v=4r6YZlLfKfw - Ralph S. Bacon "#203 SPIFFS vs LITTLEFS for ESP32 & ESP8266 (not Arduino UNO)"
+| Description | URL |
+| --- | --- |
+| CYD Pinouts & Connectors | https://randomnerdtutorials.com/esp32-cheap-yellow-display-cyd-pinout-esp32-2432s028r |
+| More CYD Pinouts in useful format | https://debugdiaries.co.uk/esp32-cheap-display-cyd-pinouts |
+| CYD info in Japanese; need Google Translate but info looks quite good | https://macsbug.wordpress.com/2022/08/17/esp32-2432s028 |
+| Info/Code for CYD and many variants | https://github.com/rzeldent/esp32-smartdisplay |
+| --- | --- |
+| LVGL library I use | https://docs.arduino.cc/libraries/rfid_mfrc522v2 |
+| LVGL and CYD | https://randomnerdtutorials.com/lvgl-cheap-yellow-display-esp32-2432s028r |
+| LVGL and CYD | https://rntlab.com/module-1/esp32-lvgl-ebook |
+| CYD and alternative library with lots of good info | https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display.git|
+| CYD LVGL interesting project | https://github.com/bitbank2/CYD_Projects.git<br>https://github.com/TheNitek/CYD-LVGL-Template.git |
+| YouTube Ralph S. Bacon "#203 SPIFFS vs LITTLEFS for ESP32 & ESP8266 (not Arduino UNO)" | https://www.youtube.com/watch?v=4r6YZlLfKfw |
 
 ### DRAM_STR - Move Constant Strings to RAM instead of Program Storage
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
