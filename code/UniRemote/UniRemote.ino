@@ -1,6 +1,11 @@
 /* Author: https://github.com/Mark-MDO47  Dec. 21, 2023
  *  https://github.com/Mark-MDO47/UniRemote
  *  
+ * NOTE: this code is configured for I2C on CYD_CN1_SDA and CYD_CN1_SCL pins per the
+ *  ESP32-2432S028R (Cheap Yellow Display or CYD). If using something else, adjust.
+ * Also it can control a debug LED using pin PIN_MSG_RDY. To use this define PIN_MSG_RDY
+ *  as something non-zero.
+ *
  *  This code will read a command from a QR code and send it to
  *     the appropriate MAC address using ESP-NOW point-to-point on WiFi.
  *     It is sent in plain text, not encrypted.
@@ -24,18 +29,18 @@
  *      the MAC address of the target system.
  *    Note that this is a six-part MAC address in hexadecimal. Each hex number
  *    is exactly two digits long. If you need to start it with a zero, do so.
- *    Because I am a lazy coder.
+ *    Because I am a lazy coder, formatting the string properly is up to you.
  *  
  *  <COMMAND STRING> is a short (maximum 249 characters + zero termination) command
  *    The receiving MAC address will receive it as a zero-terminated string (including
  *    the zero terminator).
  *
- * <DESCRIPTION STRING> can be zero length or more, but for QR code consistency
- *    checking the <TAB> prior to the string is required. The description is
- *    just for your purposes; it is not sent to the ESP-NOW target.
+ * <DESCRIPTION STRING> can be zero length or more, but for consistency
+ *    the <TAB> prior to the description string is required.
+ *    The description is just for your purposes; it is not sent to the ESP-NOW target.
  *
- *    QRcode.py in https://github.com/Mark-MDO47/MDOpythonUtils
- *     will create such a QR code from text input. It requires that you
+ * QRcode.py in https://github.com/Mark-MDO47/MDOpythonUtils
+ *    will create such a QR code from text input. It requires that you
  *    install the "qrcode" package, using conda or pip or whatever.
  *    I use the command line "python QRcode.py -s intructions.txt"
  *    Each QR code is generated with a short *.html to allow printing.
@@ -45,7 +50,7 @@
  */
 
  // This code was developed after reading the Random Nerd Tutorial below.
- // There are significant differences in this code and that, but I want to give a
+ // There are significant differences in this code and the tutorials, but I want to give a
  //    tip of the hat to Rui Santos & Sara Santos for the wonderful work they do.
  // Below is the attribution from the Random Nerd Tutorial.
  /*
@@ -61,11 +66,19 @@
 #include "../wifi_key.h"  // WiFi secrets
 
 #include <Wire.h>     // for QR sensor (Tiny Code Reader) and anything else
+                      // see pin definitions below for CYD_CN1_SDA and CYD_CN1_SDA
 
 #include "../tiny_code_reader/tiny_code_reader.h" // see https://github.com/usefulsensors/tiny_code_reader_arduino.git
 
 // PIN definitions
-#define PIN_MSG_RDY 13
+// Connector CN1 - GND,22,27,3V3
+// these definitions have the QR code reader wire colors matching the CYD wire colors
+//    yellow = SCL
+//    blue   = SDA
+#define CYD_CN1_SDA 22 // for "Cheap Yellow Display" ESP32-2432S028R
+#define CYD_CN1_SCL 27 // for "Cheap Yellow Display" ESP32-2432S028R
+
+#define PIN_MSG_RDY 0 // if non-zero, LED pin for debugging
 
 // DEBUG definitions
 
@@ -331,7 +344,9 @@ esp_err_t uni_esp_now_msg_send(char * qr_code) {
     return(ESP_ERR_ESPNOW_FULL); // could not register the MAC address
   }
 
+#if PIN_MSG_RDY // if non-zero, LED pin for debugging
   digitalWrite(PIN_MSG_RDY, HIGH);
+#endif // PIN_MSG_RDY // if non-zero, LED pin for debugging
 
   // copy message over starting after the MAC address
   memset(msg_data, '\0', sizeof(msg_data));
@@ -360,10 +375,12 @@ void setup() {
   DBG_SERIALPRINTLN("\nStarting UniRemote\n");
 #endif // DEBUG_SERIALPRINT
 
+#if PIN_MSG_RDY // if non-zero, LED pin for debugging
   pinMode(PIN_MSG_RDY,OUTPUT);
   digitalWrite(PIN_MSG_RDY, LOW);
+#endif // PIN_MSG_RDY // if non-zero, LED pin for debugging
 
-  Wire.begin(); // for the QR code sensor
+  Wire.begin(CYD_CN1_SDA, CYD_CN1_SCL); // for the QR code sensor
 
   // Set device as a Wi-Fi Station
   WiFi.mode(WIFI_STA);
@@ -396,11 +413,15 @@ void setup() {
 void loop() {
   static int QRcodeSeen = 1; // 0 == no code found, 1 == code found
   tiny_code_reader_results_t QRresults = {};
+  static uint8_t first_time = 1;
 
   // Perform a read action on the I2C address of the sensor to get the
   // current face information detected.
   if (!tiny_code_reader_read(&QRresults)) {
-    DBG_SERIALPRINTLN("No QR code results found on the i2c bus");
+    if (first_time) {
+      DBG_SERIALPRINTLN("No QR code results found on the i2c bus");
+      first_time = 0;
+    }
     delay(QRsampleDelayMsec);
     return;
   }
