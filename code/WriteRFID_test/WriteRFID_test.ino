@@ -4,7 +4,7 @@
  * This test code is to alter the Random Nerd Tutorials esp32-mfrc522-rfid-reader-arduino
  *  code to a form that fits in my uniRemoteCYD or uniRemote code.
  *
- * Mostly I want to avoid delay() statements so I can use multiple devices in the same
+ * Mostly I want to avoid s() statements so I can use multiple devices in the same
  *  code.
  *
  * The RFID reader used is (as far as I can tell) pretty common.
@@ -49,24 +49,18 @@ byte newBlockData[17] = {"_MDO_MDO_MDO_MDO"};
 byte bufferblocksize = 18;
 byte blockDataRead[18];
 
-void setup() {
-  Serial.begin(115200);  // Initialize serial communication
-  while (!Serial);       // Do nothing if no serial port is opened (added for Arduinos based on ATMEGA32U4).
-  delay(1000); // 1 second delay - XIAO ESP32S3 Sense and others need this
+void read_write_PICC() {
+  static uint32_t msec_prev = 0;
+  static uint32_t msec_waitfor = 0;
+  uint32_t msec_now = millis();
 
-  mfrc522.PCD_Init();    // Init MFRC522 board.
-  Serial.println(F("Warning: this example overwrites a block in your card, use with care!"));
- 
-  // Prepare key - all keys are set to FFFFFFFFFFFF at chip delivery from the factory.
-  for (byte i = 0; i < 6; i++) {
-    key.keyByte[i] = 0xFF;
-  }
-}
+  // don't do anything until next waitfor time
+  if (msec_now < msec_waitfor)
+    return;
 
-void loop() {
   // Check if a new card is present
   if (!mfrc522.PICC_IsNewCardPresent() || !mfrc522.PICC_ReadCardSerial()) {
-    delay(500);
+    msec_waitfor = msec_now + 500;
     return;
   }
 
@@ -132,5 +126,23 @@ void loop() {
   mfrc522.PICC_HaltA();
   mfrc522.PCD_StopCrypto1();
 
-  delay(2000);  // Delay for readability
+  msec_waitfor = msec_now + 2000; // Delay for readability
+}
+
+void setup() {
+  Serial.begin(115200);  // Initialize serial communication
+  while (!Serial);       // Do nothing if no serial port is opened (added for Arduinos based on ATMEGA32U4).
+  delay(1000); // 1 second delay - XIAO ESP32S3 Sense and others need this
+
+  mfrc522.PCD_Init();    // Init MFRC522 board.
+  Serial.println(F("starting WriteRFID_test - writes to a PICC RFID card"));
+ 
+  // Prepare key - all keys are set to FFFFFFFFFFFF at chip delivery from the factory.
+  for (byte i = 0; i < 6; i++) {
+    key.keyByte[i] = 0xFF;
+  }
+}
+
+void loop() {
+  read_write_PICC();
 }
