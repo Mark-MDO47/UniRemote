@@ -69,8 +69,8 @@ void read_write_PICC() {
   MFRC522Debug::PrintUID(Serial, (mfrc522.uid));
   Serial.println();
 
-  // Authenticate the specified block using KEY_A = 0x60
-  if (mfrc522.PCD_Authenticate(0x60, blockAddress, &key, &(mfrc522.uid)) != 0) {
+  // Authenticate the specified block using KEY_A == command 0x60
+  if (mfrc522.PCD_Authenticate(MFRC522Constants::PICC_Command::PICC_CMD_MF_AUTH_KEY_A, blockAddress, &key, &(mfrc522.uid)) != 0) {
     Serial.println("Authentication failed.");
     return;
   }
@@ -88,8 +88,8 @@ void read_write_PICC() {
     }
     Serial.println();
   }
-  // Authenticate the specified block using KEY_A = 0x60
-  if (mfrc522.PCD_Authenticate(0x60, blockAddress, &key, &(mfrc522.uid)) != 0) {
+  // Authenticate the specified block using KEY_A = command 0x60
+  if (mfrc522.PCD_Authenticate(MFRC522Constants::PICC_Command::PICC_CMD_MF_AUTH_KEY_A, blockAddress, &key, &(mfrc522.uid)) != MFRC522Constants::StatusCode::STATUS_OK) {
     Serial.println("Authentication failed.");
     return;
   }
@@ -102,14 +102,14 @@ void read_write_PICC() {
     Serial.println(blockAddress);
   }
 
-  // Authenticate the specified block using KEY_A = 0x60
-  if (mfrc522.PCD_Authenticate(0x60, blockAddress, &key, &(mfrc522.uid)) != 0) {
+  // Authenticate the specified block using KEY_A = command 0x60
+  if (mfrc522.PCD_Authenticate(MFRC522Constants::PICC_Command::PICC_CMD_MF_AUTH_KEY_A, blockAddress, &key, &(mfrc522.uid)) != MFRC522Constants::StatusCode::STATUS_OK) {
     Serial.println("Authentication failed.");
     return;
   }
 
   // Read data from the specified block
-  if (mfrc522.MIFARE_Read(blockAddress, blockDataRead, &bufferblocksize) != 0) {
+  if (mfrc522.MIFARE_Read(blockAddress, blockDataRead, &bufferblocksize) != MFRC522Constants::StatusCode::STATUS_OK) {
     Serial.println("Read AFTER failed.");
   } else {
     Serial.println("Read AFTER successful!");
