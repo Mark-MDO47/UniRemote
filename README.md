@@ -124,6 +124,7 @@ Here is what the code is:<br>
 | YouTube Ralph S. Bacon "#203 SPIFFS vs LITTLEFS for ESP32 & ESP8266 (not Arduino UNO)" | https://www.youtube.com/watch?v=4r6YZlLfKfw |
 | --- | --- |
 | Espressif ESP32 example using non-standard SPI pins | https://docs.espressif.com/projects/arduino-esp32/en/latest/api/spi.html |
+| Using bit-banging so touch and SD can work in same program | https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display/blob/main/TROUBLESHOOTING.md#display-touch-and-sd-card-are-not-working-at-the-same-time |
 
 ### DRAM_STR - Move Constant Strings to RAM instead of Program Storage
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
