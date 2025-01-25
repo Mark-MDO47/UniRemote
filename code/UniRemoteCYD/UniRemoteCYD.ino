@@ -137,6 +137,7 @@ byte blockDataRead[18];
 
 // includes for Cheap Yellow Display
 #include <lvgl.h>
+// Install the "XPT2046_Touchscreen" library by Paul Stoffregen to use the Touchscreen - https://github.com/PaulStoffregen/XPT2046_Touchscreen - Note: this library doesn't require further configuration
 #include <TFT_eSPI.h>
 #include <XPT2046_Touchscreen.h>
 
@@ -145,9 +146,6 @@ byte blockDataRead[18];
 #define DBG_SERIALPRINTLN Serial.println
 
 // PIN definitions
-
-// Install the "XPT2046_Touchscreen" library by Paul Stoffregen to use the Touchscreen - https://github.com/PaulStoffregen/XPT2046_Touchscreen - Note: this library doesn't require further configuration
-#include <XPT2046_Touchscreen.h>
 
 // Touchscreen pins
 #define XPT2046_IRQ 36   // T_IRQ
@@ -174,6 +172,8 @@ byte blockDataRead[18];
 #define CYD_LED_OFF HIGH // inverted
 
 // define touchscreen and LVGL definitions
+
+USE_LV_TICK_SET_CB 1 // 1 to use lv_tick_set_cb() in setup; 0 to use lv_tick_inc() in loop
 
 SPIClass touchscreenSPI = SPIClass(VSPI);
 XPT2046_Touchscreen touchscreen(XPT2046_CS, XPT2046_IRQ);
@@ -892,6 +892,13 @@ uint16_t uni_get_command(uint32_t p_msec_now) {
 } // end uni_get_command()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
+// uni_tick() - use Arduinos millis() as tick source for LVGL
+static uint32_t uni_tick(void)
+{
+    return millis();
+} // end uni_tick()
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 // setup() - initialize hardware and software
 //       returns: nothing
 //   Serial - only if serial debugging enabled
@@ -949,6 +956,12 @@ void setup() {
 
   // Start LVGL
   lv_init();
+
+#if USE_LV_TICK_SET_CB // if using lv_tick_set_cb()
+  // Set a tick source so that LVGL can calculate how much time elapsed.
+  lv_tick_set_cb(uni_tick);
+#endif // end if using lv_tick_set_cb(); otherwise lv_tick_inc() done at end of loop()
+
 
   // Start the SPI for the touchscreen and init the touchscreen
   touchscreenSPI.begin(XPT2046_CLK, XPT2046_MISO, XPT2046_MOSI, XPT2046_CS);
@@ -1019,7 +1032,11 @@ void loop() {
   uni_display_state();
 
   lv_task_handler();  // let the GUI do its work
+
+#if (1-USE_LV_TICK_SET_CB) // if not using lv_tick_set_cb()
+  // not using lv_tick_set_cb(); do with manual estimate
   lv_tick_inc(CYDsampleDelayMsec); // tell LVGL how much time has passed
+#endif // (USE_LV_TICK_SET_CB) end if not using lv_tick_set_cb(); otherwise lv_tick_set_cb() done in setup() after lv_init()
   delay(CYDsampleDelayMsec);
   // delay(QRsampleDelayMsec); FIXME TODO wait between intervals
 } // end loop()
