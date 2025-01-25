@@ -122,6 +122,8 @@ Here is what the code is:<br>
 | CYD and alternative library with lots of good info | https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display.git|
 | CYD LVGL interesting project | https://github.com/bitbank2/CYD_Projects.git<br>https://github.com/TheNitek/CYD-LVGL-Template.git |
 | YouTube Ralph S. Bacon "#203 SPIFFS vs LITTLEFS for ESP32 & ESP8266 (not Arduino UNO)" | https://www.youtube.com/watch?v=4r6YZlLfKfw |
+| --- | --- |
+| Espressif ESP32 example using non-standard SPI pins | https://docs.espressif.com/projects/arduino-esp32/en/latest/api/spi.html |
 
 ### DRAM_STR - Move Constant Strings to RAM instead of Program Storage
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
