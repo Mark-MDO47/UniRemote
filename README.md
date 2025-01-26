@@ -37,6 +37,8 @@ I have settled on the following hardware for the Universal Remote Control:
     - https://www.nxp.com/docs/en/data-sheet/MF1S50YYX_V1.pdf
   - See following for more RFID Reader details:
     - https://github.com/Mark-MDO47/UniRemote/tree/master/code/RFIDRC522test
+  - A bit of effort to use this. Got a "sniffer" card to use the SPI pins in the MicroSD slot, needed to do "bit banging" for touchscreen so could use hardware SPI for SD card.
+    - https://github.com/Mark-MDO47/UniRemote/blob/master/code/RFIDRC522test/README.md
 
 May use one or more of the following
 - Alternative QR code reader
