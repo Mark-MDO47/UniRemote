@@ -85,7 +85,7 @@
 //   https://github.com/lvgl/lvgl/tree/master
 //   https://docs.lvgl.io/master/examples.html
 
-// and this info on using I2C with the "Cheap Yellow Display" ESP32-2432S028R GPIO pins
+// and this info on using I2C and SPI with the "Cheap Yellow Display" ESP32-2432S028R GPIO pins
 //   https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display/discussions/3
 //   https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display/blob/main/ADDONS.md#wiring
 //   https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display/blob/155f70e485994c9423c3af1035bb5ce72899ff01/Examples/InputTests/NunchuckTest/NunchuckTest.ino#L78
@@ -98,21 +98,53 @@
   The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
+// Also a giant tip of the hat to the folks at https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display
+//    and https://github.com/TheNitek/XPT2046_Bitbang_Arduino_Library and
+//    for pioneering the method of using
+//    "bit banging" (software-controlled) SPI on the touchscreen and freeing up the hardware VSPI channel
+//    for use on the RC522-based RFID reader/writer via the MicroSD Sniffer. See 
+//    https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display/blob/main/TROUBLESHOOTING.md#display-touch-and-sd-card-are-not-working-at-the-same-time
+
+// ----------------------------
+// Standard Libraries
+// ----------------------------
+
+#include <SPI.h>
+
+// ----------------------------
+// Additional Libraries - each one of these will need to be installed.
+// ----------------------------
+
+#include <XPT2046_Bitbang.h>
+// A library for interfacing with the touch screen "bit banging" (software-controlled) SPI
+//
+// Can be installed from the library manager (Search for "XPT2046 Slim")
+// https://github.com/TheNitek/XPT2046_Bitbang_Arduino_Library
+
+#include <TFT_eSPI.h>
+// A library for interfacing with LCD displays
+//
+// Can be installed from the library manager (Search for "TFT_eSPI")
+// https://github.com/Bodmer/TFT_eSPI
+
 #define INCLUDE_RFID_SENSOR 1  // set to 1 to include RFID Sensor scan for commands
 #define INCLUDE_QR_SENSOR   1  // set to 1 to include QR Cbode Reader scan for commands
 
 #if INCLUDE_RFID_SENSOR
+
 #include <MFRC522v2.h>
 #include <MFRC522DriverSPI.h>
-//#include <MFRC522DriverI2C.h>
 #include <MFRC522DriverPinSimple.h>
 #include <MFRC522Debug.h>
+// A library for interfacing with the RC522-based RFID reader either via I2C or SPI
+//
+// Can be installed from the library manager (Search for "MFRC522v2" by GithubCommunity)
+// https://github.com/OSSLibraries/Arduino_MFRC522v2
 
 // Learn more about using SPI/I2C or check the pin assigment for your board: https://github.com/OSSLibraries/Arduino_MFRC522v2#pin-layout
 MFRC522DriverPinSimple ss_pin(5);
 
 MFRC522DriverSPI driver{ss_pin}; // Create SPI driver
-//MFRC522DriverI2C driver{};     // Create I2C driver
 MFRC522 mfrc522{driver};         // Create MFRC522 instance
 
 MFRC522::MIFARE_Key key;
@@ -135,10 +167,13 @@ byte blockDataRead[18];
   #include "../tiny_code_reader/tiny_code_reader.h" // see https://github.com/usefulsensors/tiny_code_reader_arduino.git
 #endif // INCLUDE_QR_SENSOR
 
-// includes for Cheap Yellow Display
 #include <lvgl.h>
+// A library for interfacing with the LVGL graphics library for LCD displays
+//
+// Can be installed from the library manager (Search for "lvgl" by kisvegabor)
+// https://github.com/lvgl/lvgl.git
+
 // Install the "XPT2046_Touchscreen" library by Paul Stoffregen to use the Touchscreen - https://github.com/PaulStoffregen/XPT2046_Touchscreen - Note: this library doesn't require further configuration
-#include <TFT_eSPI.h>
 #include <XPT2046_Touchscreen.h>
 
 // DEBUG definitions
@@ -146,13 +181,6 @@ byte blockDataRead[18];
 #define DBG_SERIALPRINTLN Serial.println
 
 // PIN definitions
-
-// Touchscreen pins
-#define XPT2046_IRQ 36   // T_IRQ
-#define XPT2046_MOSI 32  // T_DIN
-#define XPT2046_MISO 39  // T_OUT
-#define XPT2046_CLK 25   // T_CLK
-#define XPT2046_CS 33    // T_CS
 
 // Connector P1 - 
 // Connector P3 - GND,35,22,21 (note 21 is shared, don't mess with it)
@@ -171,12 +199,23 @@ byte blockDataRead[18];
 #define CYD_LED_ON  LOW  // inverted
 #define CYD_LED_OFF HIGH // inverted
 
+// Touchscreen pins
+#define XPT2046_IRQ 36   // T_IRQ
+#define XPT2046_MOSI 32  // T_DIN
+#define XPT2046_MISO 39  // T_OUT
+#define XPT2046_CLK 25   // T_CLK
+#define XPT2046_CS 33    // T_CS
+
 // define touchscreen and LVGL definitions
 
 USE_LV_TICK_SET_CB 1 // 1 to use lv_tick_set_cb() in setup; 0 to use lv_tick_inc() in loop
 
-SPIClass touchscreenSPI = SPIClass(VSPI);
+// NOT USING VSPI HARDWARE FOR TOUCHSCREEN - using Bitbang
+      // SPIClass touchscreenSPI = SPIClass(VSPI);
+XPT2046_Bitbang ts(XPT2046_MOSI, XPT2046_MISO, XPT2046_CLK, XPT2046_CS);
+TFT_eSPI tft = TFT_eSPI();
 XPT2046_Touchscreen touchscreen(XPT2046_CS, XPT2046_IRQ);
+
 
 #define SCREEN_WIDTH 240
 #define SCREEN_HEIGHT 320
@@ -964,11 +1003,15 @@ void setup() {
 
 
   // Start the SPI for the touchscreen and init the touchscreen
-  touchscreenSPI.begin(XPT2046_CLK, XPT2046_MISO, XPT2046_MOSI, XPT2046_CS);
-  touchscreen.begin(touchscreenSPI);
-  // Set the Touchscreen rotation in landscape mode
-  // Note: in some displays, the touchscreen might be upside down, so you might need to set the rotation to 0: touchscreen.setRotation(0);
-  touchscreen.setRotation(2);
+  // NOT USING VSPI for touchscreen - using Bitbang
+      // touchscreenSPI.begin(XPT2046_CLK, XPT2046_MISO, XPT2046_MOSI, XPT2046_CS);
+      // touchscreen.begin(touchscreenSPI);
+      // Set the Touchscreen rotation in landscape mode
+      // Note: in some displays, the touchscreen might be upside down, so you might need to set the rotation to 0: touchscreen.setRotation(0);
+      // touchscreen.setRotation(2);
+  // Start the SPI for the touch screen and init the TS library
+  ts.begin();
+  //ts.setRotation(1);
 
   // Create a display object
   lv_display_t * disp;

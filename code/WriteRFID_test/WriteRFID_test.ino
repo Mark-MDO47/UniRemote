@@ -27,6 +27,34 @@
   The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
+/*
+ * I am using this MicroSD sniffer https://www.sparkfun.com/sparkfun-microsd-sniffer.html to get access to pins to
+ *    use for the SPI interface of the RFID reader. In order to free up a hardware SPI channel (VSPI), I am using the
+ *    
+ */
+
+// ----------------------------
+// Standard Libraries
+// ----------------------------
+
+#include <SPI.h>
+
+// ----------------------------
+// Additional Libraries - each one of these will need to be installed.
+// ----------------------------
+
+#include <XPT2046_Bitbang.h>
+// A library for interfacing with the touch screen
+//
+// Can be installed from the library manager (Search for "XPT2046 Slim")
+// https://github.com/TheNitek/XPT2046_Bitbang_Arduino_Library
+
+#include <TFT_eSPI.h>
+// A library for interfacing with LCD displays
+//
+// Can be installed from the library manager (Search for "TFT_eSPI")
+// https://github.com/Bodmer/TFT_eSPI
+
 #include <MFRC522v2.h>
 #include <MFRC522DriverSPI.h>
 //#include <MFRC522DriverI2C.h>

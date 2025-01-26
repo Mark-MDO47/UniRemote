@@ -1,0 +1,11 @@
+USE THE FOLLOWING COEFFICIENT VALUES TO CALIBRATE YOUR TOUCHSCREEN
+Computed X:  alpha_x = 0.001, beta_x = 0.092, delta_x = -38.259
+Computed Y:  alpha_y = 0.067, beta_y = -0.001, delta_y = -18.374
+
+
+    alpha_x = 0.001;
+    beta_x = 0.092;
+    delta_x = -38.259;
+    alpha_y = 0.067;
+    beta_y = -0.001;
+    delta_y = -18.374;
