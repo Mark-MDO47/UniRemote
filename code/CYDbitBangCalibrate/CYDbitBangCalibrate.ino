@@ -1,3 +1,13 @@
+/* Author: https://github.com/Mark-MDO47  Jan. 26, 2025
+ *  https://github.com/Mark-MDO47/UniRemote
+ *  
+ * Adaptation of the touchscreen calibration routine as described in the following copyright notice.
+ *
+ * Adapting to use the XPT2046_Bitbang library for the touchscreen instead of the TFT_eSPI library.
+ * Using this software SPI interface for the fairly low data rate touchscreen interface allows using the
+ *   hardware VSPI interface to talk to the MicroSD card on the ESP32-2432S028R (Cheap Yellow Display or CYD).
+ */
+
 /*  
     Example created by Robert (Chip) Fleming for touchscreen calibration (https://github.com/CF20852/ESP32-2432S028-Touchscreen-Calibration)
     Rui Santos & Sara Santos - Random Nerd Tutorials - https://RandomNerdTutorials.com/touchscreen-calibration/
@@ -10,22 +20,41 @@
     The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
+// ----------------------------
+// Standard Libraries
+// ----------------------------
+
+#include <SPI.h>
+
+// ----------------------------
+// Additional Libraries - each one of these will need to be installed.
+// ----------------------------
+
+#include <XPT2046_Bitbang.h>
+// A library for interfacing with the touch screen "bit banging" (software-controlled) SPI
+//
+// Can be installed from the library manager (Search for "XPT2046 Slim")
+// https://github.com/TheNitek/XPT2046_Bitbang_Arduino_Library
+
 /*  Install the "lvgl" library version 9.2 by kisvegabor to interface with the TFT Display - https://lvgl.io/
     *** IMPORTANT: lv_conf.h available on the internet will probably NOT work with the examples available at Random Nerd Tutorials ***
     *** YOU MUST USE THE lv_conf.h FILE PROVIDED IN THE LINK BELOW IN ORDER TO USE THE EXAMPLES FROM RANDOM NERD TUTORIALS ***
     FULL INSTRUCTIONS AVAILABLE ON HOW CONFIGURE THE LIBRARY: https://RandomNerdTutorials.com/cyd-lvgl/ or https://RandomNerdTutorials.com/esp32-tft-lvgl/   */
 #include <lvgl.h>
 
+// NOTE WE ARE USING XPT2046_Bitbang INSTEAD OF TFT_eSPI
 /*  Install the "TFT_eSPI" library by Bodmer to interface with the TFT Display - https://github.com/Bodmer/TFT_eSPI
     *** IMPORTANT: User_Setup.h available on the internet will probably NOT work with the examples available at Random Nerd Tutorials ***
     *** YOU MUST USE THE User_Setup.h FILE PROVIDED IN THE LINK BELOW IN ORDER TO USE THE EXAMPLES FROM RANDOM NERD TUTORIALS ***
     FULL INSTRUCTIONS AVAILABLE ON HOW CONFIGURE THE LIBRARY: https://RandomNerdTutorials.com/cyd-lvgl/ or https://RandomNerdTutorials.com/esp32-tft-lvgl/   */
-#include <TFT_eSPI.h>
+// #include <TFT_eSPI.h>
 
 // Install the "XPT2046_Touchscreen" library by Paul Stoffregen to use the Touchscreen - https://github.com/PaulStoffregen/XPT2046_Touchscreen - Note: this library doesn't require further configuration
 #include <XPT2046_Touchscreen.h>
 
 // Install the Basic Linear Algebra library for TI appnote Equation 7 calculations
+// https://docs.arduino.cc/libraries/basiclinearalgebra/
+// https://github.com/tomstewart89/BasicLinearAlgebra
 #include <BasicLinearAlgebra.h>
 
 // Touchscreen pins
@@ -34,6 +63,9 @@
 #define XPT2046_MISO 39  // T_OUT
 #define XPT2046_CLK 25   // T_CLK
 #define XPT2046_CS 33    // T_CS
+
+// NOTE WE ARE USING XPT2046_Bitbang INSTEAD OF TFT_eSPI
+XPT2046_Bitbang tsSPI(XPT2046_MOSI, XPT2046_MISO, XPT2046_CLK, XPT2046_CS);
 
 unsigned long delay_start = 0;
 #define DELAY_1S 1000
@@ -216,9 +248,11 @@ void setup() {
   // Register print function for debugging
   lv_log_register_print_cb(log_print);
 
+  // Start the SPI for the touchscreen and init the touchscreen NOTE: using XPT2046_Bitbang version
+  tsSPI.begin();
   // Start the SPI for the touchscreen and init the touchscreen
-  touchscreenSPI.begin(XPT2046_CLK, XPT2046_MISO, XPT2046_MOSI, XPT2046_CS);
-  touchscreen.begin(touchscreenSPI);
+  // touchscreenSPI.begin(XPT2046_CLK, XPT2046_MISO, XPT2046_MOSI, XPT2046_CS);
+  // touchscreen.begin(touchscreenSPI);
   // Set the Touchscreen rotation in landscape mode
   // Note: in some displays, the touchscreen might be upside down, so you might need to set the rotation to 0: touchscreen.setRotation(0);
   touchscreen.setRotation(2);
@@ -272,11 +306,11 @@ void touchscreen_read_pts(bool reset, bool *finished, int *x_avg, int *y_avg) {
     *finished = false;
   }
   // Checks if Touchscreen was touched, and prints X, Y
-  if(touchscreen.tirqTouched() && touchscreen.touched()) {
+  TouchPoint p = tsSPI.getTouch();
+  if (p.zRaw > 200) {
     // Get Touchscreen points
-    TS_Point p = touchscreen.getPoint();
-    samples[nr_samples][0] = p.x;
-    samples[nr_samples][1] = p.y;
+    samples[nr_samples][0] = p.xRaw;
+    samples[nr_samples][1] = p.yRaw;
    
     s = String("x, y = " + String(samples[nr_samples][0]) + ", " + String(samples[nr_samples][1]) );
     Serial.println(s);
