@@ -48,7 +48,7 @@ For that reason I am using the XPT2046_Bitbang library instead of the TFT_eSPI l
 I made a version of the Random Nerds CYDCalibrate.ino
 - Rui Santos & Sara Santos - Random Nerd Tutorials - https://RandomNerdTutorials.com/touchscreen-calibration/
 
-... that I call  CYDbitBangCalibrate.ino here. For some reason I don't understand the calibration constants are quite different between the two libraries, as you can see by looking at the two calibration text files.
+... that I call  CYDbitBangCalibrate.ino here. For some reason I don't understand, the calibration constants are quite different between the two SPI libraries. You can see that by looking at the two calibration text files, also in the following directory.
 - https://github.com/Mark-MDO47/UniRemote/tree/master/code/CYDbitBangCalibrate
 
 
