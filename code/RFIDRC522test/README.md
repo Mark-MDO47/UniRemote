@@ -28,8 +28,6 @@ Options:
   - https://www.sparkfun.com/sparkfun-microsd-sniffer.html
   - https://learn.sparkfun.com/tutorials/microsd-sniffer-hookup-guide/introduction
   - https://github.com/sparkfun/MicroSD_Sniffer.git
-  - https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display
-  - Using bit-banging so touch and SD can work in same program	https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display/blob/main/TROUBLESHOOTING.md#display-touch-and-sd-card-are-not-working-at-the-same-time
 
 ### Multiple SPI Devices on Same SPI Bus
 [Top](#rfid-rc522-test "Top")<br>
@@ -37,6 +35,18 @@ Some resources
 - https://docs.arduino.cc/learn/communication/spi/
 - https://forum.arduino.cc/t/multiple-spi-chip-select-question/101140
 - https://forum.arduino.cc/t/how-to-use-spi-for-multiple-devices/427739
+
+This general Arduino usage doc for LVGL says "To get started it's recommended to use TFT_eSPI library as a TFT driver to simplify testing."
+- https://docs.lvgl.io/master/details/integration/framework/arduino.html
+
+However, in the case of the Cheap Yellow Display, there are not enough hardware SPI resources on the ESP32 to handle the display (HSPI), the touchscreen (VSPI), and the MicroSD card slot (out of luck) at the same time.
+  - https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display
+  - Using bit-banging so touch and SD can work in same program	https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display/blob/main/TROUBLESHOOTING.md#display-touch-and-sd-card-are-not-working-at-the-same-time
+
+For that reason I am using the XPT2046_Bitbang library instead of the TFT_eSPI library for the touchscreen. This seems to work OK with some changes to the code.
+
+I made a version of the Random Nerds  CYDCalibrate.ino that I call  CYDbitBangCalibrate.ino here. For some reason I don't understand the calibration constants are quite different between the two libraries, as you can see by looking at the two calibration text files..
+- https://github.com/Mark-MDO47/UniRemote/tree/master/code/CYDbitBangCalibrate
 
 Google AI Overview popped up this short example; no idea where it came from
 
