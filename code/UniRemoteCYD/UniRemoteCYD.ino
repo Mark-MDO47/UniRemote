@@ -1,4 +1,4 @@
-/* Author: https://github.com/Mark-MDO47  Dec. 21, 2023
+/* Author: https://github.com/Mark-MDO47  Dec. 21, 2024
  *  https://github.com/Mark-MDO47/UniRemote
  *  
  *  This code will scan a command (QR code or RFID or ??) and send it to
