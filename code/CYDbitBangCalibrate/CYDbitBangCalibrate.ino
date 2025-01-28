@@ -66,6 +66,7 @@
 
 // NOTE WE ARE USING XPT2046_Bitbang INSTEAD OF TFT_eSPI
 XPT2046_Bitbang tsSPI(XPT2046_MOSI, XPT2046_MISO, XPT2046_CLK, XPT2046_CS);
+// NOTE WE ARE USING XPT2046_Bitbang INSTEAD OF TFT_eSPI
 
 unsigned long delay_start = 0;
 #define DELAY_1S 1000
@@ -248,13 +249,15 @@ void setup() {
   // Register print function for debugging
   lv_log_register_print_cb(log_print);
 
-  // Start the SPI for the touchscreen and init the touchscreen NOTE: using XPT2046_Bitbang version
+// NOTE WE ARE USING XPT2046_Bitbang INSTEAD OF TFT_eSPI
+  // Start the SPI for the touchscreen and init the touchscreen
   tsSPI.begin();
   // Start the SPI for the touchscreen and init the touchscreen
   // touchscreenSPI.begin(XPT2046_CLK, XPT2046_MISO, XPT2046_MOSI, XPT2046_CS);
   // touchscreen.begin(touchscreenSPI);
   // Set the Touchscreen rotation in landscape mode
   // Note: in some displays, the touchscreen might be upside down, so you might need to set the rotation to 0: touchscreen.setRotation(0);
+// NOTE WE ARE USING XPT2046_Bitbang INSTEAD OF TFT_eSPI
   touchscreen.setRotation(2);
 
   // Create a display object
@@ -306,12 +309,14 @@ void touchscreen_read_pts(bool reset, bool *finished, int *x_avg, int *y_avg) {
     *finished = false;
   }
   // Checks if Touchscreen was touched, and prints X, Y
+// NOTE WE ARE USING XPT2046_Bitbang INSTEAD OF TFT_eSPI
   TouchPoint p = tsSPI.getTouch();
   if (p.zRaw > 200) {
     // Get Touchscreen points
     samples[nr_samples][0] = p.xRaw;
     samples[nr_samples][1] = p.yRaw;
-   
+// NOTE WE ARE USING XPT2046_Bitbang INSTEAD OF TFT_eSPI
+
     s = String("x, y = " + String(samples[nr_samples][0]) + ", " + String(samples[nr_samples][1]) );
     Serial.println(s);
 
