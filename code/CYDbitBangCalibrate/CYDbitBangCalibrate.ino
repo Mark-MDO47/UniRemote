@@ -41,6 +41,8 @@
 // Can be installed from the library manager (Search for "XPT2046 Slim")
 // https://github.com/TheNitek/XPT2046_Bitbang_Arduino_Library
 #include <XPT2046_Bitbang.h>
+
+// NOTE DO NOT INSTALL TFT_eSPI
 /*  Install the "TFT_eSPI" library by Bodmer to interface with the TFT Display - https://github.com/Bodmer/TFT_eSPI
     *** IMPORTANT: User_Setup.h available on the internet will probably NOT work with the examples available at Random Nerd Tutorials ***
     *** YOU MUST USE THE User_Setup.h FILE PROVIDED IN THE LINK BELOW IN ORDER TO USE THE EXAMPLES FROM RANDOM NERD TUTORIALS ***
@@ -64,7 +66,7 @@
 #define XPT2046_CS 33    // T_CS
 
 // NOTE WE ARE USING XPT2046_Bitbang INSTEAD OF TFT_eSPI
-XPT2046_Bitbang tsSPI(XPT2046_MOSI, XPT2046_MISO, XPT2046_CLK, XPT2046_CS);
+XPT2046_Bitbang tsSPI(XPT2046_MOSI, XPT2046_MISO, XPT2046_CLK, XPT2046_CS); // create software-controlled SPI for touchscreen
 // NOTE WE ARE USING XPT2046_Bitbang INSTEAD OF TFT_eSPI
 
 unsigned long delay_start = 0;
@@ -256,6 +258,7 @@ void setup() {
   // touchscreen.begin(touchscreenSPI);
   // Set the Touchscreen rotation in landscape mode
   // Note: in some displays, the touchscreen might be upside down, so you might need to set the rotation to 0: touchscreen.setRotation(0);
+  //    I have not yet done the experiment of changing rotation with XPT2046_Bitbang
 // NOTE WE ARE USING XPT2046_Bitbang INSTEAD OF TFT_eSPI
   touchscreen.setRotation(2);
 
@@ -310,7 +313,7 @@ void touchscreen_read_pts(bool reset, bool *finished, int *x_avg, int *y_avg) {
   // Checks if Touchscreen was touched, and prints X, Y
 // NOTE WE ARE USING XPT2046_Bitbang INSTEAD OF TFT_eSPI
   TouchPoint p = tsSPI.getTouch();
-  if (p.zRaw > 200) {
+  if (p.zRaw > 200) { // this threshold of 200 seems to work pretty well
     // Get Touchscreen points
     samples[nr_samples][0] = p.xRaw;
     samples[nr_samples][1] = p.yRaw;
