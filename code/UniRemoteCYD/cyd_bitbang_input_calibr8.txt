@@ -7,7 +7,7 @@
 static void cyd_input_read(lv_indev_t * indev, lv_indev_data_t * data) {
 // NOTE WE ARE USING XPT2046_Bitbang INSTEAD OF TFT_eSPI
   // Checks if Touchscreen was touched, and prints X, Y and Pressure (Z)
-  TouchPoint p = ts.getTouch();
+  TouchPoint p = tsSPI.getTouch();
   if (p.zRaw > 200) { // this threshold of 200 seems to work pretty well
     // Get Touchscreen points
     p.x = p.xRaw; // we will recalculate x & y values; use same names as TFT_eSPI
@@ -50,8 +50,9 @@ static void cyd_input_read(lv_indev_t * indev, lv_indev_data_t * data) {
     data->point.x = x;
     data->point.y = y;
 
-#if DEBUG_PRINT_TOUCHSCREEN_INFO
+/*
     // Print Touchscreen info about X, Y and Pressure (Z) on the Serial Monitor
+#if DEBUG_PRINT_TOUCHSCREEN_INFO
     Serial.print("X = ");
     Serial.print(x);
     Serial.print(" | Y = ");
@@ -60,6 +61,7 @@ static void cyd_input_read(lv_indev_t * indev, lv_indev_data_t * data) {
     Serial.print(z);
     Serial.println();
 #endif // DEBUG_PRINT_TOUCHSCREEN_INFO
+ */
   }
   else {
     data->state = LV_INDEV_STATE_RELEASED;

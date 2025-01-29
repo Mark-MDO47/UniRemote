@@ -115,23 +115,30 @@
 // Additional Libraries - each one of these will need to be installed.
 // ----------------------------
 
-#include <XPT2046_Bitbang.h>
+/*  Install the "lvgl" library version 9.2 by kisvegabor to interface with the TFT Display - https://lvgl.io/
+    *** IMPORTANT: lv_conf.h available on the internet will probably NOT work with the examples available at Random Nerd Tutorials ***
+    *** YOU MUST USE THE lv_conf.h FILE PROVIDED IN THE LINK BELOW IN ORDER TO USE THE EXAMPLES FROM RANDOM NERD TUTORIALS ***
+    FULL INSTRUCTIONS AVAILABLE ON HOW CONFIGURE THE LIBRARY: https://RandomNerdTutorials.com/cyd-lvgl/ or https://RandomNerdTutorials.com/esp32-tft-lvgl/   */
+// https://github.com/lvgl/lvgl.git
+#include <lvgl.h>
+
+// NOTE WE ARE USING XPT2046_Bitbang INSTEAD OF TFT_eSPI
 // A library for interfacing with the touch screen "bit banging" (software-controlled) SPI
-//
 // Can be installed from the library manager (Search for "XPT2046 Slim")
 // https://github.com/TheNitek/XPT2046_Bitbang_Arduino_Library
+#include <XPT2046_Bitbang.h>
 
-#include <TFT_eSPI.h>
+// NOTE WE ARE USING XPT2046_Bitbang INSTEAD OF TFT_eSPI
 // A library for interfacing with LCD displays
-//
 // Can be installed from the library manager (Search for "TFT_eSPI")
 // https://github.com/Bodmer/TFT_eSPI
+// #include <TFT_eSPI.h>
+// NOTE WE ARE USING XPT2046_Bitbang INSTEAD OF TFT_eSPI
 
 #define INCLUDE_RFID_SENSOR 1  // set to 1 to include RFID Sensor scan for commands
 #define INCLUDE_QR_SENSOR   1  // set to 1 to include QR Cbode Reader scan for commands
 
 #if INCLUDE_RFID_SENSOR
-
 #include <MFRC522v2.h>
 #include <MFRC522DriverSPI.h>
 #include <MFRC522DriverPinSimple.h>
@@ -167,18 +174,13 @@ byte blockDataRead[18];
   #include "../tiny_code_reader/tiny_code_reader.h" // see https://github.com/usefulsensors/tiny_code_reader_arduino.git
 #endif // INCLUDE_QR_SENSOR
 
-#include <lvgl.h>
-// A library for interfacing with the LVGL graphics library for LCD displays
-//
-// Can be installed from the library manager (Search for "lvgl" by kisvegabor)
-// https://github.com/lvgl/lvgl.git
-
 // Install the "XPT2046_Touchscreen" library by Paul Stoffregen to use the Touchscreen - https://github.com/PaulStoffregen/XPT2046_Touchscreen - Note: this library doesn't require further configuration
 #include <XPT2046_Touchscreen.h>
 
 // DEBUG definitions
 #define DBG_SERIALPRINT Serial.print
 #define DBG_SERIALPRINTLN Serial.println
+#define DEBUG_PRINT_TOUCHSCREEN_INFO 0
 
 // PIN definitions
 
@@ -208,12 +210,13 @@ byte blockDataRead[18];
 
 // define touchscreen and LVGL definitions
 
-USE_LV_TICK_SET_CB 1 // 1 to use lv_tick_set_cb() in setup; 0 to use lv_tick_inc() in loop
+#define USE_LV_TICK_SET_CB 1 // 1 to use lv_tick_set_cb() in setup; 0 to use lv_tick_inc() in loop
 
-// NOT USING VSPI HARDWARE FOR TOUCHSCREEN - using Bitbang
+// NOTE WE ARE USING XPT2046_Bitbang INSTEAD OF TFT_eSPI
       // SPIClass touchscreenSPI = SPIClass(VSPI);
-XPT2046_Bitbang ts(XPT2046_MOSI, XPT2046_MISO, XPT2046_CLK, XPT2046_CS);
-TFT_eSPI tft = TFT_eSPI();
+XPT2046_Bitbang ts(XPT2046_MOSI, XPT2046_MISO, XPT2046_CLK, XPT2046_CS); // create software-controlled SPI for touchscreen
+// TFT_eSPI tft = TFT_eSPI();
+// NOTE WE ARE USING XPT2046_Bitbang INSTEAD OF TFT_eSPI
 XPT2046_Touchscreen touchscreen(XPT2046_CS, XPT2046_IRQ);
 
 
@@ -1002,15 +1005,17 @@ void setup() {
 #endif // end if using lv_tick_set_cb(); otherwise lv_tick_inc() done at end of loop()
 
 
+// NOTE WE ARE USING XPT2046_Bitbang INSTEAD OF TFT_eSPI
   // Start the SPI for the touchscreen and init the touchscreen
-  // NOT USING VSPI for touchscreen - using Bitbang
       // touchscreenSPI.begin(XPT2046_CLK, XPT2046_MISO, XPT2046_MOSI, XPT2046_CS);
       // touchscreen.begin(touchscreenSPI);
       // Set the Touchscreen rotation in landscape mode
       // Note: in some displays, the touchscreen might be upside down, so you might need to set the rotation to 0: touchscreen.setRotation(0);
       // touchscreen.setRotation(2);
+// NOTE WE ARE USING XPT2046_Bitbang INSTEAD OF TFT_eSPI
   // Start the SPI for the touch screen and init the TS library
   ts.begin();
+  //    I have not yet done the experiment of changing rotation with XPT2046_Bitbang
   //ts.setRotation(1);
 
   // Create a display object
