@@ -30,12 +30,6 @@
 // Additional Libraries - each one of these will need to be installed.
 // ----------------------------
 
-#include <XPT2046_Bitbang.h>
-// A library for interfacing with the touch screen "bit banging" (software-controlled) SPI
-//
-// Can be installed from the library manager (Search for "XPT2046 Slim")
-// https://github.com/TheNitek/XPT2046_Bitbang_Arduino_Library
-
 /*  Install the "lvgl" library version 9.2 by kisvegabor to interface with the TFT Display - https://lvgl.io/
     *** IMPORTANT: lv_conf.h available on the internet will probably NOT work with the examples available at Random Nerd Tutorials ***
     *** YOU MUST USE THE lv_conf.h FILE PROVIDED IN THE LINK BELOW IN ORDER TO USE THE EXAMPLES FROM RANDOM NERD TUTORIALS ***
@@ -43,11 +37,16 @@
 #include <lvgl.h>
 
 // NOTE WE ARE USING XPT2046_Bitbang INSTEAD OF TFT_eSPI
+// A library for interfacing with the touch screen "bit banging" (software-controlled) SPI
+// Can be installed from the library manager (Search for "XPT2046 Slim")
+// https://github.com/TheNitek/XPT2046_Bitbang_Arduino_Library
+#include <XPT2046_Bitbang.h>
 /*  Install the "TFT_eSPI" library by Bodmer to interface with the TFT Display - https://github.com/Bodmer/TFT_eSPI
     *** IMPORTANT: User_Setup.h available on the internet will probably NOT work with the examples available at Random Nerd Tutorials ***
     *** YOU MUST USE THE User_Setup.h FILE PROVIDED IN THE LINK BELOW IN ORDER TO USE THE EXAMPLES FROM RANDOM NERD TUTORIALS ***
     FULL INSTRUCTIONS AVAILABLE ON HOW CONFIGURE THE LIBRARY: https://RandomNerdTutorials.com/cyd-lvgl/ or https://RandomNerdTutorials.com/esp32-tft-lvgl/   */
 // #include <TFT_eSPI.h>
+// NOTE WE ARE USING XPT2046_Bitbang INSTEAD OF TFT_eSPI
 
 // Install the "XPT2046_Touchscreen" library by Paul Stoffregen to use the Touchscreen - https://github.com/PaulStoffregen/XPT2046_Touchscreen - Note: this library doesn't require further configuration
 #include <XPT2046_Touchscreen.h>
