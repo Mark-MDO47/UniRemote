@@ -1,6 +1,9 @@
 # CYDbitBangCalibrate
 
 **Table Of Contents**
+* [Top](#cydbitbangcalibrate "Top")
+* [The Idea](#the-idea "The Idea")
+* [Attributions](#attributions "Attributions")
 
 ## The Idea
 I am using the CYD pins that connect to the MicroSD slot for an SPI interface, but the CYD "normally" uses all four hardware SPI interfaces from the ESP32.
