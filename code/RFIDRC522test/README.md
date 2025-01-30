@@ -16,8 +16,12 @@
   - even though the IC itself supports I2C and UART, the board pins and strapping are just for SPI interface
   - look for Adrianotiger post #4 on Mar 2023 on https://forum.arduino.cc/t/esp32-rfid-rc522-i2c/1100200/3
 - On the other hand, the CYD board doesn't have enough SPI pins coming out natively
-  - requires 5 lines in addition to GND and 3.3V
-  - theoretically the MicroSD card reader uses SPI; maybe I can pick up the signals with a "sniffer" card and use that
+  - nominally requires 5 lines in addition to GND and 3.3V - see below for discussion of the "RESET" or "RST" line
+  - the CYD MicroSD card reader uses SPI; a "sniffer" card can be used with that
+
+- RESET
+  - Looking at the code for the “RFID_MFRC522v2 by Github Community” library, it appears that in 25 Jun 2020, v2.0.0 the library quit using the hardware reset pin and now uses only the software reset.
+  - You can still find the commented-out hardware reset code near Arduino/libraries/RFID_MFRC522v2/src/MFRC522v2.cpp line 81.
 
 ## Software
 [Top](#rfid-rc522-test "Top")<br>
