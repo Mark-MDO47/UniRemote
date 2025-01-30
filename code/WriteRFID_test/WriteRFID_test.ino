@@ -4,7 +4,7 @@
  * This test code is to alter the Random Nerd Tutorials esp32-mfrc522-rfid-reader-arduino
  *  code to a form that fits in my uniRemoteCYD or uniRemote code.
  *
- * Mostly I want to avoid s() statements so I can use multiple devices in the same
+ * Mostly I want to avoid delay() statements so I can use multiple devices in the same
  *  code.
  *
  * The RFID reader used is (as far as I can tell) pretty common.
@@ -155,7 +155,7 @@ void read_write_PICC() {
   mfrc522.PCD_StopCrypto1();
 
   msec_waitfor = msec_now + 2000; // Delay for readability
-}
+} // end read_write_PICC()
 
 void setup() {
   Serial.begin(115200);  // Initialize serial communication

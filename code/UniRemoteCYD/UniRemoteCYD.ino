@@ -139,14 +139,13 @@
 #define INCLUDE_QR_SENSOR   1  // set to 1 to include QR Cbode Reader scan for commands
 
 #if INCLUDE_RFID_SENSOR
+// A library for interfacing with the RC522-based RFID reader either via I2C or SPI
+// Can be installed from the library manager (Search for "MFRC522v2" by GithubCommunity)
+// https://github.com/OSSLibraries/Arduino_MFRC522v2
 #include <MFRC522v2.h>
 #include <MFRC522DriverSPI.h>
 #include <MFRC522DriverPinSimple.h>
 #include <MFRC522Debug.h>
-// A library for interfacing with the RC522-based RFID reader either via I2C or SPI
-//
-// Can be installed from the library manager (Search for "MFRC522v2" by GithubCommunity)
-// https://github.com/OSSLibraries/Arduino_MFRC522v2
 
 // Learn more about using SPI/I2C or check the pin assigment for your board: https://github.com/OSSLibraries/Arduino_MFRC522v2#pin-layout
 MFRC522DriverPinSimple ss_pin(5);
@@ -856,6 +855,99 @@ esp_err_t uni_esp_now_cmd_send(char * p_cmd) {
   return (send_status);
 } // end uni_esp_now_cmd_send()
 
+#if INCLUDE_RFID_SENSOR
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// read_PICC() - get next PICC command - DEBUGGING just detect, read, write, read
+//   PICC = Proximity Integrated Circuit Card (Contactless Card) - the RFID card we are reading
+//      At this time we plan to use the MIFARE Classic EV1 1K
+//   Currently just puts info into serial printout
+//   Eventually would read command from PICC and return command as zero-terminated ASCII string
+char * read_PICC() {
+  static uint32_t msec_prev = 0;
+  static uint32_t msec_waitfor = 0;
+  uint32_t msec_now = millis();
+  char PICC_cmd[1025];
+  
+  // make command zero length
+  PICC_cmd[0] = '\0';
+
+  // don't do anything until next waitfor time
+  if (msec_now < msec_waitfor)
+    return(PICC_cmd);
+
+  // Check if a new card is present
+  if (!mfrc522.PICC_IsNewCardPresent() || !mfrc522.PICC_ReadCardSerial()) {
+    msec_waitfor = msec_now + 500;
+    return(PICC_cmd);
+  }
+
+  // Display card UID
+  Serial.print("----------------\nCard UID: ");
+  MFRC522Debug::PrintUID(Serial, (mfrc522.uid));
+  Serial.println();
+
+  // Authenticate the specified block using KEY_A == command 0x60
+  if (mfrc522.PCD_Authenticate(MFRC522Constants::PICC_Command::PICC_CMD_MF_AUTH_KEY_A, blockAddress, &key, &(mfrc522.uid)) != 0) {
+    Serial.println("Authentication failed.");
+    return(PICC_cmd);
+  }
+
+  // Read data from the specified block
+  if (mfrc522.MIFARE_Read(blockAddress, blockDataRead, &bufferblocksize) != 0) {
+    Serial.println("Read BEFORE failed.");
+  } else {
+    Serial.println("Read BEFORE successful!");
+    Serial.print("Data BEFORE in block ");
+    Serial.print(blockAddress);
+    Serial.print(": ");
+    for (byte i = 0; i < 16; i++) {
+      Serial.print((char)blockDataRead[i]);  // Print as character
+    }
+    Serial.println();
+  }
+  // Authenticate the specified block using KEY_A = command 0x60
+  if (mfrc522.PCD_Authenticate(MFRC522Constants::PICC_Command::PICC_CMD_MF_AUTH_KEY_A, blockAddress, &key, &(mfrc522.uid)) != MFRC522Constants::StatusCode::STATUS_OK) {
+    Serial.println("Authentication failed.");
+    return(PICC_cmd);
+  }
+  
+  // Write data to the specified block
+  if (mfrc522.MIFARE_Write(blockAddress, newBlockData, 16) != 0) {
+    Serial.println("Write failed.");
+  } else {
+    Serial.print("Data written successfully in block: ");
+    Serial.println(blockAddress);
+  }
+
+  // Authenticate the specified block using KEY_A = command 0x60
+  if (mfrc522.PCD_Authenticate(MFRC522Constants::PICC_Command::PICC_CMD_MF_AUTH_KEY_A, blockAddress, &key, &(mfrc522.uid)) != MFRC522Constants::StatusCode::STATUS_OK) {
+    Serial.println("Authentication failed.");
+    return(PICC_cmd);
+  }
+
+  // Read data from the specified block
+  if (mfrc522.MIFARE_Read(blockAddress, blockDataRead, &bufferblocksize) != MFRC522Constants::StatusCode::STATUS_OK) {
+    Serial.println("Read AFTER failed.");
+  } else {
+    Serial.println("Read AFTER successful!");
+    Serial.print("Data AFTER in block ");
+    Serial.print(blockAddress);
+    Serial.print(": ");
+    for (byte i = 0; i < 16; i++) {
+      Serial.print((char)blockDataRead[i]);  // Print as character
+    }
+    Serial.println();
+  }
+  
+  // Halt communication with the card
+  mfrc522.PICC_HaltA();
+  mfrc522.PCD_StopCrypto1();
+
+  msec_waitfor = msec_now + 2000; // Delay for readability
+  return(PICC_cmd);
+} // end read_PICC()
+#endif // INCLUDE_RFID_SENSOR
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_get_command() - get next scanned command
 //     p_msec_now is time stamp for start of process
@@ -900,7 +992,19 @@ uint16_t uni_get_command(uint32_t p_msec_now) {
   if (0 == first_time) { DBG_SERIALPRINTLN("first_time RFID code"); }
   if ((0 == num_cmds_scanned) && (next_rfid_msec <= p_msec_now)) {
     // try RFID scanner
-  }
+    read_PICC();
+/*  FIXME TODO WILL NEED SOMETHING SIMILAR TO THIS
+    if (QRresults.content_length > 0) {
+      DBG_SERIALPRINTLN("Doing QR Code");
+      num_cmds_scanned = 1;
+      g_last_scanned_cmd_count += 1;
+      g_uni_state_times[g_uni_state] = p_msec_now;
+      strncpy(g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd, (char *)QRresults.content_bytes, sizeof(g_cmd_queue[0].scanned_cmd));
+      g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd_len = strlen(g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
+      sprintf(g_msg, "QR CMD #%d scanned:\n %s", g_last_scanned_cmd_count, g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
+    FIXME TODO WILL NEED SOMETHING SIMILAR TO THIS
+ */
+  } // end if got PICC result
 #endif // INCLUDE_RFID_SENSOR
 #if INCLUDE_QR_SENSOR
   static tiny_code_reader_results_t QRresults = {};
