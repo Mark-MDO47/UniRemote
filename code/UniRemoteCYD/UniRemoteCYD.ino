@@ -154,13 +154,6 @@ MFRC522DriverSPI driver{ss_pin}; // Create SPI driver
 MFRC522 mfrc522{driver};         // Create MFRC522 instance
 
 MFRC522::MIFARE_Key key;
-
-byte blockAddress = 2;
-// byte newBlockData[17] = {"Rui Santos - RNT"};
-byte newBlockData[17] = {"_MDO_MDO_MDO_MDO"};
-//byte newBlockData[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};   // CLEAR DATA
-byte bufferblocksize = 18;
-byte blockDataRead[18];
 #endif // INCLUDE_RFID_SENSOR
 
 #include <esp_now.h>   // for ESP-NOW
@@ -179,7 +172,10 @@ byte blockDataRead[18];
 // DEBUG definitions
 #define DBG_SERIALPRINT Serial.print
 #define DBG_SERIALPRINTLN Serial.println
-#define DEBUG_PRINT_TOUCHSCREEN_INFO 0
+#define DEBUG_PRINT_TOUCHSCREEN_INFO 0    // Print Touchscreen info about X, Y and Pressure (Z) on the Serial Monitor
+#define DEBUG_PRINT_PICC_INFO 1           // Print UID and other info when PICC RFID card detection on the Serial Monitor
+#define DEBUG_PRINT_PICC_DATA_FINAL 1     // Print the data we read in ASCII after all reads
+#define DEBUG_PRINT_PICC_DATA_EACH  1     // Print the data we read in ASCII after each read
 
 // PIN definitions
 
@@ -857,95 +853,129 @@ esp_err_t uni_esp_now_cmd_send(char * p_cmd) {
 
 #if INCLUDE_RFID_SENSOR
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// read_PICC() - get next PICC command - DEBUGGING just detect, read, write, read
+// uni_read_picc() - get next PICC command - DEBUGGING just detect, read, write, read
 //   PICC = Proximity Integrated Circuit Card (Contactless Card) - the RFID card we are reading
 //      At this time we plan to use the MIFARE Classic EV1 1K
-//   Currently just puts info into serial printout
+//   FIXME TODO Currently just puts info into serial printout
 //   Eventually would read command from PICC and return command as zero-terminated ASCII string
-char * read_PICC() {
+//
+// NOTE: the blockAddress is the combination of sector and block: blockAddress = _NUM_SECTORS*sector + block
+//   For PICC EV1 1K the blockAddress can range from 0 (sector 0 block 0) to 63 (sector 15 block 3)
+//   We can write in all blockAddress EXCEPT:
+//       blockAddress = 0 - never ever
+//       any 3rd block in any sector - never ever
+//   So there are a total of 47 sectors we can use; 47*16 bytes = 752 bytes
+//
+#define PICC_EV1_1K_NUM_SECTORS         16 // 16 sectors each with 4 blocks of 16 bytes
+#define PICC_EV1_1K_SECTOR_NUM_BLOCKS   4  // each sector has 4 blocks of 16 bytes
+#define PICC_EV1_1K_BLOCK_NUM_BYTES     16 // each block has 16 bytes
+#define PICC_EV1_1K_BLOCK_SECTOR_AVOID  3  // avoid blockAddress 0 and block 3 within each sector
+#define PICC_EV1_1K_START_BLOCKADDR     1  // do not use blockAddress 0
+#define PICC_EV1_1K_END_BLOCKADDR ((PICC_EV1_1K_SECTOR_NUM_BLOCKS) * PICC_EV1_1K_NUM_SECTORS - 1)
+
+char * uni_read_picc() {
+  // variables to keep track of timing of our actions
   static uint32_t msec_prev = 0;
   static uint32_t msec_waitfor = 0;
   uint32_t msec_now = millis();
-  char PICC_cmd[1025];
-  
-  // make command zero length
-  PICC_cmd[0] = '\0';
+
+  // variables to help with reading/writing the PICC card
+  byte blockAddress;
+  byte bufferblocksize = PICC_EV1_1K_BLOCK_NUM_BYTES+2;  // need this number in RAM; leaving some slack
+  byte blockDataRead[PICC_EV1_1K_BLOCK_NUM_BYTES+2];
+  MFRC522Constants::StatusCode picc_status;
+
+  static char picc_msg[1026];            // this will be the main output of the routine
+  static char picc_cmd[1026];            // this will be the main output of the routine
+  char * picc_cmd_ptr = picc_cmd; // pointer to the output buffer
+
+  // init zero-terminated command read from PICC in case of no card or early error
+  picc_cmd[0] = '\0';
 
   // don't do anything until next waitfor time
-  if (msec_now < msec_waitfor)
-    return(PICC_cmd);
+  if (msec_now < msec_waitfor) return(picc_cmd);
 
   // Check if a new card is present
   if (!mfrc522.PICC_IsNewCardPresent() || !mfrc522.PICC_ReadCardSerial()) {
     msec_waitfor = msec_now + 500;
-    return(PICC_cmd);
+    return(picc_cmd);
   }
 
+#if DEBUG_PRINT_PICC_INFO
   // Display card UID
   Serial.print("----------------\nCard UID: ");
   MFRC522Debug::PrintUID(Serial, (mfrc522.uid));
   Serial.println();
+#endif // DEBUG_PRINT_PICC_INFO
 
-  // Authenticate the specified block using KEY_A == command 0x60
-  if (mfrc522.PCD_Authenticate(MFRC522Constants::PICC_Command::PICC_CMD_MF_AUTH_KEY_A, blockAddress, &key, &(mfrc522.uid)) != 0) {
-    Serial.println("Authentication failed.");
-    return(PICC_cmd);
+  // check if card is our expected type
+  MFRC522Constants::PICC_Type piccType = mfrc522.PICC_GetType(mfrc522.uid.sak);
+  if (MFRC522Constants::PICC_Type::PICC_TYPE_MIFARE_1K != piccType) {
+    // FIXME TODO set display status to wrong card type
+#if DEBUG_PRINT_PICC_INFO
+    sprintf(picc_msg, "ERROR: PICC Type %d not PICC_TYPE_MIFARE_1K %d", piccType, MFRC522Constants::PICC_Type::PICC_TYPE_MIFARE_1K);
+    Serial.println(picc_msg); 
+#endif // DEBUG_PRINT_PICC_INFO
+    msec_waitfor = msec_now + 500;
+    return(picc_cmd);
   }
 
-  // Read data from the specified block
-  if (mfrc522.MIFARE_Read(blockAddress, blockDataRead, &bufferblocksize) != 0) {
-    Serial.println("Read BEFORE failed.");
-  } else {
-    Serial.println("Read BEFORE successful!");
-    Serial.print("Data BEFORE in block ");
-    Serial.print(blockAddress);
-    Serial.print(": ");
-    for (byte i = 0; i < 16; i++) {
-      Serial.print((char)blockDataRead[i]);  // Print as character
+  // thoroughly init zero-terminated command read from PICC; zero length as we build it up
+  memset(picc_cmd_ptr, 0, sizeof(picc_cmd));
+
+  // Read data from all blocks
+  picc_status = MFRC522Constants::StatusCode::STATUS_OK;
+  for (blockAddress = PICC_EV1_1K_START_BLOCKADDR; (blockAddress <= PICC_EV1_1K_END_BLOCKADDR) && (picc_status == MFRC522Constants::StatusCode::STATUS_OK); blockAddress += 1) {
+
+    // skip the blocks we should not use
+    if (PICC_EV1_1K_BLOCK_SECTOR_AVOID == (blockAddress % PICC_EV1_1K_SECTOR_NUM_BLOCKS)) continue;
+
+    // Authenticate the specified block using KEY_A == command 0x60
+    // MF1S50YYX_V1 Rev. 3.2 — 23 May 2018 says "The HLTA command needs to be sent encrypted to the PICC after a successful authentication in order to be accepted"
+    if ((picc_status = mfrc522.PCD_Authenticate(MFRC522Constants::PICC_Command::PICC_CMD_MF_AUTH_KEY_A, blockAddress, &key, &(mfrc522.uid))) != MFRC522Constants::StatusCode::STATUS_OK) {
+#if DEBUG_PRINT_PICC_INFO
+      sprintf(picc_msg, "ERROR: PICC Authentication failed, status %d", picc_status);
+      Serial.println(picc_msg);
+#endif // DEBUG_PRINT_PICC_INFO
+      // FIXME TODO set display status to authentication failed
+      picc_cmd[0] = '\0';
+      break; // do the halt and stop
     }
-    Serial.println();
-  }
-  // Authenticate the specified block using KEY_A = command 0x60
-  if (mfrc522.PCD_Authenticate(MFRC522Constants::PICC_Command::PICC_CMD_MF_AUTH_KEY_A, blockAddress, &key, &(mfrc522.uid)) != MFRC522Constants::StatusCode::STATUS_OK) {
-    Serial.println("Authentication failed.");
-    return(PICC_cmd);
-  }
-  
-  // Write data to the specified block
-  if (mfrc522.MIFARE_Write(blockAddress, newBlockData, 16) != 0) {
-    Serial.println("Write failed.");
-  } else {
-    Serial.print("Data written successfully in block: ");
-    Serial.println(blockAddress);
-  }
 
-  // Authenticate the specified block using KEY_A = command 0x60
-  if (mfrc522.PCD_Authenticate(MFRC522Constants::PICC_Command::PICC_CMD_MF_AUTH_KEY_A, blockAddress, &key, &(mfrc522.uid)) != MFRC522Constants::StatusCode::STATUS_OK) {
-    Serial.println("Authentication failed.");
-    return(PICC_cmd);
-  }
+    if ((picc_status = mfrc522.MIFARE_Read(blockAddress, blockDataRead, &bufferblocksize)) != MFRC522Constants::StatusCode::STATUS_OK) {
+#if DEBUG_PRINT_PICC_INFO
+      sprintf(picc_msg, "ERROR: PICC Read failed, status %d", picc_status);
+      Serial.println(picc_msg);
+#endif // DEBUG_PRINT_PICC_INFO
+      // FIXME TODO set display status to read failed
+      picc_cmd[0] = '\0';
+      break; // do the halt and stop
+    } else {
+      memcpy(picc_cmd_ptr, blockDataRead, PICC_EV1_1K_BLOCK_NUM_BYTES);
+      picc_cmd_ptr += PICC_EV1_1K_BLOCK_NUM_BYTES;
+#if DEBUG_PRINT_PICC_DATA_EACH
+      Serial.println("Read successful!");
+      Serial.print("Data in block ");
+      Serial.print(blockAddress);
+      Serial.print(": ");
+      for (byte i = 0; i < 16; i++) {
+        Serial.print((char)blockDataRead[i]);  // Print as character
+      }
+      Serial.println();
+#endif // DEBUG_PRINT_PICC_DATA_EACH
+    } // end one block read successful
+  } // end for all blockAddress
 
-  // Read data from the specified block
-  if (mfrc522.MIFARE_Read(blockAddress, blockDataRead, &bufferblocksize) != MFRC522Constants::StatusCode::STATUS_OK) {
-    Serial.println("Read AFTER failed.");
-  } else {
-    Serial.println("Read AFTER successful!");
-    Serial.print("Data AFTER in block ");
-    Serial.print(blockAddress);
-    Serial.print(": ");
-    for (byte i = 0; i < 16; i++) {
-      Serial.print((char)blockDataRead[i]);  // Print as character
-    }
-    Serial.println();
-  }
-  
   // Halt communication with the card
   mfrc522.PICC_HaltA();
   mfrc522.PCD_StopCrypto1();
 
   msec_waitfor = msec_now + 2000; // Delay for readability
-  return(PICC_cmd);
-} // end read_PICC()
+  return(picc_cmd);
+#if DEBUG_PRINT_PICC_DATA_FINAL
+  Serial.println("Read successful!");
+#endif // DEBUG_PRINT_PICC_DATA_FINAL
+} // end uni_read_picc()
 #endif // INCLUDE_RFID_SENSOR
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -992,7 +1022,7 @@ uint16_t uni_get_command(uint32_t p_msec_now) {
   if (0 == first_time) { DBG_SERIALPRINTLN("first_time RFID code"); }
   if ((0 == num_cmds_scanned) && (next_rfid_msec <= p_msec_now)) {
     // try RFID scanner
-    read_PICC();
+    uni_read_picc();
 /*  FIXME TODO WILL NEED SOMETHING SIMILAR TO THIS
     if (QRresults.content_length > 0) {
       DBG_SERIALPRINTLN("Doing QR Code");
