@@ -92,6 +92,8 @@ https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniRemoteCYD contains a
 - MicroSD Sniffer and HW VSPI for RC522 RF IC Card Sensor Module
 - I2C for QR Code reader
 
+At this time that is still a work in progress, but it does operate all the devices.
+
 I used my CYDbitBangCalibrate calibration constants in the cyd_input_read() routine found in https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniRemoteCYD/cyd_input_read.h<br>
 I will probably rework this UniRemoteCYD program further but I don't expect to change the routine name cyd_input_read so you should be able to find it.
 
