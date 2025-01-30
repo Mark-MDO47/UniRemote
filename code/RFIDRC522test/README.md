@@ -103,8 +103,10 @@ More documentation on the CYD internal pinouts and the connector types.
 [Top](#rfid-rc522-test "Top")<br>
 I am using the Arduino library RFID_MFRC522v2 by GithubCommunity. An important point when using this library in the CYD is that the reset pin RST (ESP32 pin 21) is unused since 25 Jun 2020 v2.0.0. That is fortunate, since in the CYD pin 21 is used for other purposes. I tried an experiment leaving it floating and that seemed to work.
 
-Work In Progress - Here is my best guess so far as to I/O channels and SD card sniffer
-| Sniffer | Alt | ESP32 pin | RC522 | Color | Comment |
+GPIO channels and SD card sniffer on the CYD
+- NOTE: N/C means No Connect.
+
+| Sniffer | Alt | ESP32 GPIO pin | RC522 | Color | Comment |
 | --- | --- | --- | --- | --- | --- |
 | DAT2 |  |  |  | N/C | unused |
 | CD | CS | 5 | SDA | Green | TF_CS |
