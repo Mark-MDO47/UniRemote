@@ -36,9 +36,11 @@ Some resources
 - https://forum.arduino.cc/t/multiple-spi-chip-select-question/101140
 - https://forum.arduino.cc/t/how-to-use-spi-for-multiple-devices/427739
 
-It turns out that the MicroSD card and the Touchscreen are not set up for this purpose. They do not share all the pins except for Chip Select (CS).
+It turns out that the MicroSD card and the Touchscreen are not set up for this purpose.
+- To use this technique they would need to share all the GPIO SPI pins except for SPI Chip Select (CS).
+- These two SPI interfaces on the CYD share no GPIO pins.
 
-Need to use software bit banging
+Because of this we need to use software bit banging to use the SPI port on the MicroSD card. It is common to use the software bit banging for interfacing with the touch screen since it has a low amount of actual data to transfer and the software SPI interface is slower than the hardware SPI interface.
 
 ### All ESP32 Hardware SPI Ports Used Up - Need Software Bit Banging
 [Top](#rfid-rc522-test "Top")<br>
@@ -47,25 +49,35 @@ This general Arduino usage doc for LVGL says "To get started it's recommended to
 
 However, in the case of the Cheap Yellow Display, there are not enough available hardware SPI resources on the ESP32 to handle the display (HSPI), the touchscreen (VSPI), and the MicroSD card slot (out of luck) at the same time (along with the other HW SPI ports used for general purpose stuff like FLASH memory).
   - https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display
-  - Using bit-banging so touch and SD can work in same program	https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display/blob/main/TROUBLESHOOTING.md#display-touch-and-sd-card-are-not-working-at-the-same-time
+  - Using bit-banging so touch and SD can work in same program - https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display/blob/main/TROUBLESHOOTING.md#display-touch-and-sd-card-are-not-working-at-the-same-time
 
 For that reason I am using the XPT2046_Bitbang library instead of the TFT_eSPI library for the touchscreen. This seems to work OK with some changes to the code.
 
+#### Touchscreen Calibration with XPT2046_Bitbang
+[Top](#rfid-rc522-test "Top")<br>
 I made a version of the Random Nerds CYDCalibrate.ino
 - Rui Santos & Sara Santos - Random Nerd Tutorials - https://RandomNerdTutorials.com/touchscreen-calibration/
 
-... that I call  CYDbitBangCalibrate.ino here. For some reason I don't understand, the calibration constants are quite different between the two SPI libraries. You can see that by looking at the two calibration text files, also in the following directory.
+... that I call  CYDbitBangCalibrate.ino here:
 - https://github.com/Mark-MDO47/UniRemote/tree/master/code/CYDbitBangCalibrate
+
+This is a good way to see how to change from CYD touchscreen operation using the XPT2046_Bitbang library instead of the TFT_eSPI library: compare the code from the following two sources
+- TFT_eSPI - https://RandomNerdTutorials.com/touchscreen-calibration/
+- XPT2046_Bitbang - https://github.com/Mark-MDO47/UniRemote/tree/master/code/CYDbitBangCalibrate
+
+For some reason I don't understand, the calibration constants generated are fairly different between the two calibration routines using different SPI libraries.
 
 If you use the XPT2046_Bitbang library and want to calibrate the touchscreen, you might want to use something similar to my CYDbitBangCalibrate program to generate the calibration constants.
 
+#### All Together Now
+[Top](#rfid-rc522-test "Top")<br>
 https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniRemoteCYD contains a program that uses
 - lvgl library
 - XPT2046_Bitbang library
 - MicroSD Sniffer and HW VSPI for RC522 RF IC Card Sensor Module
 - I2C for QR Code reader
 
-I used these CYDbitBangCalibrate calibration constants in the cyd_input_read() routine found in https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniRemoteCYD/cyd_input_read.h<br>
+I used my CYDbitBangCalibrate calibration constants in the cyd_input_read() routine found in https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniRemoteCYD/cyd_input_read.h<br>
 I will probably rework this UniRemoteCYD program further but I don't expect to change the routine name cyd_input_read so you should be able to find it.
 
 ## Documentation
