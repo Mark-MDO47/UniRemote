@@ -23,11 +23,11 @@
 [Top](#rfid-rc522-test "Top")<br>
 The original plan was to store the command string directly in the RFID card and have the RFID reader/writer on the CYD I2C bus along with the QR reader. See the [Hardware](#hardware "Hardware") section; this is not feasible.
 Options:
-- have another ESP32 or 3.3V microcontroller that is on the I2C bus and use it to control the SPI bus to the RFID reader/writer.
 - use MicroSD sniffer on the CYD and control both devices that way
   - https://www.sparkfun.com/sparkfun-microsd-sniffer.html
   - https://learn.sparkfun.com/tutorials/microsd-sniffer-hookup-guide/introduction
   - https://github.com/sparkfun/MicroSD_Sniffer.git
+- have another ESP32 or 3.3V microcontroller that is on the I2C bus and use it to control the SPI bus to the RFID reader/writer.
 
 ### Multiple SPI Devices on Same SPI Bus
 [Top](#rfid-rc522-test "Top")<br>
@@ -36,10 +36,16 @@ Some resources
 - https://forum.arduino.cc/t/multiple-spi-chip-select-question/101140
 - https://forum.arduino.cc/t/how-to-use-spi-for-multiple-devices/427739
 
+It turns out that the MicroSD card and the Touchscreen are not set up for this purpose. They do not share all the pins except for Chip Select (CS).
+
+Need to use software bit banging
+
+### All ESP32 Hardware SPI Ports Used Up - Need Software Bit Banging
+[Top](#rfid-rc522-test "Top")<br>
 This general Arduino usage doc for LVGL says "To get started it's recommended to use TFT_eSPI library as a TFT driver to simplify testing."
 - https://docs.lvgl.io/master/details/integration/framework/arduino.html
 
-However, in the case of the Cheap Yellow Display, there are not enough available hardware SPI resources on the ESP32 to handle the display (HSPI), the touchscreen (VSPI), and the MicroSD card slot (out of luck) at the same time.
+However, in the case of the Cheap Yellow Display, there are not enough available hardware SPI resources on the ESP32 to handle the display (HSPI), the touchscreen (VSPI), and the MicroSD card slot (out of luck) at the same time (along with the other HW SPI ports used for general purpose stuff like FLASH memory).
   - https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display
   - Using bit-banging so touch and SD can work in same program	https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display/blob/main/TROUBLESHOOTING.md#display-touch-and-sd-card-are-not-working-at-the-same-time
 
@@ -51,6 +57,16 @@ I made a version of the Random Nerds CYDCalibrate.ino
 ... that I call  CYDbitBangCalibrate.ino here. For some reason I don't understand, the calibration constants are quite different between the two SPI libraries. You can see that by looking at the two calibration text files, also in the following directory.
 - https://github.com/Mark-MDO47/UniRemote/tree/master/code/CYDbitBangCalibrate
 
+If you use the XPT2046_Bitbang library and want to calibrate the touchscreen, you might want to use something similar to my CYDbitBangCalibrate program to generate the calibration constants.
+
+https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniRemoteCYD contains a program that uses
+- lvgl library
+- XPT2046_Bitbang library
+- MicroSD Sniffer and HW VSPI for RC522 RF IC Card Sensor Module
+- I2C for QR Code reader
+
+I used these CYDbitBangCalibrate calibration constants in the cyd_input_read() routine found in https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniRemoteCYD/cyd_input_read.h<br>
+I will probably rework this UniRemoteCYD program further but I don't expect to change the routine name cyd_input_read so you should be able to find it.
 
 ## Documentation
 [Top](#rfid-rc522-test "Top")<br>
