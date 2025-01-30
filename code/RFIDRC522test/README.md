@@ -55,7 +55,7 @@ For that reason I am using the XPT2046_Bitbang library instead of the TFT_eSPI l
 
 #### Touchscreen Calibration with XPT2046_Bitbang
 [Top](#rfid-rc522-test "Top")<br>
-I made a version of the Random Nerds CYDCalibrate.ino
+I made a version of the Random Nerd CYDCalibrate.ino
 - Rui Santos & Sara Santos - Random Nerd Tutorials - https://RandomNerdTutorials.com/touchscreen-calibration/
 
 ... that I call  CYDbitBangCalibrate.ino here:
@@ -88,7 +88,7 @@ Documentation of the MIFARE Classic 1K card
 Documentation of the MFRC522v2 library
 - https://osslibraries.github.io/Arduino_MFRC522v2/
 
-I used the Random Nerds tutorials to get up to speed.
+I used the Random Nerd tutorials to get up to speed.
 - https://randomnerdtutorials.com/esp32-spi-communication-arduino/
 - https://randomnerdtutorials.com/esp32-i2c-communication-arduino-ide/
 - https://randomnerdtutorials.com/esp32-i2c-master-slave-arduino/
