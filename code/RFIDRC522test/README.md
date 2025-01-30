@@ -4,6 +4,12 @@
 * [Top](#rfid-rc522-test "Top")
 * [Hardware](#hardware "Hardware")
 * [Software](#software "Software")
+  * [Multiple SPI Devices on Same SPI Bus](#multiple-spi-devices-on-same-spi-bus "Multiple SPI Devices on Same SPI Bus")
+  * [All ESP32 Hardware SPI Ports Used Up - Need Software Bit Banging](#all-esp32-hardware-spi-ports-used-up-\--need-software-bit-banging "All ESP32 Hardware SPI Ports Used Up - Need Software Bit Banging")
+    * [Touchscreen Calibration with XPT2046_Bitbang](#touchscreen-calibration-with-xpt2046_bitbang "Touchscreen Calibration with XPT2046_Bitbang")
+    * [All Together Now](#all-together-now "All Together Now")
+* [Documentation](#documentation "Documentation")
+* [SPI Sniffer Info](#spi-sniffer-info "SPI Sniffer Info")
 
 ## Hardware
 [Top](#rfid-rc522-test "Top")<br>
@@ -20,7 +26,7 @@
   - the CYD MicroSD card reader uses SPI; a "sniffer" card can be used to access the GPIO lines from that
 
 - RESET
-  - Looking at the code for the “RFID_MFRC522v2 by Github Community” library, it appears that in 25 Jun 2020, v2.0.0 the library quit using the hardware reset pin and now uses only the software reset
+  - Looking at the code for the "RFID_MFRC522v2 by Github Community" library, it appears that in 25 Jun 2020, v2.0.0 the library quit using the hardware reset pin and now uses only the software reset
   - You can still find the commented-out hardware reset code near Arduino/libraries/RFID_MFRC522v2/src/MFRC522v2.cpp line 81
   - In my experience this library works without connecting the hardware RST line
   - Thus the number of lines (and GPIO pins) needed is 4 in addition to GND and 3.3V
