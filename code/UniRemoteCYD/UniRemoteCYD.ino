@@ -209,7 +209,7 @@ byte blockDataRead[18];
 
 // define touchscreen and LVGL definitions
 
-#define USE_LV_TICK_SET_CB 1 // 1 to use lv_tick_set_cb() in setup; 0 to use lv_tick_inc() in loop
+#define USE_LV_TICK_SET_CB 0 // 1 to use lv_tick_set_cb() in setup; 0 to use lv_tick_inc() in loop
 
 // NOTE WE ARE USING XPT2046_Bitbang INSTEAD OF TFT_eSPI
       // SPIClass touchscreenSPI = SPIClass(VSPI);
