@@ -12,16 +12,18 @@
 | https://www.amazon.com/dp/B07VLDSYRW | **READER/WRITER** HiLetgo 3pcs RFID Kit - Mifare RC522 RF IC Card Sensor Module + S50 Blank Card + Key Ring |
 | https://www.amazon.com/dp/B07S63VT7X | **CARDS** Meikuler 13.56MHz MIFARE Classic 1K, RFID Smart Cards / M1 Cards, ISO14443A Printable Blank RFID PVC Cards |
 
-- This RFID reader doesn't support I2C or UART without board modifications; just SPI
+- This RC522 RFID reader doesn't support I2C or UART without board modifications; just SPI
   - even though the IC itself supports I2C and UART, the board pins and strapping are just for SPI interface
   - look for Adrianotiger post #4 on Mar 2023 on https://forum.arduino.cc/t/esp32-rfid-rc522-i2c/1100200/3
-- On the other hand, the CYD board doesn't have enough SPI pins coming out natively
+- On the other hand, the CYD board doesn't have enough unused GPIO pins coming out natively to use SPI
   - nominally requires 5 lines in addition to GND and 3.3V - see below for discussion of the "RESET" or "RST" line
-  - the CYD MicroSD card reader uses SPI; a "sniffer" card can be used with that
+  - the CYD MicroSD card reader uses SPI; a "sniffer" card can be used to access the GPIO lines from that
 
 - RESET
-  - Looking at the code for the “RFID_MFRC522v2 by Github Community” library, it appears that in 25 Jun 2020, v2.0.0 the library quit using the hardware reset pin and now uses only the software reset.
-  - You can still find the commented-out hardware reset code near Arduino/libraries/RFID_MFRC522v2/src/MFRC522v2.cpp line 81.
+  - Looking at the code for the “RFID_MFRC522v2 by Github Community” library, it appears that in 25 Jun 2020, v2.0.0 the library quit using the hardware reset pin and now uses only the software reset
+  - You can still find the commented-out hardware reset code near Arduino/libraries/RFID_MFRC522v2/src/MFRC522v2.cpp line 81
+  - In my experience this library works without connecting the hardware RST line
+  - Thus the number of lines (and GPIO pins) needed is 4 in addition to GND and 3.3V
 
 ## Software
 [Top](#rfid-rc522-test "Top")<br>
@@ -32,6 +34,8 @@ Options:
   - https://learn.sparkfun.com/tutorials/microsd-sniffer-hookup-guide/introduction
   - https://github.com/sparkfun/MicroSD_Sniffer.git
 - have another ESP32 or 3.3V microcontroller that is on the I2C bus and use it to control the SPI bus to the RFID reader/writer.
+
+Using the MicroSD sniffer on the CYD works.
 
 ### Multiple SPI Devices on Same SPI Bus
 [Top](#rfid-rc522-test "Top")<br>
@@ -44,7 +48,7 @@ It turns out that the MicroSD card and the Touchscreen are not set up for this p
 - To use this technique they would need to share all the GPIO SPI pins except for SPI Chip Select (CS).
 - These two SPI interfaces on the CYD share no GPIO pins.
 
-Because of this we need to use software bit banging to use the SPI port on the MicroSD card. It is common to use the software bit banging for interfacing with the touch screen since it has a low amount of actual data to transfer and the software SPI interface is slower than the hardware SPI interface.
+Because of this we need to use software bit banging for one SPI port to free up the hardware SPI port for use on the MicroSD card. It is common to use the software bit banging for interfacing with the touch screen since it has a low amount of actual data to transfer and the software SPI interface is slower than the hardware SPI interface.
 
 ### All ESP32 Hardware SPI Ports Used Up - Need Software Bit Banging
 [Top](#rfid-rc522-test "Top")<br>
@@ -56,6 +60,7 @@ However, in the case of the Cheap Yellow Display, there are not enough available
   - Using bit-banging so touch and SD can work in same program - https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display/blob/main/TROUBLESHOOTING.md#display-touch-and-sd-card-are-not-working-at-the-same-time
 
 For that reason I am using the XPT2046_Bitbang library instead of the TFT_eSPI library for the touchscreen. This seems to work OK with some changes to the code.
+- This library can be installed from the Arduino IDE library manager (Search for "XPT2046 Slim")
 
 #### Touchscreen Calibration with XPT2046_Bitbang
 [Top](#rfid-rc522-test "Top")<br>
