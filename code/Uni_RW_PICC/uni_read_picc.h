@@ -40,7 +40,7 @@ uint8_t uni_read_picc() {
 
   // variables to help with reading/writing the PICC card
   byte blockAddress;
-  byte bufferblocksize = PICC_EV1_1K_BLOCK_NUM_BYTES+2;  // need this number in RAM; leaving some slack
+  byte bufferblocksize = PICC_EV1_1K_BLOCK_NUM_BYTES+2;  // leaving some slack
   byte blockDataRead[PICC_EV1_1K_BLOCK_NUM_BYTES+2];
   MFRC522Constants::StatusCode picc_status;
 
