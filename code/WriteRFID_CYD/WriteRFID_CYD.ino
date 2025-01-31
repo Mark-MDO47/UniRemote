@@ -67,7 +67,7 @@
 
 /*
  * This code was developed after reading the Random Nerd Tutorials below.
- * There are (or will be) significant differences in this code and the tutorials,
+ * There are significant differences in this code and the tutorials,
  *    but I want to give a tip of the hat to Rui Santos & Sara Santos for the
  *    wonderful work they do.
  * Below is the attribution from the Random Nerd Tutorial esp32-mfrc522-rfid-reader-arduino.

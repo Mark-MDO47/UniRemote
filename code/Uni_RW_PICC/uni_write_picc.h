@@ -1,6 +1,20 @@
 #ifndef UNI_WRITE_PICC_H
 #define UNI_WRITE_PICC_H 1
 
+/*
+ * This code was developed after reading the Random Nerd Tutorials below.
+ * There are significant differences in this code and the tutorials,
+ *    but I want to give a tip of the hat to Rui Santos & Sara Santos for the
+ *    wonderful work they do.
+ * Below is the attribution from the Random Nerd Tutorial esp32-mfrc522-rfid-reader-arduino.
+ */
+/*
+  Rui Santos & Sara Santos - Random Nerd Tutorials
+  Complete project details at https://RandomNerdTutorials.com/esp32-mfrc522-rfid-reader-arduino/
+  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files.  
+  The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+*/
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_write_picc() - write a PICC command
 //   PICC = Proximity Integrated Circuit Card (Contactless Card) - the RFID card we are writing
