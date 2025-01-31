@@ -8,9 +8,11 @@
  *  This routine runs on ESP32-2432S028R (Cheap Yellow Display or CYD) using
  *     the same hardware setup as UniRemoteCYD, with a "sniffer" on the MicroSD
  *     slot connecting the VSPI port to the Mifare RC522 RF IC Card Sensor Module.
+ *  The dialog with the operator is done using the serial port, not the display
+ *     and touchscreen. Because I am lazy.
  *  The PICC command info is entered in array write_strings[]. The input and output
  *     formats are described below.
- *     The text in write_strings[] is the same as the input file to QRCode.py
+ *     The text in write_strings[] is the same format as the input file to QRCode.py
  *     https://github.com/Mark-MDO47/MDOpythonUtils/tree/master/QRCode
  *
  *########################## INPUT ###########################
