@@ -175,7 +175,16 @@ MFRC522::MIFARE_Key key;
 #define DEBUG_PRINT_TOUCHSCREEN_INFO 0    // Print Touchscreen info about X, Y and Pressure (Z) on the Serial Monitor
 #define DEBUG_PRINT_PICC_INFO 1           // Print UID and other info when PICC RFID card detection on the Serial Monitor
 #define DEBUG_PRINT_PICC_DATA_FINAL 1     // Print the data we read in ASCII after all reads
-#define DEBUG_PRINT_PICC_DATA_EACH  1     // Print the data we read in ASCII after each read
+#define DEBUG_PRINT_PICC_DATA_EACH  0     // Print the data we read in ASCII after each read
+
+// PICC definitions for RFID reader
+#define PICC_EV1_1K_NUM_SECTORS         16 // 16 sectors each with 4 blocks of 16 bytes
+#define PICC_EV1_1K_SECTOR_NUM_BLOCKS   4  // each sector has 4 blocks of 16 bytes
+#define PICC_EV1_1K_BLOCK_NUM_BYTES     16 // each block has 16 bytes
+#define PICC_EV1_1K_BLOCK_SECTOR_AVOID  3  // avoid blockAddress 0 and block 3 within each sector
+#define PICC_EV1_1K_START_BLOCKADDR     1  // do not use blockAddress 0
+#define PICC_EV1_1K_END_BLOCKADDR ((PICC_EV1_1K_SECTOR_NUM_BLOCKS) * PICC_EV1_1K_NUM_SECTORS - 1)
+
 
 // PIN definitions
 
@@ -852,6 +861,8 @@ esp_err_t uni_esp_now_cmd_send(char * p_cmd) {
 } // end uni_esp_now_cmd_send()
 
 #if INCLUDE_RFID_SENSOR
+char g_picc_read[PICC_EV1_1K_NUM_SECTORS*(PICC_EV1_1K_SECTOR_NUM_BLOCKS-1)*PICC_EV1_1K_BLOCK_NUM_BYTES]; // 16 extra bytes
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_read_picc() - get next PICC command - DEBUGGING just detect, read, write, read
 //   PICC = Proximity Integrated Circuit Card (Contactless Card) - the RFID card we are reading
@@ -864,16 +875,12 @@ esp_err_t uni_esp_now_cmd_send(char * p_cmd) {
 //   We can write in all blockAddress EXCEPT:
 //       blockAddress = 0 - never ever
 //       any 3rd block in any sector - never ever
-//   So there are a total of 47 sectors we can use; 47*16 bytes = 752 bytes
+//   So there are a total of 47 sectors we can use; (16*3-1)*16 bytes = 752 bytes
 //
-#define PICC_EV1_1K_NUM_SECTORS         16 // 16 sectors each with 4 blocks of 16 bytes
-#define PICC_EV1_1K_SECTOR_NUM_BLOCKS   4  // each sector has 4 blocks of 16 bytes
-#define PICC_EV1_1K_BLOCK_NUM_BYTES     16 // each block has 16 bytes
-#define PICC_EV1_1K_BLOCK_SECTOR_AVOID  3  // avoid blockAddress 0 and block 3 within each sector
-#define PICC_EV1_1K_START_BLOCKADDR     1  // do not use blockAddress 0
-#define PICC_EV1_1K_END_BLOCKADDR ((PICC_EV1_1K_SECTOR_NUM_BLOCKS) * PICC_EV1_1K_NUM_SECTORS - 1)
-
-char * uni_read_picc() {
+// Returns zero if got a command; else non-zero
+// g_picc_read will be filled with the command; zero-terminated string.
+//
+uint8_t uni_read_picc() {
   // variables to keep track of timing of our actions
   static uint32_t msec_prev = 0;
   static uint32_t msec_waitfor = 0;
@@ -885,25 +892,27 @@ char * uni_read_picc() {
   byte blockDataRead[PICC_EV1_1K_BLOCK_NUM_BYTES+2];
   MFRC522Constants::StatusCode picc_status;
 
-  static char picc_msg[1026];            // this will be the main output of the routine
-  static char picc_cmd[1026];            // this will be the main output of the routine
+  static char picc_msg[1026];            // temp area to build strings for messages
+  static char picc_cmd[PICC_EV1_1K_NUM_SECTORS*(PICC_EV1_1K_SECTOR_NUM_BLOCKS-1)*PICC_EV1_1K_BLOCK_NUM_BYTES]; // 16 extra bytes; assemble the command from the card here
   char * picc_cmd_ptr = picc_cmd; // pointer to the output buffer
 
+  uint8_t ret_value = 0xFF; // did not get a command yet
+
   // init zero-terminated command read from PICC in case of no card or early error
-  picc_cmd[0] = '\0';
+  picc_cmd[0] = g_picc_read[0] = '\0';
 
   // don't do anything until next waitfor time
-  if (msec_now < msec_waitfor) return(picc_cmd);
+  if (msec_now < msec_waitfor) return(ret_value);
 
   // Check if a new card is present
   if (!mfrc522.PICC_IsNewCardPresent() || !mfrc522.PICC_ReadCardSerial()) {
     msec_waitfor = msec_now + 500;
-    return(picc_cmd);
+    return(ret_value);
   }
 
 #if DEBUG_PRINT_PICC_INFO
   // Display card UID
-  Serial.print("----------------\nCard UID: ");
+  Serial.print("--READING---------\nCard UID: ");
   MFRC522Debug::PrintUID(Serial, (mfrc522.uid));
   Serial.println();
 #endif // DEBUG_PRINT_PICC_INFO
@@ -917,7 +926,7 @@ char * uni_read_picc() {
     Serial.println(picc_msg); 
 #endif // DEBUG_PRINT_PICC_INFO
     msec_waitfor = msec_now + 500;
-    return(picc_cmd);
+    return(ret_value);
   }
 
   // thoroughly init zero-terminated command read from PICC; zero length as we build it up
@@ -954,7 +963,7 @@ char * uni_read_picc() {
       memcpy(picc_cmd_ptr, blockDataRead, PICC_EV1_1K_BLOCK_NUM_BYTES);
       picc_cmd_ptr += PICC_EV1_1K_BLOCK_NUM_BYTES;
 #if DEBUG_PRINT_PICC_DATA_EACH
-      Serial.println("Read successful!");
+      Serial.println("PICC Read successful!");
       Serial.print("Data in block ");
       Serial.print(blockAddress);
       Serial.print(": ");
@@ -971,10 +980,14 @@ char * uni_read_picc() {
   mfrc522.PCD_StopCrypto1();
 
   msec_waitfor = msec_now + 2000; // Delay for readability
-  return(picc_cmd);
 #if DEBUG_PRINT_PICC_DATA_FINAL
-  Serial.println("Read successful!");
+  Serial.print("PICC read final MFRC522 status "); Serial.println(picc_status);
 #endif // DEBUG_PRINT_PICC_DATA_FINAL
+  if (MFRC522Constants::StatusCode::STATUS_OK == picc_status) {
+    ret_value = 0;
+    strncpy(g_picc_read, picc_cmd, ESP_NOW_MAX_DATA_LEN-1); // max ESP-NOW msg size -1 for the zero termination
+  }
+  return(ret_value);
 } // end uni_read_picc()
 #endif // INCLUDE_RFID_SENSOR
 
