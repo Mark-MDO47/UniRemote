@@ -1,17 +1,23 @@
 /* Author: https://github.com/Mark-MDO47  Jan 23, 2025
  *  https://github.com/Mark-MDO47/UniRemote
  *
- * This test code is to alter the Random Nerd Tutorials esp32-mfrc522-rfid-reader-arduino
- *  code to a form that fits in my uniRemoteCYD or uniRemote code.
- *
- * Mostly I want to avoid delay() statements so I can use multiple devices in the same
- *  code.
+ *  This routine writes and checks command info to PICC (RFID) cards.
+ *  It is intended to write PICC cards to be used by UniRemoteCYD.
+ *     https://github.com/Mark-MDO47/UniRemote
+ *     https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniRemoteCYD
+ *  This routine runs on ESP32-2432S028R (Cheap Yellow Display or CYD) using
+ *     the same hardware setup as UniRemoteCYD, with a "sniffer" on the MicroSD
+ *     slot connecting the VSPI port to the Mifare RC522 RF IC Card Sensor Module.
+ *  The PICC command info is entered in array write_strings[]. The input and output
+ *     formats are described below.
+ *     The text in write_strings[] is the same as the input file to QRCode.py
+ *     https://github.com/Mark-MDO47/MDOpythonUtils/tree/master/QRCode
  *
  *########################## INPUT ###########################
  * The input QR code file should be a tab-separated-variable text file
- *     of the following form. The input text array for the WriteRFID program
+ *     of the following form. The input text array for the WriteRFID_CYD program
  *     should be of the same form for ease of transcription, but the *.png
- *     filename is ignored in WriteRFID.
+ *     filename is ignored in WriteRFID_CYD.
  * <*.png filename><TAB><DESCRIPTION STRING><TAB><MAC ADDRESS><"|"><COMMAND STRING>
  *
  * Most of those fields are described in the output section.
@@ -46,13 +52,18 @@
  *   the <TAB> prior to the description string is required.
  *   The description is just for your purposes; it is not sent to the ESP-NOW target.
  *
+ */
+
+/*
  * The RFID reader used is (as far as I can tell) pretty common.
  *     I used this one: https://www.amazon.com/dp/B07VLDSYRW
  *     It is capable of reading and/or writing RFID Smart Cards.
  *     The controller chip could support UART or I2C or SPI interfaces,
  *        but the only interface supported without board modification is the
  *        SPI interface.
- *
+ */
+
+/*
  * This code was developed after reading the Random Nerd Tutorials below.
  * There are (or will be) significant differences in this code and the tutorials,
  *    but I want to give a tip of the hat to Rui Santos & Sara Santos for the
@@ -70,6 +81,12 @@
  * I am using this MicroSD sniffer https://www.sparkfun.com/sparkfun-microsd-sniffer.html to get access to pins to
  *    use for the SPI interface of the RFID reader. In order to free up a hardware SPI channel (VSPI), I am using the
  *    
+ */
+
+/* 
+ * NOTE: I have not trimmed the includes down to the minimum yet. TODO FIXME
+ *    Not using display or touchscreen, probably do not need XPT2046_Bitbang.
+ *    Believe it or not, it does need esp_now.h to get max ESP-NOW msg length.
  */
 
 // ----------------------------
@@ -207,7 +224,7 @@ uint8_t uni_write_picc(char * write_cmd) {
 
 #if DEBUG_PRINT_PICC_INFO
   // Display card UID
-  Serial.print("----------------\nCard UID: ");
+  Serial.print("--READING---------\nCard UID: ");
   MFRC522Debug::PrintUID(Serial, (mfrc522.uid));
   Serial.println();
 #endif // DEBUG_PRINT_PICC_INFO
@@ -317,7 +334,7 @@ uint8_t uni_read_picc() {
 
 #if DEBUG_PRINT_PICC_INFO
   // Display card UID
-  Serial.print("----------------\nCard UID: ");
+  Serial.print("--READING---------\nCard UID: ");
   MFRC522Debug::PrintUID(Serial, (mfrc522.uid));
   Serial.println();
 #endif // DEBUG_PRINT_PICC_INFO
@@ -463,13 +480,17 @@ char * get_ascii_string() {
   return(ascii_string);
 } // end get_ascii_string() - STRING CLASS version
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// setup() - Initialize CYD hardware: serial port and VSPI to MFRC522 via the MicroSD card and a sniffer.
+//
 void setup() {
   Serial.begin(115200);  // Initialize serial communication
   while (!Serial);       // Do nothing if no serial port is opened (added for Arduinos based on ATMEGA32U4).
   delay(1000); // 1 second delay - XIAO ESP32S3 Sense and others need this
 
   mfrc522.PCD_Init();    // Init MFRC522 board.
-  Serial.println(F("starting WriteRFID - writes to a PICC RFID card"));
+  Serial.println(F("\nstarting WriteRFID_CYD - writes to a PICC RFID card"));
+  Serial.println(F("   see https://github.com/Mark-MDO47/UniRemote\n"));
  
   // Prepare key - all keys are set to FFFFFFFFFFFF at chip delivery from the factory.
   for (byte i = 0; i < 6; i++) {
@@ -477,6 +498,14 @@ void setup() {
   }
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// loop() - send write_strings to PICC cards
+//
+// Runs on a CYD but communicates through the serial port.
+//
+// Thus the UniRemoteCYD hardware is used to write the PICC cards
+//    but when used as a remote control there is no code to write a PICC card.
+//
 char * write_strings[] = {
   "XIAO_test_msg.png	Test Message to XIAO ESP32-Sense	74:4d:bd:98:7f:1c|TestMessage XIAO ESP32-Sense",
   "bad_test_ne_msg.png	Test Message to non-existing destination	74:4d:bd:11:11:11|TestMessage non-existing",
@@ -500,26 +529,25 @@ void loop() {
   if (STATE_DESCRIBE == state) {
     if (NUMOF(write_strings) > input_idx) {
       Serial.println("Prepare to write MIFARE Classic EV1 1K card");
-      Serial.println("   Enter anything starting with y or Y to start looking for card and writing");
+      Serial.println("   Enter anything starting with w or W to start looking for card and writing");
       Serial.println("   Enter anything starting with s or S to skip this string and go to the next");
       Serial.println("   Enter anything starting with a or A to abort this process and stop writing RFID cards");
       // print without the first field (unused)
-      Serial.print(" --------> ");
-      Serial.println(strptr = 1+strstr(write_strings[input_idx],"\t"));
-      Serial.print("enter your string to process RFID card > ");
+      Serial.print(" --String-To-Process--> \""); Serial.print(strptr = 1+strstr(write_strings[input_idx],"\t")); Serial.println("\"");
+      Serial.print("Enter your command to process this String > ");
       opr_input = get_ascii_string();
-      Serial.println(" "); Serial.print("You Entered |"); Serial.print(opr_input); Serial.println("|");
-      if (('y' == *opr_input) || ('Y' == *opr_input)) {
+      Serial.println(" "); Serial.print("You Entered \""); Serial.print(opr_input); Serial.println("\"");
+      if (('w' == *opr_input) || ('W' == *opr_input)) {
         if (0 == parse_string(build_string,strptr)) {
-          Serial.print(" --------> |"); Serial.print(build_string); Serial.println("|");
+          Serial.print(" --Write--> \""); Serial.print(build_string); Serial.println("\"");
           state = STATE_WRITE;
           Serial.println("Please place card on writer");
         } else {
-          Serial.println("ERROR parsing input string, skipping to next string");
+          Serial.println("ERROR parsing input string, skipping to next string\n");
           input_idx += 1;
         }
       } else if (('s' == *opr_input) || ('S' == *opr_input)) {
-          Serial.println("Skipping to next string");
+          Serial.println("Skipping to next string\n");
           input_idx += 1;
       } else if (('a' == *opr_input) || ('A' == *opr_input)) {
         Serial.println("Aborting; done");
@@ -538,9 +566,15 @@ void loop() {
     }
   } else if (STATE_READ == state) {
     if (0 == (the_status = uni_read_picc())) {
-      Serial.println(g_picc_read);
-      delay(2000);
+      Serial.print(" --Read---> \""); Serial.print(g_picc_read); Serial.println("\"");
+      if (0 == strcmp(build_string, g_picc_read)) {
+        Serial.println("Comparison GOOD - Read data matches Write data");
+      } else {
+        Serial.println("ERROR: Comparison BAD - read data does not match what was written");
+      }
+      Serial.println("Please remove PICC card\n");
+      delay(1000);
       state = STATE_DESCRIBE;
     }
   }
-}
+} // end loop()
