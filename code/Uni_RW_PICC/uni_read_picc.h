@@ -4,7 +4,7 @@
 char g_picc_read[PICC_EV1_1K_NUM_SECTORS*(PICC_EV1_1K_SECTOR_NUM_BLOCKS-1)*PICC_EV1_1K_BLOCK_NUM_BYTES]; // 16 extra bytes
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// uni_read_picc() - get next PICC command - DEBUGGING just detect, read, write, read
+// uni_read_picc() - get next PICC command
 //   PICC = Proximity Integrated Circuit Card (Contactless Card) - the RFID card we are reading
 //      At this time we plan to use the MIFARE Classic EV1 1K
 //   FIXME TODO Currently just puts info into serial printout

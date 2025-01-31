@@ -109,4 +109,4 @@ uint8_t uni_write_picc(char * write_cmd) {
   msec_waitfor = msec_now + 2000; // Delay for readability
   return(ret_value);
 } // end uni_write_picc()
-#endif UNI_WRITE_PICC_H
+#endif // UNI_WRITE_PICC_H
