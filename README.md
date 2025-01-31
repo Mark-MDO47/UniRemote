@@ -56,7 +56,7 @@ The hardware that receives the commands can use basically any ESP32 that include
 Here is what the code is:<br>
 | Link | Description |
 | --- | --- |
-| [code/CYDbitBangCalibrate](https://github.com/Mark-MDO47/UniRemote/tree/master/code/CYDbitBangCalibrate "CYDbitBangCalibrate") | Modified Random Nerds CYD Calibrate routine that uses the XPT2046_Bitbang software-based SPI library instead of the TFT_eSPI hardware based SPI library for the touchscreen |
+| [code/CYDbitBangCalibrate](https://github.com/Mark-MDO47/UniRemote/tree/master/code/CYDbitBangCalibrate "CYDbitBangCalibrate") | Modified Random Nerds CYD Calibrate routine that uses the XPT2046_Bitbang software-based SPI library instead of the TFT_eSPI hardware based SPI library for the touchscreen - attributions in the code |
 | [code/UniRemoteCYD](https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniRemoteCYD "UniRemoteCYD") | UniRemote code with QR code reader above and CYD - attributions in the code |
 | [code/UniTestRcvr](https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniTestRcvr "UniTestRcvr") | UniRemote code template for generic receiver of the commands - attributions in the code |
 | --- | --- |
