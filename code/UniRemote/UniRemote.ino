@@ -20,7 +20,7 @@
  *  The QR code reader for this code is Tiny Code Reader from Useful Sensors
  *     see https://github.com/usefulsensors/tiny_code_reader_arduino.git
  *     
- *  The QR code should be a text tab-separated-variable text file of the following form:
+ *  The QR code or MIFARE Classic EV1 1K card should be a tab-separated-variable text file of the following form:
  *  <MAC ADDRESS><TAB><COMMAND STRING><TAB><DESCRIPTION STRING>
  *  
  *  <MAC ADDRESS> is a string of the following exact form:
