@@ -21,8 +21,6 @@ char g_picc_read[PICC_EV1_1K_NUM_SECTORS*(PICC_EV1_1K_SECTOR_NUM_BLOCKS-1)*PICC_
 // uni_read_picc() - get next PICC command
 //   PICC = Proximity Integrated Circuit Card (Contactless Card) - the RFID card we are reading
 //      At this time we plan to use the MIFARE Classic EV1 1K
-//   FIXME TODO Currently just puts info into serial printout
-//   Eventually would read command from PICC and return command as zero-terminated ASCII string
 //
 // NOTE: the blockAddress is the combination of sector and block: blockAddress = _NUM_SECTORS*sector + block
 //   For PICC EV1 1K the blockAddress can range from 0 (sector 0 block 0) to 63 (sector 15 block 3)
