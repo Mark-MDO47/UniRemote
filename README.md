@@ -60,7 +60,7 @@ Here is what the code is:<br>
 | [code/UniRemoteCYD](https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniRemoteCYD "UniRemoteCYD") | UniRemote code with QR code reader, RFID Reader, and CYD - attributions in the code |
 | [code/UniTestRcvr](https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniTestRcvr "UniTestRcvr") | UniRemote code template for generic receiver of the commands - attributions in the code |
 | --- | --- |
-| [code/readMacAddress](https://github.com/Mark-MDO47/UniRemote/tree/master/code/readMacAddress "readMacAddress") | Code to with same hardware setup as UniRemoteCYD to read the WiFi MAC address of an ESP32 - attribution in its README |
+| [code/readMacAddress](https://github.com/Mark-MDO47/UniRemote/tree/master/code/readMacAddress "readMacAddress") | Code with same hardware setup as UniRemoteCYD to read the WiFi MAC address of an ESP32 - attribution in its README |
 | [code/WriteRFID_CYD](https://github.com/Mark-MDO47/UniRemote/tree/master/code/WriteRFID_CYD "WriteRFID_CYD") | Code to write RFID cards based on text strings in same format as input to QRCode.py - attributions in the code |
 | [MDOpythonUtils QRCode.py](https://github.com/Mark-MDO47/MDOpythonUtils/tree/master/QRCode "QRCode.py") | Python routine to generate QR code based on directions in a text file |
 | --- | --- |
