@@ -469,7 +469,7 @@ void setup() {
   delay(1000); // 1 second delay - XIAO ESP32S3 Sense and others need this
 
   mfrc522.PCD_Init();    // Init MFRC522 board.
-  Serial.println(F("starting WriteRFID_test - writes to a PICC RFID card"));
+  Serial.println(F("starting WriteRFID - writes to a PICC RFID card"));
  
   // Prepare key - all keys are set to FFFFFFFFFFFF at chip delivery from the factory.
   for (byte i = 0; i < 6; i++) {
