@@ -32,7 +32,7 @@
  *     addresses that can be registered at once.
  *   
  *  The scanned command should be a text tab-separated-variable text file of the following form:
- *  <MAC ADDRESS><TAB><COMMAND STRING><TAB><DESCRIPTION STRING>
+ *  <MAC ADDRESS><"|"><COMMAND STRING><TAB><DESCRIPTION STRING>
  *  
  *  <MAC ADDRESS> is a string of the following exact form:
  *      ##:##:##:##:##:##
@@ -49,6 +49,10 @@
  * <DESCRIPTION STRING> can be zero length or more, but for consistency
  *    the <TAB> prior to the description string is required.
  *    The description is just for your purposes; it is not sent to the ESP-NOW target.
+ *
+ * <"|"> is the single character of a vertical bar (the bash pipe character).
+ *
+ * <TAB> is the single character Tab (ASCII Horizontal Tab, '\t', hex 0x09)
  *
  * QRcode.py in https://github.com/Mark-MDO47/MDOpythonUtils
  *    will create such a QR code from text input. It requires that you
@@ -861,11 +865,11 @@ esp_err_t uni_esp_now_cmd_send(char * p_cmd) {
 } // end uni_esp_now_cmd_send()
 
 #if INCLUDE_RFID_SENSOR
-// uni_read_picc() - get next PICC command
+// uni_read_picc(char my_picc_read[]) - get next PICC command
 //   PICC = Proximity Integrated Circuit Card (Contactless Card) - the RFID card we are reading
 //      At this time we plan to use the MIFARE Classic EV1 1K
 // Returns zero if got a command; else non-zero
-// g_picc_read will be filled with the command; zero-terminated string.
+// param my_picc_read[] will be filled with the command; zero-terminated string.
 //
 #include "../Uni_RW_PICC/uni_read_picc.h"
 #endif // INCLUDE_RFID_SENSOR
@@ -879,6 +883,8 @@ esp_err_t uni_esp_now_cmd_send(char * p_cmd) {
 uint16_t uni_get_command(uint32_t p_msec_now) {
   static uint8_t first_time = 0;      // 0 on first time through uni_get_command()
   static uint32_t next_rfid_msec = 0; // p_msec_now must be >= this to do another RFID action
+  uint16_t the_status;
+
 
   uint16_t num_cmds_scanned = 0;
 
@@ -911,22 +917,18 @@ uint16_t uni_get_command(uint32_t p_msec_now) {
     sprintf(g_msg, "DBG Fake CMD #%d:\n %s", g_last_scanned_cmd_count, g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
   }
 #if INCLUDE_RFID_SENSOR
-  if (0 == first_time) { DBG_SERIALPRINTLN("first_time RFID code"); }
+  if (0 == first_time) { DBG_SERIALPRINTLN("first_time RFID PICC code"); }
   if ((0 == num_cmds_scanned) && (next_rfid_msec <= p_msec_now)) {
     // try RFID scanner
-    uni_read_picc();
-/*  FIXME TODO WILL NEED SOMETHING SIMILAR TO THIS
-    if (QRresults.content_length > 0) {
+    if (0 == (the_status = uni_read_picc(g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd))) {
       DBG_SERIALPRINTLN("Doing QR Code");
       num_cmds_scanned = 1;
       g_last_scanned_cmd_count += 1;
       g_uni_state_times[g_uni_state] = p_msec_now;
-      strncpy(g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd, (char *)QRresults.content_bytes, sizeof(g_cmd_queue[0].scanned_cmd));
       g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd_len = strlen(g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
-      sprintf(g_msg, "QR CMD #%d scanned:\n %s", g_last_scanned_cmd_count, g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
-    FIXME TODO WILL NEED SOMETHING SIMILAR TO THIS
- */
-  } // end if got PICC result
+      sprintf(g_msg, "RFID PICC CMD #%d scanned:\n %s", g_last_scanned_cmd_count, g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
+    } // end if got PICC result
+  } // end if looking for PICC command
 #endif // INCLUDE_RFID_SENSOR
 #if INCLUDE_QR_SENSOR
   static tiny_code_reader_results_t QRresults = {};

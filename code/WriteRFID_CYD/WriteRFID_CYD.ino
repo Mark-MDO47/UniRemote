@@ -32,6 +32,7 @@
  *
  * <"|"> is the single character of a vertical bar (the bash pipe character).
  *
+ * <TAB> is the single character Tab (ASCII Horizontal Tab, '\t', hex 0x09)
  *
  *########################## OUTPUT ###########################
  * The output QR code or MIFARE Classic EV1 1K card should be a
@@ -153,7 +154,7 @@ MFRC522::MIFARE_Key key;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // parse_string - parse input string into string for PICC writing
 //    strptr_desc  - input string starting at <DESCRIPTION STRING><TAB><MAC ADDRESS><"|"><COMMAND STRING>
-//    build_string - PICC writing string <MAC ADDRESS><TAB><COMMAND STRING><TAB><DESCRIPTION STRING>
+//    build_string - PICC writing string <MAC ADDRESS><"|"><COMMAND STRING><TAB><DESCRIPTION STRING>
 //
 // returns 0 if success; else non-zero
 // 
@@ -162,13 +163,10 @@ MFRC522::MIFARE_Key key;
 uint8_t parse_string(char *build_string, char *strptr_desc) {
   uint8_t ret_val = 0xFF;
   char * strptr_mac = strstr(strptr_desc,"\t");
-  char * strptr_cmd = strstr(strptr_mac,"|");
 
   if ((ESP_NOW_MAX_DATA_LEN-1) > strlen(strptr_desc)) {
     build_string[0] = '\0';
-    strncpy(build_string,1+strptr_mac,strptr_cmd-strptr_mac-1); // copy MAC address
-    strcat(build_string,"\t");
-    strcat(build_string,1+strptr_cmd);
+    strcat(build_string,1+strptr_mac); // copy MAC address and Command String
     strcat(build_string,"\t");
     strncat(build_string,strptr_desc,strptr_mac-strptr_desc);
     ret_val = 0;
@@ -188,11 +186,11 @@ uint8_t parse_string(char *build_string, char *strptr_desc) {
 #include "../Uni_RW_PICC/uni_write_picc.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// uni_read_picc() - get next PICC command
+// uni_read_picc(char my_picc_read[]) - get next PICC command
 //   PICC = Proximity Integrated Circuit Card (Contactless Card) - the RFID card we are reading
 //      At this time we plan to use the MIFARE Classic EV1 1K
 // Returns zero if got a command; else non-zero
-// g_picc_read will be filled with the command; zero-terminated string.
+// param my_picc_read[] will be filled with the command; zero-terminated string.
 //
 #include "../Uni_RW_PICC/uni_read_picc.h"
 
@@ -306,7 +304,8 @@ void loop() {
   static uint8_t state = STATE_DESCRIBE;
   static char build_string[ESP_NOW_MAX_DATA_LEN];
   static uint16_t input_idx = 0;
-  uint8_t the_status;
+  static char my_picc_read[PICC_EV1_1K_NUM_SECTORS*(PICC_EV1_1K_SECTOR_NUM_BLOCKS-1)*PICC_EV1_1K_BLOCK_NUM_BYTES]; // 16 extra bytes
+  uint16_t the_status;
   char * strptr;
   char * opr_input;
 
@@ -349,9 +348,9 @@ void loop() {
       delay(1000);
     }
   } else if (STATE_READ == state) {
-    if (0 == (the_status = uni_read_picc())) {
-      Serial.print(" --Read---> \""); Serial.print(g_picc_read); Serial.println("\"");
-      if (0 == strcmp(build_string, g_picc_read)) {
+    if (0 == (the_status = uni_read_picc(my_picc_read))) {
+      Serial.print(" --Read---> \""); Serial.print(my_picc_read); Serial.println("\"");
+      if (0 == strcmp(build_string, my_picc_read)) {
         Serial.println("Comparison GOOD - Read data matches Write data");
       } else {
         Serial.println("ERROR: Comparison BAD - read data does not match what was written");

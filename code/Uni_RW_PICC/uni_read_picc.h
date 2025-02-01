@@ -15,12 +15,12 @@
   The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
-char g_picc_read[PICC_EV1_1K_NUM_SECTORS*(PICC_EV1_1K_SECTOR_NUM_BLOCKS-1)*PICC_EV1_1K_BLOCK_NUM_BYTES]; // 16 extra bytes
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_read_picc() - get next PICC command
 //   PICC = Proximity Integrated Circuit Card (Contactless Card) - the RFID card we are reading
 //      At this time we plan to use the MIFARE Classic EV1 1K
+//   FIXME TODO Currently just puts info into serial printout
+//   Eventually would read command from PICC and return command as zero-terminated ASCII string
 //
 // NOTE: the blockAddress is the combination of sector and block: blockAddress = _NUM_SECTORS*sector + block
 //   For PICC EV1 1K the blockAddress can range from 0 (sector 0 block 0) to 63 (sector 15 block 3)
@@ -30,9 +30,9 @@ char g_picc_read[PICC_EV1_1K_NUM_SECTORS*(PICC_EV1_1K_SECTOR_NUM_BLOCKS-1)*PICC_
 //   So there are a total of 47 sectors we can use; (16*3-1)*16 bytes = 752 bytes
 //
 // Returns zero if got a command; else non-zero
-// g_picc_read will be filled with the command; zero-terminated string.
+// p_picc_read will be filled with the command; zero-terminated string.
 //
-uint8_t uni_read_picc() {
+uint8_t uni_read_picc(char p_picc_read[]) {
   // variables to keep track of timing of our actions
   static uint32_t msec_prev = 0;
   static uint32_t msec_waitfor = 0;
@@ -40,7 +40,7 @@ uint8_t uni_read_picc() {
 
   // variables to help with reading/writing the PICC card
   byte blockAddress;
-  byte bufferblocksize = PICC_EV1_1K_BLOCK_NUM_BYTES+2;  // leaving some slack
+  byte bufferblocksize = PICC_EV1_1K_BLOCK_NUM_BYTES+2;  // need this number in RAM; leaving some slack
   byte blockDataRead[PICC_EV1_1K_BLOCK_NUM_BYTES+2];
   MFRC522Constants::StatusCode picc_status;
 
@@ -51,7 +51,7 @@ uint8_t uni_read_picc() {
   uint8_t ret_value = 0xFF; // did not get a command yet
 
   // init zero-terminated command read from PICC in case of no card or early error
-  picc_cmd[0] = g_picc_read[0] = '\0';
+  picc_cmd[0] = p_picc_read[0] = '\0';
 
   // don't do anything until next waitfor time
   if (msec_now < msec_waitfor) return(ret_value);
@@ -137,7 +137,7 @@ uint8_t uni_read_picc() {
 #endif // DEBUG_PRINT_PICC_DATA_FINAL
   if (MFRC522Constants::StatusCode::STATUS_OK == picc_status) {
     ret_value = 0;
-    strncpy(g_picc_read, picc_cmd, ESP_NOW_MAX_DATA_LEN-1); // max ESP-NOW msg size -1 for the zero termination
+    strncpy(p_picc_read, picc_cmd, ESP_NOW_MAX_DATA_LEN-1); // max ESP-NOW msg size -1 for the zero termination
   }
   return(ret_value);
 } // end uni_read_picc()
