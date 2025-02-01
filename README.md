@@ -83,7 +83,7 @@ Here is what the code is:<br>
   - if not "too soon"
     - scan QR code into RAM
 
-**UNI_STATE_QR_SEEN**
+**UNI_STATE_CMD_SEEN**
 - *command in queue, waiting for GO or CLEAR*
 - alert wait for send
 - wait for SEND or CLEAR
