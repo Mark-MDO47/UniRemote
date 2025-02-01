@@ -826,7 +826,6 @@ int16_t uni_esp_now_register_peer(uint8_t * mac_addr) {
 //       returns: status from call
 //   sends a string up to length ESP_NOW_MAX_DATA_LEN; includes the zero termination of the string   
 //
-// FIXME TODO this is only for initial testing
 // FIXME TODO WARNING this can modify p_cmd
 //
 esp_err_t uni_esp_now_cmd_send(char * p_cmd) {
@@ -921,7 +920,7 @@ uint16_t uni_get_command(uint32_t p_msec_now) {
   if ((0 == num_cmds_scanned) && (next_rfid_msec <= p_msec_now)) {
     // try RFID scanner
     if (0 == (the_status = uni_read_picc(g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd))) {
-      DBG_SERIALPRINTLN("Doing QR Code");
+      DBG_SERIALPRINTLN("Doing RFID PICC Cmd");
       num_cmds_scanned = 1;
       g_last_scanned_cmd_count += 1;
       g_uni_state_times[g_uni_state] = p_msec_now;
@@ -1114,5 +1113,4 @@ void loop() {
   lv_tick_inc(CYDsampleDelayMsec); // tell LVGL how much time has passed
 #endif // (USE_LV_TICK_SET_CB) end if not using lv_tick_set_cb(); otherwise lv_tick_set_cb() done in setup() after lv_init()
   delay(CYDsampleDelayMsec);
-  // delay(QRsampleDelayMsec); FIXME TODO wait between intervals
 } // end loop()
