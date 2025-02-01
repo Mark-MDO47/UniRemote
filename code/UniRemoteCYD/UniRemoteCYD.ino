@@ -258,6 +258,7 @@ esp_now_peer_info_t rcvr_peer_info; // will be filled in later
 typedef int32_t uni_esp_now_status;
 #define UNI_ESP_NOW_CB_NEVER_HAPPENED -1 // my own status
 static uni_esp_now_status g_last_send_callback_status = UNI_ESP_NOW_CB_NEVER_HAPPENED; // -1 means never happened
+static char g_msg_last_esp_now_result_status[1024];
 
 #define UNI_CMD_QNUM_NOW    0 // 0==sending now, 1==next up
 #define UNI_CMD_QNUM_NEXT   1 // 0==sending now, 1==next up
@@ -703,6 +704,10 @@ uint8_t * uni_cmd_decode_get_mac_addr(char * p_cmd) {
   }
 
   // if ret_addr is not 0 then the address is good
+  if (0 == ret_addr) {
+    sprintf(g_msg_last_esp_now_result_status, "ERROR: CMD #%d bad MAC address", g_last_scanned_cmd_count);
+    DBG_SERIALPRINTLN(g_msg_last_esp_now_result_status);
+  }
   return(ret_addr);
 } // uni_cmd_decode_get_mac_addr
 
@@ -763,13 +768,13 @@ void uni_esp_now_cmd_send_callback(const uint8_t *mac_addr, esp_now_send_status_
 
   // display status and transition states
   if (ESP_NOW_SEND_SUCCESS == g_last_send_callback_status) {
-    sprintf(g_msg, "ESP-Now callback OK CMD #%d", g_last_scanned_cmd_count);
-    lv_label_set_text(g_styled_label_last_status.label_text, g_msg);
+    sprintf(g_msg_last_esp_now_result_status, "ESP-Now callback OK CMD #%d", g_last_scanned_cmd_count);
+    lv_label_set_text(g_styled_label_last_status.label_text, g_msg_last_esp_now_result_status);
     g_uni_state_error = UNI_STATE_NO_ERROR;
     g_uni_state = UNI_STATE_WAIT_CMD;
   } else { // ESP_NOW_SEND_FAIL
-    sprintf(g_msg, "ESP-Now callback FAIL CMD #%d", g_last_scanned_cmd_count);
-    lv_label_set_text(g_styled_label_last_status.label_text, g_msg);
+    sprintf(g_msg_last_esp_now_result_status, "ESP-Now callback FAIL CMD #%d", g_last_scanned_cmd_count);
+    lv_label_set_text(g_styled_label_last_status.label_text, g_msg_last_esp_now_result_status);
     g_uni_state_error = UNI_STATE_IN_ERROR;
     g_uni_state = UNI_STATE_SHOW_STAT; // show error status and allow abort
   }
@@ -815,11 +820,11 @@ int16_t uni_esp_now_register_peer(uint8_t * mac_addr) {
   
   if (reg_status != ESP_OK){
     reg_index = -1;
-    DBG_SERIALPRINT("ERROR: ESP-NOW reg/add peer error ");
-    DBG_SERIALPRINTLN(reg_status);
+    sprintf(g_msg_last_esp_now_result_status, "ERROR: CMD #%d ESP-NOW reg/add peer error %d: %s", g_last_scanned_cmd_count, reg_status, uni_esp_now_decode_error(reg_status));
+    DBG_SERIALPRINTLN(g_msg_last_esp_now_result_status);
   }
   return(reg_index);
-} // end uni_esp_now_register_peer
+} // end uni_esp_now_register_peer()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_esp_now_cmd_send() - decipher QR code and send as needed
@@ -842,16 +847,17 @@ esp_err_t uni_esp_now_cmd_send(char * p_cmd) {
   msec_prev_send = msec_now;
 
   // see if we can obtain and register the MAC address for sending
-  uint8_t * mac_addr_ptr = uni_cmd_decode_get_mac_addr(p_cmd);
+  uint8_t * mac_addr_ptr = uni_cmd_decode_get_mac_addr(p_cmd); // sets g_msg_last_esp_now_result_status
   int16_t mac_addr_index;
   if ((uint8_t *)0 != mac_addr_ptr) {
-    mac_addr_index = uni_esp_now_register_peer(mac_addr_ptr);
+    mac_addr_index = uni_esp_now_register_peer(mac_addr_ptr); // sets g_msg_last_esp_now_result_status
   } else {
-    DBG_SERIALPRINTLN("ERROR: uni_cmd_decode_get_mac_addr returned 0");
+    // note: 
+    DBG_SERIALPRINTLN(g_msg_last_esp_now_result_status);
     return(UNI_ERR_CMD_DECODE_FAIL); // could not decode MAC from CMD
   }
   if (mac_addr_index < 0) {
-    DBG_SERIALPRINTLN("ERROR: could not register MAC");
+    DBG_SERIALPRINTLN(g_msg_last_esp_now_result_status);
     return(ESP_ERR_ESPNOW_FULL); // could not register the MAC address
   }
 
@@ -1076,7 +1082,8 @@ void loop() {
   else switch (g_uni_state) {
     case UNI_STATE_WAIT_CMD:    // last cmd all done, wait for next cmd
       if (0 == uni_get_command(msec_now)) {
-        lv_label_set_text(g_styled_label_last_status.label_text, "No scanned command found, waiting...\n");
+        sprintf(g_msg,"No scanned command found, waiting...\n  %s", g_msg_last_esp_now_result_status);
+        lv_label_set_text(g_styled_label_last_status.label_text, g_msg);
       }
       break;
     case UNI_STATE_CMD_SEEN:   // command in queue, waiting for GO or CLEAR
@@ -1084,14 +1091,14 @@ void loop() {
     case UNI_STATE_SENDING_CMD: // command being sent (very short state)
       send_status = uni_esp_now_cmd_send((char *)g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
       if (send_status == ESP_OK) {
-        sprintf(g_msg, "ESP-NOW send success CMD #%d %s", g_last_scanned_cmd_count, g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
-        lv_label_set_text(g_styled_label_last_status.label_text, g_msg);
+        sprintf(g_msg_last_esp_now_result_status, "ESP-NOW send success CMD #%d %s", g_last_scanned_cmd_count, g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
+        lv_label_set_text(g_styled_label_last_status.label_text, g_msg_last_esp_now_result_status);
         g_uni_state = UNI_STATE_WAIT_CB;
         DBG_SERIALPRINTLN("Change state to UNI_STATE_WAIT_CB");
       }
       else {
-        sprintf(g_msg, "ESP-NOW ERROR: sending CMD #%d: %s\n  %s", g_last_scanned_cmd_count, g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd, uni_esp_now_decode_error(send_status));
-        lv_label_set_text(g_styled_label_last_status.label_text, g_msg);
+        sprintf(g_msg_last_esp_now_result_status, "ESP-NOW ERROR: sending CMD #%d: %s\n  %s", g_last_scanned_cmd_count, g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd, uni_esp_now_decode_error(send_status));
+        lv_label_set_text(g_styled_label_last_status.label_text, g_msg_last_esp_now_result_status);
         g_uni_state = UNI_STATE_SHOW_STAT; // show error status and allow abort
         DBG_SERIALPRINTLN("Change state to UNI_STATE_WAIT_CMD");
       }
