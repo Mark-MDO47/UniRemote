@@ -78,10 +78,10 @@ Here is what the code is:<br>
 
 **UNI_STATE_WAIT_CMD**
 - *last cmd all done, wait for next cmd (probably QR but any source OK)*
-- alert OK for next QR
-- wait for QR
+- alert OK for next CMD
+- wait for CMD
   - if not "too soon"
-    - scan QR code into RAM
+    - scan CMD code into RAM
 
 **UNI_STATE_CMD_SEEN**
 - *command in queue, waiting for GO or CLEAR*
