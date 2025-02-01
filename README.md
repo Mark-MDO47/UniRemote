@@ -5,7 +5,7 @@ Plan is to communicate with my projects via ESP-NOW WiFi
 - https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/network/esp_now.html
 
 Here is my breadboard setup with the Cheap Yellow Display, the QR code reader and the RFID reader.<br>
-![alt text](https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/CYD_QR_RFID_1024_768.jpg "breadboard setup with the Cheap Yellow Display, the QR code reader and the RFID reader")
+![alt text](https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/CYD_PICC_RFID_1024_768.jpg "breadboard setup with the Cheap Yellow Display, the QR code reader and the RFID reader")
 
 **Table Of Contents**
 * [Top](#uniremote-\--one-remote-to-rule-them-all "Top")
