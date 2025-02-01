@@ -181,6 +181,7 @@ MFRC522::MIFARE_Key key;
 #define DEBUG_PRINT_PICC_DATA_FINAL 1     // Print the data we read in ASCII after all reads
 #define DEBUG_PRINT_PICC_DATA_EACH  0     // Print the data we read in ASCII after each read
 
+#if INCLUDE_RFID_SENSOR
 // PICC definitions for RFID reader
 #define PICC_EV1_1K_NUM_SECTORS         16 // 16 sectors each with 4 blocks of 16 bytes
 #define PICC_EV1_1K_SECTOR_NUM_BLOCKS   4  // each sector has 4 blocks of 16 bytes
@@ -188,7 +189,7 @@ MFRC522::MIFARE_Key key;
 #define PICC_EV1_1K_BLOCK_SECTOR_AVOID  3  // avoid blockAddress 0 and block 3 within each sector
 #define PICC_EV1_1K_START_BLOCKADDR     1  // do not use blockAddress 0
 #define PICC_EV1_1K_END_BLOCKADDR ((PICC_EV1_1K_SECTOR_NUM_BLOCKS) * PICC_EV1_1K_NUM_SECTORS - 1)
-
+#endif // INCLUDE_RFID_SENSOR
 
 // PIN definitions
 
@@ -288,9 +289,14 @@ uint8_t g_uni_state_error = UNI_STATE_NO_ERROR;
 #define UNI_ERR_TOO_SOON        501 // too soon to send another ESP-NOW message
 #define UNI_ERR_CMD_DECODE_FAIL 502 // could not decode MAC from CMD
 
-
-
 uint32_t g_uni_state_times[UNI_STATE_NUM];
+
+uint16_t g_picc_send_immediate = 0; // nonzero to send the PICC command immediately upon scan without waiting for confirmation
+uint16_t g_cmd_scanned_by = 0;      // see below for definitions
+#define UNI_CMD_SCANNED_BY_NONE 0
+#define UNI_CMD_SCANNED_BY_QR   1
+#define UNI_CMD_SCANNED_BY_PICC 2
+#define UNI_CMD_SCANNED_BY_FAKE 3
 
 
 #define ACTION_BUTTON_LEFT  0   // left top
@@ -920,6 +926,7 @@ uint16_t uni_get_command(uint32_t p_msec_now) {
     }
     g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd_len = strlen(g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
     sprintf(g_msg, "DBG Fake CMD #%d:\n %s", g_last_scanned_cmd_count, g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
+    g_cmd_scanned_by = UNI_CMD_SCANNED_BY_FAKE;
   }
 #if INCLUDE_RFID_SENSOR
   if (0 == first_time) { DBG_SERIALPRINTLN("first_time RFID PICC code"); }
@@ -932,6 +939,7 @@ uint16_t uni_get_command(uint32_t p_msec_now) {
       g_uni_state_times[g_uni_state] = p_msec_now;
       g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd_len = strlen(g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
       sprintf(g_msg, "RFID PICC CMD #%d scanned:\n %s", g_last_scanned_cmd_count, g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
+      g_cmd_scanned_by = UNI_CMD_SCANNED_BY_PICC;
     } // end if got PICC result
   } // end if looking for PICC command
 #endif // INCLUDE_RFID_SENSOR
@@ -950,6 +958,7 @@ uint16_t uni_get_command(uint32_t p_msec_now) {
       strncpy(g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd, (char *)QRresults.content_bytes, sizeof(g_cmd_queue[0].scanned_cmd));
       g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd_len = strlen(g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
       sprintf(g_msg, "QR CMD #%d scanned:\n %s", g_last_scanned_cmd_count, g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
+      g_cmd_scanned_by = UNI_CMD_SCANNED_BY_QR;
     }
     QRresults.content_length = 0;
   }
@@ -958,8 +967,13 @@ uint16_t uni_get_command(uint32_t p_msec_now) {
   if (0 != num_cmds_scanned) {
     // Show new status and change state
     lv_label_set_text(g_styled_label_last_status.label_text, g_msg);
-    g_uni_state = UNI_STATE_CMD_SEEN;
-    DBG_SERIALPRINTLN("Change state to UNI_STATE_CMD_SEEN");
+    if ((0 == g_picc_send_immediate) || (UNI_CMD_SCANNED_BY_PICC != g_cmd_scanned_by)) {
+      g_uni_state = UNI_STATE_CMD_SEEN;
+      DBG_SERIALPRINTLN("Change state to UNI_STATE_CMD_SEEN");
+    } else {
+      g_uni_state = UNI_STATE_SENDING_CMD;
+      DBG_SERIALPRINTLN("g_picc_send_immediate so change state to UNI_STATE_SENDING_CMD");
+    }
   }
 
   first_time = 1;
