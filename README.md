@@ -27,6 +27,9 @@ I have settled on the following hardware for the Universal Remote Control:
 - QR code reader
   - I am using the Tiny Code Reader from Useful Sensors
   - I purchased this one: https://www.sparkfun.com/products/23352
+  - https://cdn.sparkfun.com/assets/e/9/d/9/f/TCR_Datasheet.pdf
+  - https://github.com/usefulsensors/tiny_code_reader_docs/blob/main/README.md
+  - https://github.com/usefulsensors/tiny_code_reader_arduino
 - RFID Reader
   - I am using the HiLetgo 3pcs RFID Kit - Mifare RC522 RF IC Card Sensor Module + S50 Blank Card + Key Ring
     - I purchased this one: https://www.amazon.com/dp/B07VLDSYRW
