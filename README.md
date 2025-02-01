@@ -1,8 +1,12 @@
 # UniRemote - one remote to rule them all!
-I wanted a way to control all the projects I make. It is not a remote for A/V systems.<br>
+I wanted a way to control all the projects I make.
+- Note: it is not a remote for A/V systems. It is for my projects.
+
 I wanted this to work not just at home in my WiFi zone but also at remote locations like a Maker Faire.<br>
-Plan is to communicate with my projects via ESP-NOW WiFi
+It communicates with my projects via ESP-NOW WiFi
 - https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/network/esp_now.html
+
+Current state of software and tools: **v0.9** "basics work: CYD, Tiny Code Reader for QRcodes, Mifare RC522 RF IC via MicroSD sniffer for 13.56MHz MIFARE Classic 1K cards, XPT2046_Bitbang lib to free up VSPI"
 
 Here is my breadboard setup with the Cheap Yellow Display, the QR code reader and the RFID reader.<br>
 ![alt text](https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/CYD_PICC_RFID_1024_768.jpg "breadboard setup with the Cheap Yellow Display, the QR code reader and the RFID reader")
