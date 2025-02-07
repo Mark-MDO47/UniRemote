@@ -487,7 +487,65 @@ void uni_display_state() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // static void cyd_input_read(lv_indev_t * indev, lv_indev_data_t * data)
 //
-#include "cyd_input_read.h"
+// Get the Touchscreen data calibrated
+//   from https://randomnerdtutorials.com/esp32-cheap-yellow-display-cyd-resistive-touchscreen-calibration/
+//
+// Modified by https://github.com/Mark-MDO47/ to use XPT2046_Bitbang instead of TFT_eSPI
+//
+static void cyd_input_read(lv_indev_t * indev, lv_indev_data_t * data) {
+// NOTE WE ARE USING XPT2046_Bitbang INSTEAD OF TFT_eSPI
+  // Checks if Touchscreen was touched, and prints X, Y and Pressure (Z)
+  TouchPoint p = ts.getTouch();
+  if (p.zRaw > 200) { // this threshold of 200 seems to work pretty well
+    // Get Touchscreen points
+    p.x = p.xRaw; // we will recalculate x & y values; use same names as TFT_eSPI
+    p.y = p.yRaw;
+// NOTE WE ARE USING XPT2046_Bitbang INSTEAD OF TFT_eSPI
+
+    // Advanced Touchscreen calibration, LEARN MORE » https://RandomNerdTutorials.com/touchscreen-calibration/
+    float alpha_x, beta_x, alpha_y, beta_y, delta_x, delta_y;
+
+    // REPLACE WITH YOUR OWN CALIBRATION VALUES » https://RandomNerdTutorials.com/touchscreen-calibration/
+    //   or this modified calibrate using XPT2046_Bitbang
+    //      https://github.com/Mark-MDO47/UniRemote/tree/master/code/CYDbitBangCalibrate
+    alpha_x = -0.092;
+    beta_x = 0.000;
+    delta_x = 334.610;
+    alpha_y = -0.001;
+    beta_y = 0.066;
+    delta_y = -14.307;
+
+    x = alpha_y * p.x + beta_y * p.y + delta_y;
+    // clamp x between 0 and SCREEN_WIDTH - 1
+    x = max(0, x);
+    x = min(SCREEN_WIDTH - 1, x);
+
+    y = alpha_x * p.x + beta_x * p.y + delta_x;
+    // clamp y between 0 and SCREEN_HEIGHT - 1
+    y = max(0, y);
+    y = min(SCREEN_HEIGHT - 1, y);
+
+
+// NOTE WE ARE USING XPT2046_Bitbang INSTEAD OF TFT_eSPI
+    z = p.zRaw;
+// NOTE WE ARE USING XPT2046_Bitbang INSTEAD OF TFT_eSPI
+
+    data->state = LV_INDEV_STATE_PRESSED;
+
+    // Set the coordinates
+    data->point.x = x;
+    data->point.y = y;
+
+#if DEBUG_PRINT_TOUCHSCREEN_INFO
+    // Print Touchscreen info about X, Y and Pressure (Z) on the Serial Monitor
+    Serial.print("X = "); Serial.print(x); Serial.print(" | Y = "); Serial.print(y);
+    Serial.print(" | Pressure = "); Serial.print(z); Serial.println();
+#endif // DEBUG_PRINT_TOUCHSCREEN_INFO
+  }
+  else {
+    data->state = LV_INDEV_STATE_RELEASED;
+  }
+} // end cyd_input_read()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // button_event_callback()
