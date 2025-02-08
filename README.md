@@ -126,11 +126,10 @@ Here is what the code is:<br>
 
 ## Interesting Considerations
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
+Following are things I wanted to document and remember.
 
 ### General CYD and LVGL and Related Info
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
-Following are things I wanted to document and remember.
-
 | Description | URL |
 | --- | --- |
 | CYD Pinouts & Connectors | https://randomnerdtutorials.com/esp32-cheap-yellow-display-cyd-pinout-esp32-2432s028r |
