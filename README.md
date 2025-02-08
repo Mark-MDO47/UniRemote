@@ -42,6 +42,7 @@ I have settled on the following hardware for the Universal Remote Control:
   - I am using the Meikuler 13.56MHz MIFARE Classic 1K, RFID Smart Cards / M1 Cards, ISO14443A Printable Blank RFID PVC Cards
     - I purchased this one: https://www.amazon.com/dp/B07S63VT7X
     - https://www.nxp.com/docs/en/data-sheet/MF1S50YYX_V1.pdf
+    - A.K.A. PICC = Proximity Integrated Circuit Card (Contactless Card)
   - See following for more RFID Reader details:
     - https://github.com/Mark-MDO47/UniRemote/tree/master/code/RFIDRC522test
   - A bit of effort to use this. Got a "sniffer" card to use the SPI pins in the MicroSD slot, needed to do "bit banging" for touchscreen so could use hardware SPI for SD card.
@@ -161,6 +162,21 @@ I didn't find a good way to prevent the entire screen from "panning" or "scrolli
 | --- | --- |
 | void lv_indev_set_long_press_time(lv_indev_t * indev, uint16_t long_press_time); | Setting value to 65,535 after creating indev did not help |
 | void lv_indev_reset_long_press(lv_indev_t * indev); | Calling within indev read_cb function (cyd_input_read() in my code) when .tirqTouched() or .touched() caused buttons to not operate |
+
+### LVGL Timeout and Crash if Call LVGL Routine inside ESP-NOW callback
+[Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
+I guess I should have predicted that a callback, which is somewhat similar to an interrupt routine, shouldn't assume it can call a lot of routines that might not be re-entrant.
+- Result - just set flags in callback routines, do the work of the flags in loop() and its routines.
+
+The symptom was:
+- If I did ESP-NOW messages (using PICC card as the source) for which the receiver was present and receiving, I could seemingly send as many as I wanted with the physical scanning of a PICC card giving a timing interval.
+- If I did 2 or sometimes up to 3 ESP-NOW messages with no receiver, even if done quite slowly, I would get an LVGL watchdog timer timeout and then it would crash and reboot.
+
+It was a little mysterious because the processing was the same for both of them, only the status message itself was different.
+
+My **guess** at the mechanism is:
+- If the receiver was present, the response was so quick that the LVGL routines were not doing anything when the callback routine was called.
+- If the receiver was absent, the response was a timeout and this could happen when the loop and/or LVGL refresh was happening so problem if calling non-reentrant LVGL routine.
 
 ## Licensing
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
