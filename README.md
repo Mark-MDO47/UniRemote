@@ -51,11 +51,14 @@ I have settled on the following hardware for the Universal Remote Control:
     - https://github.com/sparkfun/MicroSD_Sniffer
     - https://github.com/Mark-MDO47/UniRemote/blob/master/code/RFIDRC522test/README.md
 
+Will be trying these to see if they can be a more compact MicroSD sniffer:
+- Extender cable 1: https://www.aliexpress.com/item/3256804754907124.html
+- Extender cable 2: https://www.aliexpress.com/item/3256805782352551.html
+- Alternative MicroSD sniffer to JTAG: https://shop.blinkinlabs.com/products/microsd-to-jtag-adapter-for-esp32
+
 May use one or more of the following
 - Alternative QR code reader
   - https://github.com/IndustrialArduino/NORVI-ESP32-CAMERA/tree/main/ESP32-CAMERA-QR_CODE_SCANNER_WITH_DISPLAY
-- Alternative MicroSD sniffer
-  - https://shop.blinkinlabs.com/products/microsd-to-jtag-adapter-for-esp32
 - Voice Input - perhaps one of these
   - https://www.seeedstudio.com/XIAO-ESP32S3-Sense-p-5639.html
   - https://www.dfrobot.com/product-2665.html
