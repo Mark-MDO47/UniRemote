@@ -172,6 +172,7 @@ MFRC522::MIFARE_Key key;
 #endif // INCLUDE_QR_SENSOR
 
 // Install the "XPT2046_Touchscreen" library by Paul Stoffregen to use the Touchscreen - https://github.com/PaulStoffregen/XPT2046_Touchscreen - Note: this library doesn't require further configuration
+//   NOTE: this works together with the XPT2046_Bitbang library we are using
 #include <XPT2046_Touchscreen.h>
 
 // DEBUG definitions
@@ -856,7 +857,7 @@ void uni_esp_now_cmd_send_callback(const uint8_t *mac_addr, esp_now_send_status_
   // crude way to save last status - works OK if not sending too fast
   g_last_send_callback_status = (uni_esp_now_status_t)status;
   // tell loop() to call uni_do_esp_now_callback_status() to display status
-  //   don't do this at callback level; that may contribute to LVGL timeout crashing
+  //   don't call lvgl routines at callback level; that may contribute to LVGL timeout crashing
   g_msg_last_esp_now_rebuild_msg_cb = g_msg_last_esp_now_display_status_cb = 1;
 
   // transition states based on status
