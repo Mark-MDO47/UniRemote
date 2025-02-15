@@ -159,8 +159,8 @@ As before, "-" (single dash) means No Connect.
 | 3.3V-jumper | VCC | 3.3V | 3.3V | 3.3V | Red | 3.3V |
 | CLK/TMS | SWIO | CLX | 18 | SCK | White | TF_CLK |
 | GND | GNDd | GND | GND | GND | Black | ground |
-| DATA3 | - | - | - | - | - | 19 MISO - not wired |
-| DATA2 | - | - | - |  | - | unused |
+| DATA3 | - | - | - | - |  | 19 MISO - not wired |
+| DATA2 | - | - | - |  |  | unused |
 | GND | GND(1) | GND | GND | GND |  | connected internally |
 | GND | GND(2) | GND | GND | GND |  | connected internally |
 | - | /RST | - | - | - |  | unused |
