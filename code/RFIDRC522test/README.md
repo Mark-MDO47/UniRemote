@@ -116,22 +116,52 @@ More documentation on the CYD internal pinouts and the connector types.
 - https://debugdiaries.co.uk/esp32-cheap-display-cyd-pinouts/ - compact, useful format
 - https://macsbug.wordpress.com/2022/08/17/esp32-2432s028/ - need to Google-translate from Japanese but quite good
 
-## SPI Sniffer Info
+## MicroSD Sniffer Cards
 [Top](#rfid-rc522-test "Top")<br>
 I am using the Arduino library RFID_MFRC522v2 by GithubCommunity. An important point when using this library in the CYD is that the reset pin RST (ESP32 pin 21) is unused since 25 Jun 2020 v2.0.0. That is fortunate, since in the CYD pin 21 is used for other purposes. I tried an experiment leaving it floating and that seemed to work.
 
-GPIO channels and SD card sniffer on the CYD
-- NOTE: N/C means No Connect.
+### SPI Sparkfun Sniffer Info
+[Top](#rfid-rc522-test "Top")<br>
+The Sparkfun MicroSD card sniffer carried all the signals needed for using the RC522 RFID card reader.
+- https://www.sparkfun.com/sparkfun-microsd-sniffer.html
 
-| Sniffer | Alt | ESP32 GPIO pin | RC522 | Color | Comment |
+GPIO channels for Sparkfun MicroSD card sniffer on the CYD are shown below.
+- NOTE: "-" (single dash) means No Connect. Had to do this since on Blinken Labs JTAG sniffer with Treedix JTAG breakout board NC is used as a label.
+
+| Sparkfun | Alt | ESP32 GPIO pin | RC522 | Color | Comment |
 | --- | --- | --- | --- | --- | --- |
-| DAT2 |  |  |  | N/C | unused |
+| DAT2 |  |  |  | - | unused |
 | CD | CS | 5 | SDA | Green | TF_CS |
 | CMD | MOSI | 23 | MOSI | Yellow |  |
 | GND | GND |  | GND | Black | ground |
 | VCC | VDD |  | 3.3V | Red | 3.3V |
 | CLK | CLX | 18 | SCK | White | TF_CLK |
 | DAT0 | MISO | 19 | MISO | Blue |  |
-| DAT1 |  |  |  | N/C | unused |
-|  |  | 21 | RST | N/C | unused |
-|  |  |  | IRQ | N/C | unused |
+| DAT1 |  |  |  | - | unused |
+|  |  | 21 | RST | - | unused |
+|  |  |  | IRQ | - | unused |
+
+### Blinken Labs Sniffer Info
+[Top](#rfid-rc522-test "Top")<br>
+The Blinken Labs MicroSD to JTAG adapter for ESP32 carries most of the signals needed for using the RC522 RFID card reader. This card was not designed as a general purpose MicroSD sniffer but rather as a JTAG interface; it has all the signals needed for the JTAG interface.
+- https://shop.blinkinlabs.com/products/microsd-to-jtag-adapter-for-esp32
+
+I connected the Blinken Labs board via JTAG cable to a Treedix JTAG breakout card.
+- https://www.amazon.com/dp/B09DKDG7XN
+
+As before, "-" (single dash) means No Connect.
+
+| BLINKIN | Brkt-Bd | Alt | ESP32 GPIO pin | RC522 | Color  | Comment |
+| --- | --- | --- | --- | --- | --- | --- |
+| DATA2/TDI | NC | - | - |  | unused |
+| DATA3/TCK | CLK | CS | 5 | SDA | Green | TF_CS |
+| CMD/TD0 | SW0 | MOSI | 23 | MOSI | Yellow |  |
+| 3.3V-jumper | VCC | 3.3V | 3.3V | 3.3V | Red | 3.3V |
+| CLK/TMS | SWIO | CLX | 18 | SCK | White | TF_CLK |
+| GND | GNDd | GND | GND | GND | Black | ground |
+| DATA3 | - | - | - | - | - | 19 MISO - not wired |
+| DATA2 | - | - | - |  | - | unused |
+| GND | GND(1) | GND | GND | GND |  | connected internally |
+| GND | GND(2) | GND | GND | GND |  | connected internally |
+| - | /RST | - | - | - |  | unused |
+| - | KEY | - | - | - |  | unused |
