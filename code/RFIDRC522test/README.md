@@ -9,7 +9,9 @@
     * [Touchscreen Calibration with XPT2046_Bitbang](#touchscreen-calibration-with-xpt2046_bitbang "Touchscreen Calibration with XPT2046_Bitbang")
     * [All Together Now](#all-together-now "All Together Now")
 * [Documentation](#documentation "Documentation")
-* [SPI Sniffer Info](#spi-sniffer-info "SPI Sniffer Info")
+* [MicroSD Sniffer Cards](#microsd-sniffer-cards "MicroSD Sniffer Cards")
+  * [SPI Sparkfun Sniffer Info](#spi-sparkfun-sniffer-info "SPI Sparkfun Sniffer Info")
+  * [Blinken Labs Sniffer Info](#blinken-labs-sniffer-info "Blinken Labs Sniffer Info")
 
 ## Hardware
 [Top](#rfid-rc522-test "Top")<br>
