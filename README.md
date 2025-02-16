@@ -29,6 +29,7 @@ I have settled on the following hardware for the Universal Remote Control:
 - CYD - Cheap Yellow Display
   - I am using the ESP32-2432S028R (Cheap Yellow Display or CYD) based on ESP32-D0WDQ6 controller.
   - I purchased this one: https://www.aliexpress.us/item/3256805697430313.html
+  - This schematic might reflect the CYD: https://oshwlab.com/mariusmym/esp32_cyd_cheap_yellow_display
 - QR code reader
   - I am using the Tiny Code Reader from Useful Sensors
   - I purchased this one: https://www.sparkfun.com/products/23352
