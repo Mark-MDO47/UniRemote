@@ -1,4 +1,4 @@
-/* Author: https://github.com/Mark-MDO47  Dec. 21, 2023
+/* Author: https://github.com/Mark-MDO47  Dec. 21, 2024
  *  https://github.com/Mark-MDO47/UniRemote
  *  
  * NOTE: this code is configured for I2C on CYD_CN1_SDA and CYD_CN1_SCL pins per the
