@@ -1,6 +1,7 @@
 /* Author: https://github.com/Mark-MDO47  Dec. 22, 2023
  *  https://github.com/Mark-MDO47/UniRemote
  *  
+ * UniTestRcvr - Code for receiving commands from UniRemote
  *  
  */
 
@@ -17,7 +18,6 @@
 
 #include <esp_now.h>  // for ESP-NOW
 #include <WiFi.h>     // for ESP-NOW
-#include "../wifi_key.h"  // WiFi secrets
 
 // DEBUG definitions
 
@@ -26,6 +26,10 @@
   #define DBG_SERIALPRINT   Serial.print
   #define DBG_SERIALPRINTLN Serial.println
 #else  // not DEBUG_SERIALPRINT
+#endif // DEBUG_SERIALPRINT
+
+#if DEBUG_SERIALPRINT
+  #define DEBUG_MAC_ADDRESS 1
 #endif // DEBUG_SERIALPRINT
 
 // ESP-NOW definitions
@@ -51,7 +55,7 @@ void esp_now_recv_callback(const uint8_t * mac_addr, const uint8_t *recv_data, i
   memset(g_esp_now_recv_data, '\0', recv_len+1);
   strncpy(g_esp_now_recv_data, (char *)recv_data, recv_len);
   memcpy(g_esp_now_header, mac_addr, MDO_ESP_NOW_HDR_NUM);
-}
+} // end esp_now_recv_callback()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // setup() - initialize hardware and software
@@ -99,13 +103,14 @@ void loop() {
 
 #ifdef DEBUG_MAC_ADDRESS
       DBG_SERIALPRINT(" mac_addr");
-      for (int i = 0; i < 40; i++) {
+      for (int i = 0; i < MDO_ESP_NOW_HDR_NUM; i++) {
         DBG_SERIALPRINT(":");
         if (g_esp_now_header[i] < 16) { // is this stupid or what?
           DBG_SERIALPRINT("0");
         }
         DBG_SERIALPRINT(g_esp_now_header[i],HEX);
       }
+      DBG_SERIALPRINTLN(" ");
 #endif // DEBUG_MAC_ADDRESS
 
       DBG_SERIALPRINT(" msglen ");
