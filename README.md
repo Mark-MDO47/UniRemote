@@ -134,6 +134,10 @@ Following are things I wanted to document and remember.
 
 ### General CYD and LVGL and Related Info
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
+
+One key thing I found out was that all four of the ESP-32 hardware SPI ports are in use in the "standard" LVGL configuration. In order to use a hardware SPI port for the MicroSD slot, I had to use the XPT2046_Bitbang library instead of the TFT_eSPI library for the touchscreen.
+- See https://github.com/Mark-MDO47/UniRemote/tree/master/code/RFIDRC522test for details.
+
 | Description | URL |
 | --- | --- |
 | CYD Pinouts & Connectors | https://randomnerdtutorials.com/esp32-cheap-yellow-display-cyd-pinout-esp32-2432s028r |
