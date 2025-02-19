@@ -94,6 +94,7 @@ esp_err_t uni_remote_rcvr_init() {
 esp_err_t uni_remote_rcvr_get_msg(uint16_t max_len, uint16_t * rcvd_len_ptr, char * rcvd_msg_ptr, uint8_t * mac_addr_ptr) {
   esp_err_t status = ESP_OK;
   if (g_uni_remote_rcvr_prev_msgnum != g_uni_remote_rcvr_msgnum) {
+    // TODO FIXME should be just one message with no skips
     g_uni_remote_rcvr_prev_msgnum = g_uni_remote_rcvr_msgnum;
     *rcvd_len_ptr = 0;
     if (ESP_OK == g_uni_remote_rcvr_status) {
