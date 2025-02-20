@@ -2,7 +2,7 @@
  
 | Link | Description |
 | --- | --- |
-| [code/UniRemoteCYD](https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniRemoteCYD "UniRemoteCYD") | UniRemote code with QR code reader, sniffer to RFID Reader, and CYD that uses the XPT2046_Bitbang software-based SPI library instead of the TFT_eSPI hardware based SPI library for the touchscreen - attributions in the code |
+| [code/UniRemoteCYD](https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniRemoteCYD "UniRemoteCYD") | UniRemote code with QR code reader, MicroSD sniffer to RFID Reader, and CYD that uses the XPT2046_Bitbang software-based SPI library instead of the TFT_eSPI hardware based SPI library for the touchscreen - attributions in the code |
 | [code/UniRemoteRcvrTemplate](https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniRemoteRcvrTemplate "UniRemoteRcvrTemplate") | UniRemote code **template** for generic receiver of the commands - attributions in the code |
 | [code/Uni_RW_PICC](https://github.com/Mark-MDO47/UniRemote/tree/master/code/Uni_RW_PICC "Uni PICC Rd/Wr") | UniRemote PICC read/write routines - attribution in the README |
 | [code/tiny_code_reader](https://github.com/Mark-MDO47/UniRemote/tree/master/code/tiny_code_reader "tiny_code_reader") | *.h file for using the QR code reader - attribution in its README |
