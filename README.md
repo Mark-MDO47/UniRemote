@@ -74,7 +74,7 @@ Here is what the code is:<br>
 | Link | Description |
 | --- | --- |
 | [code/UniRemoteCYD](https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniRemoteCYD "UniRemoteCYD") | UniRemote code with QR code reader, sniffer to RFID Reader, and CYD that uses the XPT2046_Bitbang software-based SPI library instead of the TFT_eSPI hardware based SPI library for the touchscreen - attributions in the code |
-| [code/UniTestRcvr](https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniTestRcvr "UniTestRcvr") | UniRemote code template for generic receiver of the commands - attributions in the code |
+| [code/UniRemoteRcvrTemplate](https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniRemoteRcvrTemplate "UniRemoteRcvrTemplate") | UniRemote code **template** for generic receiver of the commands - attributions in the code |
 | [code/Uni_RW_PICC](https://github.com/Mark-MDO47/UniRemote/tree/master/code/Uni_RW_PICC "Uni PICC Rd/Wr") | UniRemote PICC read/write routines - attribution in the README |
 | [code/tiny_code_reader](https://github.com/Mark-MDO47/UniRemote/tree/master/code/tiny_code_reader "tiny_code_reader") | *.h file for using the QR code reader - attribution in its README |
 | --- | --- |
@@ -86,6 +86,7 @@ Here is what the code is:<br>
 | [code/CYDtest](https://github.com/Mark-MDO47/UniRemote/tree/master/code/CYDtest "CYDtest") | ESP32-2432S028R (Cheap Yellow Display or CYD) pointers to tutorials and hardware information |
 | [code/RFIDRC522test](https://github.com/Mark-MDO47/UniRemote/tree/master/code/RFIDRC522test "RFIDRC522test")  | RFID RC522 pointers to tutorials and hardware information |
 | [code/UniRemote](https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniRemote "UniRemote") | UniRemote code with QR code reader and **generic ESP32** module - attributions in the code. This is now **unused** and **deprecated**. I am switching to the CYD and the code in **UniRemoteCYD**. |
+| [code/UniTestRcvr](https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniTestRcvr "UniTestRcvr") | UniRemote code testbench for generic receiver of the commands - attributions in the code |
 
 ## Expected Flow for V1.0
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
