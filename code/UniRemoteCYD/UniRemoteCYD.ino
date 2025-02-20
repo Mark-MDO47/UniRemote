@@ -983,12 +983,12 @@ uint16_t uni_get_command(uint32_t p_msec_now) {
   uint16_t num_cmds_scanned = 0;
 
   static char * fake_cmd[] = { 
-    "74:4d:bd:11:11:11|dbg non-existing",
-    "74:4d:bd:11:11:1|dbg address too short",
-    "74:4d:bd:11:11:11c|dbg address too long",
+    // "74:4d:bd:11:11:11|dbg non-existing",
+    // "74:4d:bd:11:11:1|dbg address too short",
+    // "74:4d:bd:11:11:11c|dbg address too long",
     "74:4d:bd:98:7f:1c|dbg XIAO ESP32-Sense"
    };
-#define FAKE_CMD_NUM 4
+#define FAKE_CMD_NUM 1
    static uint8_t fake_cmd_idx = 0;
    static uint8_t tmp;
 

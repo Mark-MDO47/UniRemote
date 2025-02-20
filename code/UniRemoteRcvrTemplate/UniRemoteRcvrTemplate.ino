@@ -1,4 +1,4 @@
-/* Author: https://github.com/Mark-MDO47  Dec. 22, 2024
+/* Author: https://github.com/Mark-MDO47  Feb. 19, 2025
  *  https://github.com/Mark-MDO47/UniRemote
  *  
  * UniRemoteRcvrTemplate - Template code for receiving commands from UniRemoteCYD
@@ -19,8 +19,8 @@
 
 #include "UniRemoteRcvr.h" // my library for UniRemoteRcvr
 
-static uint8_t g_my_mac_addr[ESP_NOW_ETH_ALEN];
 static char g_my_message[ESP_NOW_MAX_DATA_LEN];
+static uint8_t g_my_mac_addr[ESP_NOW_ETH_ALEN];
 static uint32_t g_my_message_num = 0;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -83,7 +83,7 @@ void setup() {
   }
   delay(1000); // 1 second delay - XIAO ESP32S3 Sense and others need this
   Serial.println(""); // print a blank line in case there is some junk from power-on
-  Serial.println("\nStarting UniTestRcvr\n");
+  Serial.println("\nStarting UniTestRcvrTemplate\n");
 
   // init UniRemoteRcvr
   esp_err_t status_init_espnow = uni_remote_rcvr_init();

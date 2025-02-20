@@ -35,23 +35,29 @@ static uint16_t g_uni_remote_rcvr_msglen = 0;
 static uint16_t g_uni_remote_rcvr_msgnum = 0;
 static uint16_t g_uni_remote_rcvr_prev_msgnum = 0;
 static esp_err_t g_uni_remote_rcvr_status = ESP_OK;
-#define UNI_ESP_NOW_HDR_NUM 20 // basically for debugging. Last used one is the 18th
 #define UNI_ESP_NOW_HDR_MAC_OFFSET 12 // This is where the MAC address is on my system
-static char g_uni_remote_rcvr_header[UNI_ESP_NOW_HDR_NUM];
+static char g_uni_remote_rcvr_header[ESP_NOW_ETH_ALEN];
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_remote_rcvr_callback() - callback function that will be executed when data is received
 void uni_remote_rcvr_callback(const uint8_t * mac_addr, const uint8_t *recv_data, int recv_len) {
-  g_uni_remote_rcvr_msgnum += 1;
-  g_uni_remote_rcvr_msglen = recv_len;
+  Serial.println("cb 01");
   if (recv_len >= sizeof(g_uni_remote_rcvr_data)) {
+    Serial.print("cb 02 skip recv_len:"); Serial.print(recv_len); 
+    Serial.print("sizeof:"); Serial.println(sizeof(g_uni_remote_rcvr_data)); 
     g_uni_remote_rcvr_status = ESP_ERR_ESPNOW_ARG;
+    g_uni_remote_rcvr_msglen = recv_len;
+    g_uni_remote_rcvr_msgnum += 1;
     return;
   }
+  Serial.println("cb 03");
   g_uni_remote_rcvr_status = ESP_OK;
   memset(g_uni_remote_rcvr_data, '\0', recv_len+1);
   strncpy(g_uni_remote_rcvr_data, (char *)recv_data, recv_len);
-  memcpy(g_uni_remote_rcvr_header, &mac_addr[UNI_ESP_NOW_HDR_MAC_OFFSET], UNI_ESP_NOW_HDR_NUM);
+  memcpy(g_uni_remote_rcvr_header, &mac_addr[UNI_ESP_NOW_HDR_MAC_OFFSET], ESP_NOW_ETH_ALEN);
+  g_uni_remote_rcvr_msglen = recv_len;
+  g_uni_remote_rcvr_msgnum += 1;
+  Serial.println("cb 04");
 } // end uni_remote_rcvr_callback()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -101,7 +107,7 @@ esp_err_t uni_remote_rcvr_get_msg(uint16_t max_len, uint16_t * rcvd_len_ptr, cha
       *rcvd_len_ptr = g_uni_remote_rcvr_msglen;
       memset(rcvd_msg_ptr, '\0', max_len);
       strncpy(rcvd_msg_ptr, (char *)g_uni_remote_rcvr_data, max_len-1);
-      memcpy(mac_addr_ptr, g_uni_remote_rcvr_header, UNI_ESP_NOW_HDR_NUM);
+      memcpy(mac_addr_ptr, g_uni_remote_rcvr_header, ESP_NOW_ETH_ALEN);
     }
     if (max_len < (g_uni_remote_rcvr_msglen+1)) {
       status = ESP_ERR_ESPNOW_ARG;
