@@ -41,23 +41,18 @@ static char g_uni_remote_rcvr_header[ESP_NOW_ETH_ALEN];
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_remote_rcvr_callback() - callback function that will be executed when data is received
 void uni_remote_rcvr_callback(const uint8_t * mac_addr, const uint8_t *recv_data, int recv_len) {
-  Serial.println("cb 01");
   if (recv_len >= sizeof(g_uni_remote_rcvr_data)) {
-    Serial.print("cb 02 skip recv_len:"); Serial.print(recv_len); 
-    Serial.print("sizeof:"); Serial.println(sizeof(g_uni_remote_rcvr_data)); 
     g_uni_remote_rcvr_status = ESP_ERR_ESPNOW_ARG;
     g_uni_remote_rcvr_msglen = recv_len;
     g_uni_remote_rcvr_msgnum += 1;
     return;
   }
-  Serial.println("cb 03");
   g_uni_remote_rcvr_status = ESP_OK;
   memset(g_uni_remote_rcvr_data, '\0', recv_len+1);
   strncpy(g_uni_remote_rcvr_data, (char *)recv_data, recv_len);
   memcpy(g_uni_remote_rcvr_header, &mac_addr[UNI_ESP_NOW_HDR_MAC_OFFSET], ESP_NOW_ETH_ALEN);
   g_uni_remote_rcvr_msglen = recv_len;
   g_uni_remote_rcvr_msgnum += 1;
-  Serial.println("cb 04");
 } // end uni_remote_rcvr_callback()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
