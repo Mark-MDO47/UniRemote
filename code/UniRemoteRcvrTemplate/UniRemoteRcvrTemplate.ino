@@ -101,9 +101,8 @@ void setup() {
 void loop() {
   uint16_t rcvd_len = 0;
 
-  esp_err_t msg_status = uni_remote_rcvr_get_msg((uint16_t) sizeof(g_my_message), &rcvd_len, &g_my_message[0], &g_my_mac_addr[0]);
+  esp_err_t msg_status = uni_remote_rcvr_get_msg(&rcvd_len, &g_my_message[0], &g_my_mac_addr[0], &g_my_message_num);
   if ((ESP_OK == msg_status) && (rcvd_len > 0)) {
-    g_my_message_num += 1;
     print_message_info(rcvd_len);
     // end if received a message with good status
   } else if (ESP_OK != msg_status) {

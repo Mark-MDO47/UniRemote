@@ -28,39 +28,102 @@
 
 #include <UniRemoteRcvr.h>  // for UniRemoteRcvr "library"
 
-
-// ESP-NOW definitions
-static char g_uni_remote_rcvr_data[ESP_NOW_MAX_DATA_LEN];
-static uint16_t g_uni_remote_rcvr_msglen = 0;
-static uint16_t g_uni_remote_rcvr_msgnum = 0;
-static uint16_t g_uni_remote_rcvr_prev_msgnum = 0;
-static esp_err_t g_uni_remote_rcvr_status = ESP_OK;
+// definitions to support ESP-NOW
 #define UNI_ESP_NOW_HDR_MAC_OFFSET 12 // This is where the MAC address is on my system
-static char g_uni_remote_rcvr_header[ESP_NOW_ETH_ALEN];
+#define UNI_REMOTE_RCVR_NUM_BUFR 3 // number of buffers for messages
+
+typedef struct {
+  uint16_t idx_in;
+  uint16_t idx_out;
+  uint16_t idx_num;
+  uint8_t mac_addr[UNI_REMOTE_RCVR_NUM_BUFR][ESP_NOW_ETH_ALEN]; // 
+  char msg[UNI_REMOTE_RCVR_NUM_BUFR][ESP_NOW_MAX_DATA_LEN];     // 
+  uint16_t msg_len[UNI_REMOTE_RCVR_NUM_BUFR];                   // length including trailing zero byte
+  uint16_t msg_num[UNI_REMOTE_RCVR_NUM_BUFR];                   // msg num; may skip if messages discarded
+  int16_t msg_status[UNI_REMOTE_RCVR_NUM_BUFR];                 // 
+} circular_buffer_t;
+static circular_buffer_t g_circ_buf; // 
+
+static uint32_t g_msg_callback_num = 0;   // number of time ESP-NOW callback is called
+static uint16_t g_flag_circ_buf_full = 0; // non-zero == flag that circular buffer was full in ESP-NOW callback
+static uint16_t g_flag_data_too_big = 0;  // non-zero == flag that ESP-NOW callback with too much data for ESP-NOW
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// uni_remote_rcvr_circ_buf_inc_idx() - return value of incremented index - doesn't check for full
+static uint16_t uni_remote_rcvr_circ_buf_inc_idx(uint16_t p_idx) {
+  // this could be shorter but I wanted it to be clearer
+  uint16_t new_idx = p_idx + 1;
+  if (new_idx >= UNI_REMOTE_RCVR_NUM_BUFR) {
+    new_idx = 0;
+  }
+  return(new_idx);
+} // end uni_remote_rcvr_circ_buf_inc_idx()
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// uni_remote_rcvr_circ_buf_get() - get data from circular buffer if data is available
+//    note: only one thread may call put and only one thread may call get
+static int16_t uni_remote_rcvr_circ_buf_get(char * p_msg_ptr, uint8_t * p_mac_addr_ptr, uint16_t * p_msg_len_ptr, uint32_t * p_msg_num_ptr, esp_err_t * p_msg_stat_ptr) {
+  int16_t status = ESP_OK;
+  uint16_t new_idx = uni_remote_rcvr_circ_buf_inc_idx(g_circ_buf.idx_in);
+  if (g_circ_buf.idx_in == g_circ_buf.idx_out) { // empty
+    status = ESP_ERR_ESPNOW_NO_MEM; // probably not a good idea but I will keep this inside UniRemoteRcvr
+  } else {
+    *p_msg_stat_ptr = g_circ_buf.msg_status[g_circ_buf.idx_out];
+    *p_msg_num_ptr = g_circ_buf.msg_num[g_circ_buf.idx_out];
+    *p_msg_len_ptr = g_circ_buf.msg_len[g_circ_buf.idx_out];
+    memset(p_msg_ptr, '\0', *p_msg_len_ptr);
+    strncpy(p_msg_ptr, &g_circ_buf.msg[g_circ_buf.idx_out][0], *p_msg_len_ptr);
+    memcpy(p_mac_addr_ptr, &g_circ_buf.mac_addr[g_circ_buf.idx_out][0], ESP_NOW_ETH_ALEN);
+    g_circ_buf.idx_out = new_idx;  // MUST be last manipulation of circular buffer
+  } // end if data to transfer
+  return(status);
+} // end uni_remote_rcvr_circ_buf_get()
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// uni_remote_rcvr_circ_buf_put() - put data into circular buffer if room is available
+//    note: only one thread may call put and only one thread may call get
+static int16_t uni_remote_rcvr_circ_buf_put(const char * p_msg_ptr, const uint8_t * p_mac_addr_ptr, uint16_t p_msg_len, uint32_t p_msg_num) {
+  int16_t status = ESP_OK;
+  uint16_t new_idx = uni_remote_rcvr_circ_buf_inc_idx(g_circ_buf.idx_in);
+  if (new_idx == g_circ_buf.idx_out) { // no room
+    g_flag_circ_buf_full = 1;
+    status = ESP_ERR_ESPNOW_FULL;
+  } else {
+    g_circ_buf.msg_status[new_idx] = ESP_OK;
+    g_circ_buf.msg_num[new_idx] = p_msg_num;
+    g_circ_buf.msg_len[new_idx] = p_msg_len;
+    memset(&g_circ_buf.msg[new_idx][0], '\0', p_msg_len);
+    strncpy(&g_circ_buf.msg[new_idx][0], (char *)p_msg_ptr, p_msg_len);
+    memcpy(&g_circ_buf.mac_addr[new_idx][0], &p_mac_addr_ptr[0], ESP_NOW_ETH_ALEN);
+    g_circ_buf.idx_in = new_idx; // MUST be last manipulation of circular buffer
+  } // end if room available
+  return(status);
+} // end uni_remote_rcvr_circ_buf_put()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_remote_rcvr_callback() - callback function that will be executed when data is received
-void uni_remote_rcvr_callback(const uint8_t * mac_addr, const uint8_t *recv_data, int recv_len) {
-  if (recv_len >= sizeof(g_uni_remote_rcvr_data)) {
-    g_uni_remote_rcvr_status = ESP_ERR_ESPNOW_ARG;
-    g_uni_remote_rcvr_msglen = recv_len;
-    g_uni_remote_rcvr_msgnum += 1;
-    return;
+static void uni_remote_rcvr_callback(const uint8_t * p_mac_addr, const uint8_t *p_recv_data, int p_recv_len) {
+  g_msg_callback_num += 1;
+  if (p_recv_len >= ESP_NOW_MAX_DATA_LEN) { // cannot happen - data too big
+    g_flag_data_too_big = 1;
+  } else { // put data into buffer; buf_put() reports if it cannot do it
+    uni_remote_rcvr_circ_buf_put((char *)p_recv_data, &p_mac_addr[UNI_ESP_NOW_HDR_MAC_OFFSET], p_recv_len, g_msg_callback_num);
   }
-  g_uni_remote_rcvr_status = ESP_OK;
-  memset(g_uni_remote_rcvr_data, '\0', recv_len+1);
-  strncpy(g_uni_remote_rcvr_data, (char *)recv_data, recv_len);
-  memcpy(g_uni_remote_rcvr_header, &mac_addr[UNI_ESP_NOW_HDR_MAC_OFFSET], ESP_NOW_ETH_ALEN);
-  g_uni_remote_rcvr_msglen = recv_len;
-  g_uni_remote_rcvr_msgnum += 1;
+  return;
 } // end uni_remote_rcvr_callback()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_remote_rcvr_init()
 //       returns: esp_err_t status
-//   WiFi   - set to WIFI_STA mode
+//   WiFi    - set to WIFI_STA mode
+//   ESP-NOW - inited
 //
 esp_err_t uni_remote_rcvr_init() {
+
+  // initialize our circular buffer data struct
+  g_circ_buf.idx_num = UNI_REMOTE_RCVR_NUM_BUFR;
+  g_circ_buf.idx_in = g_circ_buf.idx_out = 0; // when in == out, circ_buf is empty
+
   // Set device as a Wi-Fi Station
   WiFi.mode(WIFI_STA);
 
@@ -79,34 +142,30 @@ esp_err_t uni_remote_rcvr_init() {
 //       returns: esp_err_t status
 //
 //    Parameters:
-//      max_len     - input  - max number of chars (including zero termination) to return
+//      p_rcvd_len_ptr - output - pointer to number of chars in received message (not including zero termination)
+//      p_rcvd_msg_ptr - output - pointer to area to store the received message
+//      p_mac_addr_ptr - output - pointer to array of length ESP_NOW_ETH_ALEN (6) uint8_t to receive MAC address of source of message
+//      p_msg_num_ptr  - output - pointer to message number == count of callbacks at time of this message receive
 //
-//      rcvd_len_ptr - output - pointer to number of chars returned (not including zero termination)
-//      rcvd_msg_ptr - output - pointer to area to store the received message
-//      mac_addr_ptr - output - pointer to array of length ESP_NOW_ETH_ALEN (6) uint8_t to receive MAC address of source of message
+// status return will always be ESP_OK
 //
-// status return will always be ESP_OK or ESP_ERR_ESPNOW_ARG
+// p_rcvd_len will be zero if no message or the number of bytes returned not counting the zero termination
+//     p_rcvd_len will always be less than max_len and will always be less than ESP_NOW_MAX_DATA_LEN (currently  250)
+//   following entries are only changed if p_rcvd_len is > 0
+// p_rcvd_msg will have the zero-terminated message
+// p_mac_addr will have the array of bytes (uint8_t mac_addr[6] or [ESP_NOW_ETH_ALEN]) filled with the MAC address of the sending node
+// p_msg_num  will have the number of callbacks associated with this message
 //
-// rcvd_len will be zero if no message or the number of bytes returned not counting the zero termination
-//     rcvd_len will always be less than max_len and will always be less than ESP_NOW_MAX_DATA_LEN (currently  250)
-// rcvd_msg will have the zero-terminated message if rcvd_len is > 0
-// mac_addr will have the array of bytes (uint8_t mac_addr[6]) filled with the MAC address of the sending node
-//
-esp_err_t uni_remote_rcvr_get_msg(uint16_t max_len, uint16_t * rcvd_len_ptr, char * rcvd_msg_ptr, uint8_t * mac_addr_ptr) {
-  esp_err_t status = ESP_OK;
-  if (g_uni_remote_rcvr_prev_msgnum != g_uni_remote_rcvr_msgnum) {
-    // TODO FIXME should be just one message with no skips
-    g_uni_remote_rcvr_prev_msgnum = g_uni_remote_rcvr_msgnum;
-    *rcvd_len_ptr = 0;
-    if (ESP_OK == g_uni_remote_rcvr_status) {
-      *rcvd_len_ptr = g_uni_remote_rcvr_msglen;
-      memset(rcvd_msg_ptr, '\0', max_len);
-      strncpy(rcvd_msg_ptr, (char *)g_uni_remote_rcvr_data, max_len-1);
-      memcpy(mac_addr_ptr, g_uni_remote_rcvr_header, ESP_NOW_ETH_ALEN);
-    }
-    if (max_len < (g_uni_remote_rcvr_msglen+1)) {
-      status = ESP_ERR_ESPNOW_ARG;
-    }
+esp_err_t uni_remote_rcvr_get_msg(uint16_t * p_rcvd_len_ptr, char * p_rcvd_msg_ptr, uint8_t * p_mac_addr_ptr, uint32_t * p_msg_num_ptr) {
+  static esp_err_t msg_status;
+  static esp_err_t circ_buf_status;
+
+  // get the next message if there is one
+  circ_buf_status = uni_remote_rcvr_circ_buf_get(p_rcvd_msg_ptr, p_mac_addr_ptr, p_rcvd_len_ptr, p_msg_num_ptr, &msg_status);
+  if (ESP_ERR_ESPNOW_NO_MEM == circ_buf_status) {
+    // there is no data to return
+    *p_rcvd_len_ptr = 0;
   }
-  return(status);
+  return(ESP_OK);
 } // end uni_remote_rcvr_get_msg()
+

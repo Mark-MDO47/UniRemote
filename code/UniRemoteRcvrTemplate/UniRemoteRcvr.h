@@ -26,6 +26,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_remote_rcvr_init()
 //       returns: esp_err_t status
+//   WiFi   - set to WIFI_STA mode
 esp_err_t uni_remote_rcvr_init();
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -33,19 +34,20 @@ esp_err_t uni_remote_rcvr_init();
 //       returns: esp_err_t status
 //
 //    Parameters:
-//      max_len     - input  - max number of chars (including zero termination) to return
+//      p_rcvd_len_ptr - output - pointer to number of chars in received message (not including zero termination)
+//      p_rcvd_msg_ptr - output - pointer to area to store the received message
+//      p_mac_addr_ptr - output - pointer to array of length ESP_NOW_ETH_ALEN (6) uint8_t to receive MAC address of source of message
+//      p_msg_num_ptr  - output - pointer to message number == count of callbacks at time of this message receive
 //
-//      rcvd_len    - output - pointer to number of chars returned (not including zero termination)
-//      rcvd_msg    - output - pointer to area to store the received message
-//      mac_addr    - output - pointer to array of length ESP_NOW_ETH_ALEN (6) uint8_t to receive MAC address of source of message
+// status return will always be ESP_OK
 //
-// status return will always be ESP_OK or ESP_ERR_ESPNOW_ARG
+// p_rcvd_len will be zero if no message or the number of bytes returned not counting the zero termination
+//     p_rcvd_len will always be less than max_len and will always be less than ESP_NOW_MAX_DATA_LEN (currently  250)
+//   following entries are only changed if p_rcvd_len is > 0
+// p_rcvd_msg will have the zero-terminated message
+// p_mac_addr will have the array of bytes (uint8_t mac_addr[6] or [ESP_NOW_ETH_ALEN]) filled with the MAC address of the sending node
+// p_msg_num  will have the number of callbacks associated with this message
 //
-// *rcvd_len_ptr will be zero if no message or the number of bytes returned not counting the zero termination
-//     rcvd_len will always be less than max_len and will always be less than ESP_NOW_MAX_DATA_LEN (currently  250)
-// rcvd_msg_ptr will have the zero-terminated message if rcvd_len is > 0
-// mac_addr_ptr will have the array of bytes (uint8_t mac_addr[6]) filled with the MAC address of the sending node
-//
-esp_err_t uni_remote_rcvr_get_msg(uint16_t max_len, uint16_t * rcvd_len_ptr, char * rcvd_msg_ptr, uint8_t * mac_addr_ptr);
+esp_err_t uni_remote_rcvr_get_msg( uint16_t * rcvd_len_ptr, char * rcvd_msg_ptr, uint8_t * mac_addr_ptr, uint32_t * p_msg_num_ptr);
 
 #endif // UNI_REMOTE_RCVR_H 
