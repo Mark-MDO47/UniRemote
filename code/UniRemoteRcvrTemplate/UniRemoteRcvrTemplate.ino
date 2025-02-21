@@ -29,12 +29,18 @@ static uint32_t g_my_message_num = 0;
 //   prints info about the received error status from the call to uni_remote_rcvr_get_msg
 //
 void print_error_status_info(esp_err_t msg_status) {
-  if (ESP_ERR_ESPNOW_ARG == msg_status) {
-    Serial.print("ERROR: ESP-NOW recv cb error: recv_len too big: ");
-    Serial.print(" msg ");
+  if (UNI_REMOTE_RCVR_OK == msg_status) {
+    return;
+  } else if (UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED == msg_status) {
+    uni_remote_rcvr_clear_extended_status_flags();
+    Serial.print("ERROR: ESP-NOW recv cb error: recv msg but no room in FIFO, some message(s) dropped: msg ");
+    Serial.println(g_my_message_num);
+  } else if (UNI_REMOTE_RCVR_ERR_MSG_TOO_BIG == msg_status) {
+    uni_remote_rcvr_clear_extended_status_flags();
+    Serial.print("ERROR: ESP-NOW recv cb error: recv_len too big: msg ");
     Serial.println(g_my_message_num);
   } else {
-    Serial.print("ERROR: ESP_NOW unknown error status ");
+    Serial.print("ERROR: ESP-NOW unknown error status ");
     Serial.print(msg_status);
     Serial.print(" msg ");
     Serial.println(g_my_message_num);
@@ -102,13 +108,10 @@ void loop() {
   uint16_t rcvd_len = 0;
 
   esp_err_t msg_status = uni_remote_rcvr_get_msg(&rcvd_len, &g_my_message[0], &g_my_mac_addr[0], &g_my_message_num);
-  if ((ESP_OK == msg_status) && (rcvd_len > 0)) {
+  print_error_status_info(msg_status);
+  if (rcvd_len > 0) {
     print_message_info(rcvd_len);
-    // end if received a message with good status
-  } else if (ESP_OK != msg_status) {
-    // print out error status information
-    print_error_status_info(msg_status);
-  } // end if status good and length > 0
+  }
   // Notice that if status is ESP_OK and rcvd_len == 0 then no error, just no message yet
 
   delay(200);

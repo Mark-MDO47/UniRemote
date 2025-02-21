@@ -3,9 +3,17 @@
  *
  * UniRemoteRcvr - Code for receiving commands from UniRemote
  *
- * Status returns from these routines return an esp_err_t code
- *    taken from the Espressif ESP32 library files esp_err.h or esp_now.h
- * Below is a list of the possible status codes
+ * Status returns from these routines return an "expanded" esp_err_t code
+ * It is also possible to receive an error code from Espressif ESP32 library files esp_err.h or esp_now.h
+ * I tried to give my codes different values than the ESP-NOW codes (except for ESP_OK)
+ *
+ * Below is a list of the codes specific to UniRemoteRcvr
+ * UNI_REMOTE_RCVR_OK                   same as ESP_OK
+ * UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED circular buffer _put() called but no room in circular buffer; message dropped
+ * UNI_REMOTE_RCVR_ERR_MSG_TOO_BIG      ESP-NOW callback message bigger than ESP-NOW allows (cannot happen)
+ * UNI_REMOTE_RCVR_INFO_NO_MSG_2_GET    circular buffer _get() called but circular buffer is empty
+ *
+ * Below is a list of some of the possible ESP-NOW status codes
  * ESP_FAIL                    Generic esp_err_t code indicating failure
  * ESP_OK                      value indicating success (no error)
  * ESP_ERR_ESPNOW_NOT_INIT     ESPNOW is not initialized.
@@ -13,7 +21,7 @@
  * ESP_ERR_ESPNOW_NO_MEM       Out of memory
  * ESP_ERR_ESPNOW_INTERNAL     Internal error
  * ESP_ERR_ESPNOW_IF           Interface error
-
+ *
  */
 
  // This code was developed after reading the Random Nerd Tutorial below.
@@ -30,30 +38,29 @@
 
 // definitions to support ESP-NOW
 #define UNI_ESP_NOW_HDR_MAC_OFFSET 12 // This is where the MAC address is on my system
+
+// private definitions for circular buffer of ESP-NOW messages
 #define UNI_REMOTE_RCVR_NUM_BUFR 3 // number of buffers for messages
+typedef struct {
+  char msg[ESP_NOW_MAX_DATA_LEN];     // 
+  uint8_t mac_addr[ESP_NOW_ETH_ALEN]; // 
+  uint16_t msg_len;                   // length including trailing zero byte
+  uint16_t msg_num;                   // msg num; may skip if messages discarded
+  int16_t msg_status;                 // 
+} uni_remote_rcvr_circular_buffer_entry_t;
 
 typedef struct {
-  uint16_t idx_in;
-  uint16_t idx_out;
-  uint16_t idx_num;
-  uint8_t mac_addr[UNI_REMOTE_RCVR_NUM_BUFR][ESP_NOW_ETH_ALEN]; // 
-  char msg[UNI_REMOTE_RCVR_NUM_BUFR][ESP_NOW_MAX_DATA_LEN];     // 
-  uint16_t msg_len[UNI_REMOTE_RCVR_NUM_BUFR];                   // length including trailing zero byte
-  uint16_t msg_num[UNI_REMOTE_RCVR_NUM_BUFR];                   // msg num; may skip if messages discarded
-  int16_t msg_status[UNI_REMOTE_RCVR_NUM_BUFR];                 // 
-} circular_buffer_t;
-static circular_buffer_t g_circ_buf; // 
-
-static uint32_t g_msg_callback_num = 0;   // number of time ESP-NOW callback is called
-static uint16_t g_flag_circ_buf_full = 0; // non-zero == flag that circular buffer was full in ESP-NOW callback
-static uint16_t g_flag_data_too_big = 0;  // non-zero == flag that ESP-NOW callback with too much data for ESP-NOW
+  uni_remote_rcvr_cbuf_extended_status_t  info;
+  uni_remote_rcvr_circular_buffer_entry_t entries[UNI_REMOTE_RCVR_NUM_BUFR];
+} uni_remote_rcvr_circular_buffer_t;
+static uni_remote_rcvr_circular_buffer_t g_circ_buf; // 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_remote_rcvr_circ_buf_inc_idx() - return value of incremented index - doesn't check for full
 static uint16_t uni_remote_rcvr_circ_buf_inc_idx(uint16_t p_idx) {
   // this could be shorter but I wanted it to be clearer
   uint16_t new_idx = p_idx + 1;
-  if (new_idx >= g_circ_buf.idx_num) {
+  if (new_idx >= g_circ_buf.info.idx_num) {
     new_idx = 0;
   }
   return(new_idx);
@@ -64,17 +71,20 @@ static uint16_t uni_remote_rcvr_circ_buf_inc_idx(uint16_t p_idx) {
 //    note: only one thread may call put and only one thread may call get
 static int16_t uni_remote_rcvr_circ_buf_get(char * p_msg_ptr, uint8_t * p_mac_addr_ptr, uint16_t * p_msg_len_ptr, uint32_t * p_msg_num_ptr, esp_err_t * p_msg_stat_ptr) {
   int16_t status = ESP_OK;
-  uint16_t new_idx = uni_remote_rcvr_circ_buf_inc_idx(g_circ_buf.idx_out);
-  if (g_circ_buf.idx_in == g_circ_buf.idx_out) { // empty
-    status = ESP_ERR_ESPNOW_NO_MEM; // probably not a good idea but I will keep this inside UniRemoteRcvr
-  } else {
-    *p_msg_stat_ptr = g_circ_buf.msg_status[g_circ_buf.idx_out];
-    *p_msg_num_ptr = g_circ_buf.msg_num[g_circ_buf.idx_out];
-    *p_msg_len_ptr = g_circ_buf.msg_len[g_circ_buf.idx_out];
+  uint16_t new_idx = uni_remote_rcvr_circ_buf_inc_idx(g_circ_buf.info.idx_out);
+  uni_remote_rcvr_circular_buffer_entry_t * out_entry_ptr = &g_circ_buf.entries[g_circ_buf.info.idx_out];
+
+  if (g_circ_buf.info.idx_in == g_circ_buf.info.idx_out) { // empty
+    status = UNI_REMOTE_RCVR_INFO_NO_MSG_2_GET; // INFO - no data to get 
+  } else { // get data from out_entry_ptr
+    status = ESP_OK;
+    *p_msg_stat_ptr = out_entry_ptr->msg_status;
+    *p_msg_num_ptr =  out_entry_ptr->msg_num;
+    *p_msg_len_ptr =  out_entry_ptr->msg_len;
     memset(p_msg_ptr, '\0', *p_msg_len_ptr);
-    strncpy(p_msg_ptr, &g_circ_buf.msg[g_circ_buf.idx_out][0], *p_msg_len_ptr);
-    memcpy(p_mac_addr_ptr, &g_circ_buf.mac_addr[g_circ_buf.idx_out][0], ESP_NOW_ETH_ALEN);
-    g_circ_buf.idx_out = new_idx;  // MUST be last manipulation of circular buffer
+    strncpy(p_msg_ptr, &out_entry_ptr->msg[0], *p_msg_len_ptr);
+    memcpy(p_mac_addr_ptr, &out_entry_ptr->mac_addr[0], ESP_NOW_ETH_ALEN);
+    g_circ_buf.info.idx_out = new_idx;  // MUST be last manipulation of circular buffer
   } // end if data to transfer
   return(status);
 } // end uni_remote_rcvr_circ_buf_get()
@@ -82,20 +92,23 @@ static int16_t uni_remote_rcvr_circ_buf_get(char * p_msg_ptr, uint8_t * p_mac_ad
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_remote_rcvr_circ_buf_put() - put data into circular buffer if room is available
 //    note: only one thread may call put and only one thread may call get
-static int16_t uni_remote_rcvr_circ_buf_put(const char * p_msg_ptr, const uint8_t * p_mac_addr_ptr, int p_msg_len, uint32_t p_msg_num) {
+static int16_t uni_remote_rcvr_circ_buf_put(const char * p_msg_ptr, const uint8_t * p_mac_addr_ptr, int p_msg_len) {
   int16_t status = ESP_OK;
-  uint16_t new_idx = uni_remote_rcvr_circ_buf_inc_idx(g_circ_buf.idx_in);
-  if (new_idx == g_circ_buf.idx_out) { // no room
-    g_flag_circ_buf_full = 1;
+  uint16_t new_idx = uni_remote_rcvr_circ_buf_inc_idx(g_circ_buf.info.idx_in);
+  uni_remote_rcvr_circular_buffer_entry_t * in_entry_ptr = &g_circ_buf.entries[g_circ_buf.info.idx_in];
+
+  if (new_idx == g_circ_buf.info.idx_out) { // no room
     status = ESP_ERR_ESPNOW_FULL;
+    g_circ_buf.info.flag_circ_buf_full = 1;
   } else {
-    g_circ_buf.msg_status[g_circ_buf.idx_in] = ESP_OK;
-    g_circ_buf.msg_num[g_circ_buf.idx_in] = p_msg_num;
-    g_circ_buf.msg_len[g_circ_buf.idx_in] = (uint16_t) p_msg_len;
-    memset(&g_circ_buf.msg[g_circ_buf.idx_in][0], '\0', p_msg_len);
-    strncpy(&g_circ_buf.msg[g_circ_buf.idx_in][0], (char *)p_msg_ptr, p_msg_len);
-    memcpy(&g_circ_buf.mac_addr[g_circ_buf.idx_in][0], &p_mac_addr_ptr[0], ESP_NOW_ETH_ALEN);
-    g_circ_buf.idx_in = new_idx; // MUST be last manipulation of circular buffer
+    status = ESP_OK;
+    in_entry_ptr->msg_status = ESP_OK;
+    in_entry_ptr->msg_num = g_circ_buf.info.msg_callback_num;
+    in_entry_ptr->msg_len = (uint16_t) p_msg_len;
+    memset(&in_entry_ptr->msg[0], '\0', p_msg_len);
+    strncpy(&in_entry_ptr->msg[0], (char *)p_msg_ptr, p_msg_len);
+    memcpy(&in_entry_ptr->mac_addr[0], &p_mac_addr_ptr[0], ESP_NOW_ETH_ALEN);
+    g_circ_buf.info.idx_in = new_idx; // MUST be last manipulation of circular buffer
   } // end if room available
   return(status);
 } // end uni_remote_rcvr_circ_buf_put()
@@ -103,11 +116,11 @@ static int16_t uni_remote_rcvr_circ_buf_put(const char * p_msg_ptr, const uint8_
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_remote_rcvr_callback() - callback function that will be executed when data is received
 static void uni_remote_rcvr_callback(const uint8_t * p_mac_addr, const uint8_t *p_recv_data, int p_recv_len) {
-  g_msg_callback_num += 1;
+  g_circ_buf.info.msg_callback_num += 1;
   if (p_recv_len >= ESP_NOW_MAX_DATA_LEN) { // cannot happen - data too big
-    g_flag_data_too_big = 1;
+    g_circ_buf.info.flag_data_too_big = 1;
   } else { // put data into buffer; buf_put() reports if it cannot do it
-    uni_remote_rcvr_circ_buf_put((char *)p_recv_data, &p_mac_addr[UNI_ESP_NOW_HDR_MAC_OFFSET], p_recv_len, g_msg_callback_num);
+    uni_remote_rcvr_circ_buf_put((char *)p_recv_data, &p_mac_addr[UNI_ESP_NOW_HDR_MAC_OFFSET], p_recv_len);
   }
   return;
 } // end uni_remote_rcvr_callback()
@@ -116,15 +129,17 @@ static void uni_remote_rcvr_callback(const uint8_t * p_mac_addr, const uint8_t *
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_remote_rcvr_get_extended_status
 //       returns: nothing for status
-void uni_remote_rcvr_get_extended_status(uint32_t * p_msg_callback_num_ptr, uint16_t * p_flag_circ_buf_full_ptr, uint16_t * p_flag_data_too_big_ptr,
-                                         uint16_t * p_idx_num, uint16_t * p_idx_in, uint16_t * p_idx_out) {
-  *p_idx_in  = g_circ_buf.idx_in;
-  *p_idx_out = g_circ_buf.idx_out;
-  *p_idx_num = g_circ_buf.idx_num;
-  *p_msg_callback_num_ptr = g_msg_callback_num;
-  *p_flag_circ_buf_full_ptr = g_flag_circ_buf_full;
-  *p_flag_data_too_big_ptr = g_flag_data_too_big;
+void uni_remote_rcvr_get_extended_status(uni_remote_rcvr_cbuf_extended_status_t * extended_status) {
+  memcpy(extended_status, &g_circ_buf.info, sizeof(uni_remote_rcvr_cbuf_extended_status_t));
 } // end uni_remote_rcvr_get_extended_status()
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// uni_remote_rcvr_clear_extended_status_flags
+//       returns: nothing for status
+void uni_remote_rcvr_clear_extended_status_flags() {
+  g_circ_buf.info.flag_circ_buf_full = 0;
+  g_circ_buf.info.flag_data_too_big  = 0;
+} // end uni_remote_rcvr_clear_extended_status_flags()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_remote_rcvr_init()
@@ -135,8 +150,12 @@ void uni_remote_rcvr_get_extended_status(uint32_t * p_msg_callback_num_ptr, uint
 esp_err_t uni_remote_rcvr_init() {
 
   // initialize our circular buffer data struct
-  g_circ_buf.idx_num = UNI_REMOTE_RCVR_NUM_BUFR;
-  g_circ_buf.idx_in = g_circ_buf.idx_out = 0; // when in == out, circ_buf is empty
+  g_circ_buf.info.idx_num = UNI_REMOTE_RCVR_NUM_BUFR;
+  g_circ_buf.info.idx_in = g_circ_buf.info.idx_out = 0; // when in == out, circ_buf is empty
+  g_circ_buf.info.msg_callback_num = 0;   // number of times ESP-NOW callback is called
+  g_circ_buf.info.flag_circ_buf_full = 0; // non-zero == flag that circular buffer was full in ESP-NOW callback
+  g_circ_buf.info.flag_data_too_big = 0;  // non-zero == flag that ESP-NOW callback with too much data for ESP-NOW
+
 
   // Set device as a Wi-Fi Station
   WiFi.mode(WIFI_STA);
@@ -173,12 +192,15 @@ esp_err_t uni_remote_rcvr_init() {
 esp_err_t uni_remote_rcvr_get_msg(uint16_t * p_rcvd_len_ptr, char * p_rcvd_msg_ptr, uint8_t * p_mac_addr_ptr, uint32_t * p_msg_num_ptr) {
   static esp_err_t msg_status;
   static esp_err_t circ_buf_status;
+  static esp_err_t my_status;
 
   // get the next message if there is one
   circ_buf_status = uni_remote_rcvr_circ_buf_get(p_rcvd_msg_ptr, p_mac_addr_ptr, p_rcvd_len_ptr, p_msg_num_ptr, &msg_status);
-  if (ESP_ERR_ESPNOW_NO_MEM == circ_buf_status) {
+  if (UNI_REMOTE_RCVR_INFO_NO_MSG_2_GET == circ_buf_status) {
     // there is no data to return
     *p_rcvd_len_ptr = 0;
   }
-  return(ESP_OK);
+  if (0 != g_circ_buf.info.flag_circ_buf_full) my_status = UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED;
+  else                                         my_status = ESP_OK;
+  return(my_status);
 } // end uni_remote_rcvr_get_msg()

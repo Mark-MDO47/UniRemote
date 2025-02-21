@@ -1,12 +1,20 @@
+
 /* Author: https://github.com/Mark-MDO47  Feb. 28, 2025
  *  https://github.com/Mark-MDO47/UniRemote
  *
  * UniRemoteRcvr - Code for receiving commands from UniRemote
  *
  * Status returns from these routines return an "expanded" esp_err_t code
- *    All but one are taken from the Espressif ESP32 library files esp_err.h or esp_now.h
- * Below is a list of the possible status codes
- * UNI_ESP_NOW_MSG_RCVD        UniRemote code for message received
+ * It is also possible to receive an error code from Espressif ESP32 library files esp_err.h or esp_now.h
+ * I tried to give my codes different values than the ESP-NOW codes (except for ESP_OK)
+ *
+ * Below is a list of the codes specific to UniRemoteRcvr
+ * UNI_REMOTE_RCVR_OK                   same as ESP_OK
+ * UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED circular buffer _put() called but no room in circular buffer; message dropped
+ * UNI_REMOTE_RCVR_ERR_MSG_TOO_BIG      ESP-NOW callback message bigger than ESP-NOW allows (cannot happen)
+ * UNI_REMOTE_RCVR_INFO_NO_MSG_2_GET    circular buffer _get() called but circular buffer is empty
+ *
+ * Below is a list of some of the possible ESP-NOW status codes
  * ESP_FAIL                    Generic esp_err_t code indicating failure
  * ESP_OK                      value indicating success (no error)
  * ESP_ERR_ESPNOW_NOT_INIT     ESPNOW is not initialized.
@@ -14,14 +22,29 @@
  * ESP_ERR_ESPNOW_NO_MEM       Out of memory
  * ESP_ERR_ESPNOW_INTERNAL     Internal error
  * ESP_ERR_ESPNOW_IF           Interface error
-
+ *
  */
 
-#ifndef UNI_REMOTE_RCVR_H 
+#ifndef UNI_REMOTE_RCVR_H
 
 // include Espressif ESP32 wifi and ESP-NOW 
 #include <esp_now.h>  // for ESP-NOW
 #include <WiFi.h>     // for ESP-NOW
+
+// public definitions for circular buffer of ESP-NOW messages
+typedef struct {
+  uint16_t idx_in;             // next entry index for circ_buf_put
+  uint16_t idx_out;            // next entry index for circ_buf_get
+  uint16_t idx_num;            // number of entries in circ_buf
+  uint32_t msg_callback_num;   // number of times ESP-NOW callback is called
+  uint16_t flag_circ_buf_full; // non-zero == flag that circular buffer was full in ESP-NOW callback
+  uint16_t flag_data_too_big;  // non-zero == flag that ESP-NOW callback with too much data for ESP-NOW
+} uni_remote_rcvr_cbuf_extended_status_t;
+
+#define UNI_REMOTE_RCVR_OK                  ESP_OK // success
+#define UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED  -101 // circular buffer _put() called but no room in circular buffer; message dropped
+#define UNI_REMOTE_RCVR_ERR_MSG_TOO_BIG       -102 // ESP-NOW callback message bigger than ESP-NOW allows (cannot happen)
+#define UNI_REMOTE_RCVR_INFO_NO_MSG_2_GET     -201 // circular buffer _get() called but circular buffer is empty
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_remote_rcvr_init()
@@ -32,9 +55,12 @@ esp_err_t uni_remote_rcvr_init();
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_remote_rcvr_get_extended_status
 //       returns: nothing for status
-void uni_remote_rcvr_get_extended_status(uint32_t * p_msg_callback_num_ptr, uint16_t * p_flag_circ_buf_full_ptr, uint16_t * p_flag_data_too_big_ptr,
-                                         uint16_t * p_idx_num, uint16_t * p_idx_in, uint16_t * p_idx_out);
+void uni_remote_rcvr_get_extended_status(uni_remote_rcvr_cbuf_extended_status_t * extended_status);
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// uni_remote_rcvr_clear_extended_status_flags
+//       returns: nothing for status
+void uni_remote_rcvr_clear_extended_status_flags();
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_remote_rcvr_get_msg()
