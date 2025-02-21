@@ -30,6 +30,13 @@
 esp_err_t uni_remote_rcvr_init();
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
+// uni_remote_rcvr_get_extended_status
+//       returns: nothing for status
+void uni_remote_rcvr_get_extended_status(uint32_t * p_msg_callback_num_ptr, uint16_t * p_flag_circ_buf_full_ptr, uint16_t * p_flag_data_too_big_ptr,
+                                         uint16_t * p_idx_num, uint16_t * p_idx_in, uint16_t * p_idx_out);
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_remote_rcvr_get_msg()
 //       returns: esp_err_t status
 //

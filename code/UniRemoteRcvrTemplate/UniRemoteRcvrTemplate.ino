@@ -48,7 +48,7 @@ void print_error_status_info(esp_err_t msg_status) {
 //
 void print_message_info(uint16_t rcvd_len) {
   // start the print
-  Serial.print("UniRemoteRcvr received ESP-NOW message number: ");
+  Serial.print("UniRemoteRcvrTemplate received ESP-NOW message number: ");
   Serial.print(g_my_message_num);
 
   // print originating MAC address
@@ -109,6 +109,7 @@ void loop() {
     // print out error status information
     print_error_status_info(msg_status);
   } // end if status good and length > 0
-
   // Notice that if status is ESP_OK and rcvd_len == 0 then no error, just no message yet
+
+  delay(200);
 } // end loop()
