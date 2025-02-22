@@ -1,6 +1,9 @@
 # UniRemoteCYD software - one remote to rule them all!
 
 **Table Of Contents**
+* [Top](#uniremotecyd-software-\--one-remote-to-rule-them-all "Top")
+* [Expected Flow for V1.0](#expected-flow-for-v10 "Expected Flow for V1.0")
+* [Licensing](#licensing "Licensing")
 
 ## Expected Flow for V1.0
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
