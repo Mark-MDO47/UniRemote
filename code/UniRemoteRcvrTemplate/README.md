@@ -30,7 +30,7 @@ void setup() {
 void loop() {
   static char my_message[ESP_NOW_MAX_DATA_LEN];     // received message
   static uint8_t sender_mac_addr[ESP_NOW_ETH_ALEN]; // sender MAC address
-  static uint32_t my_message_num = 0;               // count should increment by one each time unless UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED
+  static uint32_t my_message_num = 0;               // increments for each msg received unless UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED
   uint16_t rcvd_len = 0; // the length of the message/command. If zero, no message.
 
   // get any message received. If 0 == rcvd_len, no message.
