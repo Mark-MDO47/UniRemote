@@ -15,7 +15,6 @@ Here is my breadboard setup with the Cheap Yellow Display, the QR code reader an
 * [Top](#uniremote-\--one-remote-to-rule-them-all "Top")
 * [The Plan](#the-plan "The Plan")
 * [Guide to the Code](#guide-to-the-code "Guide to the Code")
-* [Expected Flow for V1.0](#expected-flow-for-v10 "Expected Flow for V1.0")
 * [Interesting Considerations](#interesting-considerations "Interesting Considerations")
   * [General CYD and LVGL and Related Info](#general-cyd-and-lvgl-and-related-info "General CYD and LVGL and Related Info")
   * [DRAM_STR - Move Constant Strings to RAM instead of Program Storage](#dram_str-\--move-constant-strings-to-ram-instead-of-program-storage "DRAM_STR - Move Constant Strings to RAM instead of Program Storage")
@@ -88,47 +87,6 @@ Here is what the code is:<br>
 | [code/UniRemote](https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniRemote "UniRemote") | UniRemote code with QR code reader and **generic ESP32** module - attributions in the code. This is now **unused** and **deprecated**. I am switching to the CYD and the code in **UniRemoteCYD**. |
 | [code/UniTestRcvr](https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniTestRcvr "UniTestRcvr") | UniRemote code testbench for receiver of the commands - attributions in the code. This is now **unused** and **deprecated**. All further development for the receiver will go to the generic **UniRemoteRcvrTemplate**. |
 | --- end of table --- | --- end of table --- |
-
-## Expected Flow for V1.0
-[Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
-
-**UNI_STATE_WAIT_CMD**
-- *last cmd all done, wait for next cmd (probably QR but any source OK)*
-- alert OK for next CMD
-- wait for CMD
-  - if not "too soon"
-    - scan CMD code into RAM
-
-**UNI_STATE_CMD_SEEN**
-- *command in queue, waiting for GO or CLEAR*
-- alert wait for send
-- wait for SEND or CLEAR
-  - if receive CLEAR, clear cmd and go to WAIT_CMD
-  - if receive SEND, go to SENDING
-
-**UNI_STATE_SENDING_CMD**
-- *command being sent (very short state)*
-- alert that SENDING
-- send command
-  - check if too soon, go to UNI_STATE_SHOW_STAT
-  - check MAC addr validity & able to register MAC peer; if error go to SHOW_STAT
-  - call send ESP-NOW routine
-    - if OK go to WAIT_CB
-    - if error go to SHOW_STAT
-
-**UNI_STATE_WAIT_CB**
-- *waiting for send callback (very short state)*
-- alert that WAIT_CB
-- wait for callback
-  - if timeout or bad, go to SHOW_STAT
-  - if OK, go to WAIT_CMD
-
-**UNI_STATE_SHOW_STAT**
-- *show error status and allow cmd abort*
-- alert that SHOW_STAT
-- wait for SEND or ABORT
-  - if receive ABORT, clear cmd and go to WAIT_CMD
-  - if receive SEND, go to SENDING
 
 ## Interesting Considerations
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
