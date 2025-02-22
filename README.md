@@ -140,7 +140,7 @@ I guess I should have predicted that a callback, which is somewhat similar to an
 
 The symptom was:
 - If I did ESP-NOW messages (using PICC card as the source) for which the receiver was present and receiving, I could seemingly send as many as I wanted with the physical scanning of a PICC card giving a timing interval.
-- If I did 2 or sometimes up to 3 ESP-NOW messages with no receiver, even if done quite slowly, I would get an LVGL watchdog timer timeout and then it would crash and reboot.
+- If I did 2 or sometimes up to 3 ESP-NOW messages with no receiver, even if done quite slowly, the CYD would get an LVGL watchdog timer timeout and then it would crash and reboot.
 
 It was a little mysterious because the processing was the same for both of them, only the status message itself was different.
 
