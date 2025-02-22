@@ -42,11 +42,11 @@
 // private definitions for circular buffer of ESP-NOW messages
 #define UNI_REMOTE_RCVR_NUM_BUFR 3 // number of buffers for messages
 typedef struct {
-  char msg[ESP_NOW_MAX_DATA_LEN];     // 
-  uint8_t mac_addr[ESP_NOW_ETH_ALEN]; // 
+  char msg[ESP_NOW_MAX_DATA_LEN];     // received message
+  uint8_t mac_addr[ESP_NOW_ETH_ALEN]; // sender MAC address
   uint16_t msg_len;                   // length including trailing zero byte
   uint16_t msg_num;                   // msg num; may skip if messages discarded
-  int16_t msg_status;                 // 
+  int16_t msg_status;                 // status for this individual message. Almost certainly ESP_OK
 } uni_remote_rcvr_circular_buffer_entry_t;
 
 typedef struct {
