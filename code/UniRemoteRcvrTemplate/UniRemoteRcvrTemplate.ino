@@ -89,11 +89,11 @@ void setup() {
   Serial.println(""); // print a blank line in case there is some junk from power-on
   Serial.println("\nStarting UniTestRcvrTemplate\n");
 
-  // init UniRemoteRcvr
-  esp_err_t status_init_espnow = uni_remote_rcvr_init();
-  if (status_init_espnow != ESP_OK) {
+  // init UniRemoteRcvr - inits WiFi mode to WIFI_STA and inits ESP-NOW
+  esp_err_t status_init_uni_remote_rcvr = uni_remote_rcvr_init();
+  if (status_init_uni_remote_rcvr != ESP_OK) {
     Serial.print("ERROR: ESP-NOW init error; status: ");
-    Serial.println(status_init_espnow);
+    Serial.println(status_init_uni_remote_rcvr);
     return;
   }
 } // end setup()
@@ -103,7 +103,7 @@ void setup() {
 //
 // see if there is a message to report
 void loop() {
-  uint16_t rcvd_len = 0;
+  uint16_t rcvd_len = 0; // the length of the message/command. If zero, no message.
 
   // get any message received. If 0 == rcvd_len, no message.
   esp_err_t msg_status = uni_remote_rcvr_get_msg(&rcvd_len, &g_my_message[0], &g_my_mac_addr[0], &g_my_message_num);
