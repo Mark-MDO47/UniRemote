@@ -15,7 +15,7 @@ In the simplest form, your receiver code ***.ino**  program does the following:
 ```c
 #include "UniRemoteRcvr.h"
 static char g_my_message[ESP_NOW_MAX_DATA_LEN];
-static uint8_t g_my_mac_addr[ESP_NOW_ETH_ALEN];
+static uint8_t g_sender_mac_addr[ESP_NOW_ETH_ALEN];
 static uint32_t g_my_message_num = 0;
 
 void setup() {
@@ -34,7 +34,7 @@ void loop() {
   uint16_t rcvd_len = 0; // the length of the message/command. If zero, no message.
 
   // get any message received. If 0 == rcvd_len, no message.
-  esp_err_t msg_status = uni_remote_rcvr_get_msg(&rcvd_len, &g_my_message[0], &g_my_mac_addr[0], &g_my_message_num);
+  esp_err_t msg_status = uni_remote_rcvr_get_msg(&rcvd_len, &g_my_message[0], &g_sender_mac_addr[0], &g_my_message_num);
 
   // we can get an error even if no message
   if (msg_status != UNI_REMOTE_RCVR_OK) { // (== ESP_OK)
