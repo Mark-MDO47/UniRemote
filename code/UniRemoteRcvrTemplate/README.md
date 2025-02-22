@@ -18,7 +18,7 @@ In the simplest form, your receiver code ***.ino**  program does the following:
 void setup() {
   // init UniRemoteRcvr - inits WiFi mode to WIFI_STA and inits ESP-NOW
   esp_err_t status_init_uni_remote_rcvr = uni_remote_rcvr_init();
-  if (status_init_uni_remote_rcvr != ESP_OK) {
+  if (status_init_uni_remote_rcvr != ESP_OK) { // (== UNI_REMOTE_RCVR_OK)
     // handle error status
     return;
   }
