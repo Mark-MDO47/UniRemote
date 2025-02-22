@@ -52,3 +52,5 @@ void loop() {
   // do everything else the program does
 }
 ```
+
+**UniRemoteRcvrTemplate.ino** is an example program that illustrates one way to follow this pattern.
