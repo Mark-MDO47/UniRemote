@@ -14,6 +14,9 @@ In the simplest form, your receiver code ***.ino**  program does the following:
 
 ```c
 #include "UniRemoteRcvr.h"
+static char g_my_message[ESP_NOW_MAX_DATA_LEN];
+static uint8_t g_my_mac_addr[ESP_NOW_ETH_ALEN];
+static uint32_t g_my_message_num = 0;
 
 void setup() {
   // init UniRemoteRcvr - inits WiFi mode to WIFI_STA and inits ESP-NOW
