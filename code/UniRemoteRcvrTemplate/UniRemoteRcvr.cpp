@@ -12,6 +12,7 @@
  * UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED circular buffer _put() called but no room in circular buffer; message dropped
  * UNI_REMOTE_RCVR_ERR_MSG_TOO_BIG      ESP-NOW callback message bigger than ESP-NOW allows (cannot happen)
  * UNI_REMOTE_RCVR_INFO_NO_MSG_2_GET    circular buffer _get() called but circular buffer is empty
+ *                                      NOTE: this status only used internally, not returned to callers
  *
  * Below is a list of some of the possible ESP-NOW status codes
  * ESP_FAIL                    Generic esp_err_t code indicating failure
@@ -129,6 +130,25 @@ static void uni_remote_rcvr_callback(const uint8_t * p_mac_addr, const uint8_t *
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_remote_rcvr_get_extended_status
 //       returns: nothing for status
+//
+// uni_remote_rcvr_cbuf_extended_status_t - returned by uni_remote_rcvr_get_extended_status()
+// The idx_* items are for internal usage by UniRemoteRcvr.
+// The msg_callback_num is the number of times that the ESP-NOW callback routine was called.
+//    It gets stored into the circular buffer each time a message is stored, and returned via p_msg_num_ptr.
+//    The *p_msg_num_ptr returned by uni_remote_rcvr_get_msg() will normally increment by one
+//    each time a message is returned.
+//      If it skips a number, that means there was no room in the circular buffer to store it.
+//      See the description about flag_circ_buf_full, UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED,
+//      and uni_remote_rcvr_clear_extended_status_flags() 
+// Currently there are two flags and associated status returns from uni_remote_rcvr_get_msg()
+//    flag_circ_buf_full (UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED) - circular buffer got full and message lost
+//         This means that you should either
+//            call uni_remote_rcvr_get_msg() more frequently
+//            increase UNI_REMOTE_RCVR_NUM_BUFR to allow more buffering
+//    flag_data_too_big  (UNI_REMOTE_RCVR_ERR_MSG_TOO_BIG) - some bug in ESP-NOW or a bad actor generated
+//         condition that didn't cause a buffer overflow because we checked.
+//         Honestly I don't expect to ever see this one.
+//
 void uni_remote_rcvr_get_extended_status(uni_remote_rcvr_cbuf_extended_status_t * extended_status) {
   memcpy(extended_status, &g_circ_buf.info, sizeof(uni_remote_rcvr_cbuf_extended_status_t));
 } // end uni_remote_rcvr_get_extended_status()
@@ -136,6 +156,21 @@ void uni_remote_rcvr_get_extended_status(uni_remote_rcvr_cbuf_extended_status_t 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_remote_rcvr_clear_extended_status_flags
 //       returns: nothing for status
+//
+// The "flag" entries are global status for uni_remote_rcvr. The code in this file will
+//    autonomously set the flags to show that something unusual happened.
+//    noticing them and taking any desired actions. Use uni_remote_rcvr_clear_extended_status_flags()
+//    to clear the flags.
+//
+// Currently there are two flags and associated status returns from uni_remote_rcvr_get_msg()
+//    flag_circ_buf_full (UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED) - circular buffer got full and message lost
+//         This means that you should either
+//            call uni_remote_rcvr_get_msg() more frequently
+//            increase UNI_REMOTE_RCVR_NUM_BUFR to allow more buffering
+//    flag_data_too_big  (UNI_REMOTE_RCVR_ERR_MSG_TOO_BIG) - some bug in ESP-NOW or a bad actor generated
+//         condition that didn't cause a buffer overflow because we checked.
+//         Honestly I don't expect to ever see this one.
+//
 void uni_remote_rcvr_clear_extended_status_flags() {
   g_circ_buf.info.flag_circ_buf_full = 0;
   g_circ_buf.info.flag_data_too_big  = 0;
@@ -144,8 +179,11 @@ void uni_remote_rcvr_clear_extended_status_flags() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_remote_rcvr_init()
 //       returns: esp_err_t status
+//
+//   Circular Buffer inited
 //   WiFi    - set to WIFI_STA mode
 //   ESP-NOW - inited
+//      ESP-NOW receive callback installed
 //
 esp_err_t uni_remote_rcvr_init() {
 
@@ -155,7 +193,6 @@ esp_err_t uni_remote_rcvr_init() {
   g_circ_buf.info.msg_callback_num = 0;   // number of times ESP-NOW callback is called
   g_circ_buf.info.flag_circ_buf_full = 0; // non-zero == flag that circular buffer was full in ESP-NOW callback
   g_circ_buf.info.flag_data_too_big = 0;  // non-zero == flag that ESP-NOW callback with too much data for ESP-NOW
-
 
   // Set device as a Wi-Fi Station
   WiFi.mode(WIFI_STA);
@@ -173,6 +210,7 @@ esp_err_t uni_remote_rcvr_init() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_remote_rcvr_get_msg()
 //       returns: esp_err_t status
+//          either ESP_OK, UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED, or UNI_REMOTE_RCVR_ERR_MSG_TOO_BIG
 //
 //    Parameters:
 //      p_rcvd_len_ptr - output - pointer to number of chars in received message (not including zero termination)
@@ -180,7 +218,9 @@ esp_err_t uni_remote_rcvr_init() {
 //      p_mac_addr_ptr - output - pointer to array of length ESP_NOW_ETH_ALEN (6) uint8_t to receive MAC address of source of message
 //      p_msg_num_ptr  - output - pointer to message number == count of callbacks at time of this message receive
 //
-// status return will always be ESP_OK
+// NOTE: p_rcvd_len and status return are independent.
+//          If p_rcvd_len is > 0 then a message was returned, whether status return is ESP_OK or not
+//          If status return is not ESP_OK, there might or might not be a message returned
 //
 // p_rcvd_len will be zero if no message or the number of bytes returned not counting the zero termination
 //     p_rcvd_len will always be less than max_len and will always be less than ESP_NOW_MAX_DATA_LEN (currently  250)
@@ -188,6 +228,11 @@ esp_err_t uni_remote_rcvr_init() {
 // p_rcvd_msg will have the zero-terminated message
 // p_mac_addr will have the array of bytes (uint8_t mac_addr[6] or [ESP_NOW_ETH_ALEN]) filled with the MAC address of the sending node
 // p_msg_num  will have the number of callbacks associated with this message
+//    The *p_msg_num_ptr returned by uni_remote_rcvr_get_msg() will normally increment by one
+//    each time a message is returned.
+//      If it skips a number, that means there was no room in the circular buffer to store it.
+//      See the description about flag_circ_buf_full, UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED,
+//      and uni_remote_rcvr_clear_extended_status_flags() 
 //
 esp_err_t uni_remote_rcvr_get_msg(uint16_t * p_rcvd_len_ptr, char * p_rcvd_msg_ptr, uint8_t * p_mac_addr_ptr, uint32_t * p_msg_num_ptr) {
   static esp_err_t msg_status;
@@ -200,7 +245,8 @@ esp_err_t uni_remote_rcvr_get_msg(uint16_t * p_rcvd_len_ptr, char * p_rcvd_msg_p
     // there is no data to return
     *p_rcvd_len_ptr = 0;
   }
-  if (0 != g_circ_buf.info.flag_circ_buf_full) my_status = UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED;
-  else                                         my_status = ESP_OK;
+  if (0 != g_circ_buf.info.flag_circ_buf_full)     my_status = UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED;
+  else if (0 != g_circ_buf.info.flag_data_too_big) my_status = UNI_REMOTE_RCVR_ERR_MSG_TOO_BIG;
+  else                                             my_status = ESP_OK;
   return(my_status);
 } // end uni_remote_rcvr_get_msg()
