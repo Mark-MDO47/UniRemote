@@ -14,9 +14,6 @@ In the simplest form, your receiver code ***.ino**  program does the following:
 
 ```c
 #include "UniRemoteRcvr.h"
-static char g_my_message[ESP_NOW_MAX_DATA_LEN];
-static uint8_t g_sender_mac_addr[ESP_NOW_ETH_ALEN];
-static uint32_t g_my_message_num = 0;
 
 void setup() {
   // init UniRemoteRcvr - inits WiFi mode to WIFI_STA and inits ESP-NOW
@@ -31,6 +28,9 @@ void setup() {
 } //
 
 void loop() {
+  static char g_my_message[ESP_NOW_MAX_DATA_LEN];     // received message
+  static uint8_t g_sender_mac_addr[ESP_NOW_ETH_ALEN]; // sender MAC address
+  static uint32_t g_my_message_num = 0;               // count should increment by one each time unless UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED
   uint16_t rcvd_len = 0; // the length of the message/command. If zero, no message.
 
   // get any message received. If 0 == rcvd_len, no message.
