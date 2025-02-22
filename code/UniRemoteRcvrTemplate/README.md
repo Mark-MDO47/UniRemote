@@ -23,7 +23,7 @@ void setup() {
     return;
   }
 
-  // Initialize everything else except WiFi
+  // Initialize everything else
 
 } //
 
