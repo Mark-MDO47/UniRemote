@@ -145,8 +145,8 @@ The symptom was:
 It was a little mysterious because the processing was the same for both of them, only the status message itself was different.
 
 My **guess** at the mechanism is:
-- If the receiver was present, the response was so quick that the LVGL routines were not doing anything when the callback routine was called.
-- If the receiver was absent, the response was a timeout and this could happen when the loop and/or LVGL refresh was happening so problem if calling non-reentrant LVGL routine.
+- If the receiver was present, the response was so quick that the LVGL routines were not doing anything when the ESP-NOW send callback routine was called.
+- If the receiver was absent, the response was a timeout and this could happen when the loop and/or LVGL refresh was happening so problem if calling non-reentrant LVGL routine from ESP-NOW send callback.
 
 ## Licensing
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
