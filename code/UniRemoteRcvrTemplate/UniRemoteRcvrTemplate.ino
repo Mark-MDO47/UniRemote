@@ -19,9 +19,9 @@
 
 #include "UniRemoteRcvr.h" // my library for UniRemoteRcvr
 
-static char g_my_message[ESP_NOW_MAX_DATA_LEN];
-static uint8_t g_my_mac_addr[ESP_NOW_ETH_ALEN];
-static uint32_t g_my_message_num = 0;
+static char g_my_message[ESP_NOW_MAX_DATA_LEN];     // received message
+static uint8_t g_sender_mac_addr[ESP_NOW_ETH_ALEN]; // sender MAC address
+static uint32_t g_my_message_num = 0;               // count should increment by one each time unless UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // print_error_status_info()
@@ -57,12 +57,12 @@ void print_message_info(uint16_t rcvd_len) {
 
   // print originating MAC address
   Serial.print(" sending mac_addr");
-  for (int i = 0; i < sizeof(g_my_mac_addr); i++) {
+  for (int i = 0; i < sizeof(g_sender_mac_addr); i++) {
     Serial.print(":");
-    if (g_my_mac_addr[i] < 16) { // is this stupid or what?
+    if (g_sender_mac_addr[i] < 16) { // is this stupid or what?
       Serial.print("0");
     }
-    Serial.print(g_my_mac_addr[i],HEX);
+    Serial.print(g_sender_mac_addr[i],HEX);
   }
   Serial.println(" ");
 
@@ -106,7 +106,7 @@ void loop() {
   uint16_t rcvd_len = 0; // the length of the message/command. If zero, no message.
 
   // get any message received. If 0 == rcvd_len, no message.
-  esp_err_t msg_status = uni_remote_rcvr_get_msg(&rcvd_len, &g_my_message[0], &g_my_mac_addr[0], &g_my_message_num);
+  esp_err_t msg_status = uni_remote_rcvr_get_msg(&rcvd_len, &g_my_message[0], &g_sender_mac_addr[0], &g_my_message_num);
 
   // we can get an error even if no message
   print_error_status_info(msg_status); // won't print if UNI_REMOTE_RCVR_OK (== ESP_OK)
