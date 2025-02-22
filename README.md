@@ -105,7 +105,7 @@ One key thing I found out was that all four of the ESP-32 hardware SPI ports are
 | CYD info in Japanese; need Google Translate but info looks quite good | https://macsbug.wordpress.com/2022/08/17/esp32-2432s028 |
 | Info/Code for CYD and many variants | https://github.com/rzeldent/esp32-smartdisplay |
 | --- | --- |
-| LVGL library I use | https://docs.arduino.cc/libraries/rfid_mfrc522v2 |
+| RFID library I use | https://docs.arduino.cc/libraries/rfid_mfrc522v2 |
 | LVGL and CYD | https://randomnerdtutorials.com/lvgl-cheap-yellow-display-esp32-2432s028r |
 | LVGL and CYD | https://rntlab.com/module-1/esp32-lvgl-ebook |
 | CYD and alternative library with lots of good info | https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display.git|
