@@ -112,10 +112,11 @@ void loop() {
   print_error_status_info(msg_status); // won't print if UNI_REMOTE_RCVR_OK (== ESP_OK)
 
   // these error codes come from set/clear flags; clear so can detect next time
-  if ((UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED == msg_status) || (UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED == msg_status)) {
+  if ((UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED == msg_status) || (UNI_REMOTE_RCVR_ERR_MSG_TOO_BIG == msg_status)) {
     uni_remote_rcvr_clear_extended_status_flags();
   }
 
+  // we can get a message with or without an error; see above uni_remote_rcvr_clear_extended_status_flags()
   // If 0 == rcvd_len, no message.
   if (rcvd_len > 0) {
     print_message_info(rcvd_len);
