@@ -25,7 +25,7 @@ void setup() {
 
   // Initialize everything else
 
-} //
+} // end setup()
 
 void loop() {
   static char my_message[ESP_NOW_MAX_DATA_LEN];     // received message
@@ -53,7 +53,7 @@ void loop() {
   }
 
   // do everything else the program does
-}
+} // end loop()
 ```
 
 **UniRemoteRcvrTemplate.ino** is an example program that illustrates one way to follow this pattern.
