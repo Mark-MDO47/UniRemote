@@ -117,7 +117,7 @@ One key thing I found out was that all four of the ESP-32 hardware SPI ports are
 
 ### DRAM_STR - Move Constant Strings to RAM instead of Program Storage
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
-Since I am using an ESP-32 CYD with WiFi and LVGL, there is a lot of code and I quickly ran to the limits of program storage versus RAM.
+Since I am using an ESP-32 CYD with WiFi and LVGL, there is a lot of code included in libraries and I quickly ran to the limits of program storage versus RAM.
 ```
 Sketch uses 1208557 bytes (92%) of program storage space. Maximum is 1310720 bytes.
 Global variables use 61544 bytes (18%) of dynamic memory, leaving 266136 bytes for local variables. Maximum is 327680 bytes.
