@@ -188,7 +188,7 @@ void uni_remote_rcvr_get_extended_status(uni_remote_rcvr_cbuf_extended_status_t 
 void uni_remote_rcvr_clear_extended_status_flags();
 ```
 
-### What Error Codes Might I Receive?
+## What Error Codes Might I Receive?
 [Top](#uniremotercvr-and-uniremotercvrtemplate "Top")<br>
 The "esp_err_t" returned from the "necessary" routines above denotes a slightly extended range compared to the ESP32 WiFi routines.
 | Routine | Status Description |
@@ -219,6 +219,7 @@ ESP_ERR_ESPNOW_INTERNAL     Internal error
 ESP_ERR_ESPNOW_IF           Interface error
 ```
 
-### TLDR Why Call uni_remote_rcvr_clear_extended_status_flags()?
+## TLDR Why Call uni_remote_rcvr_clear_extended_status_flags()?
 [Top](#uniremotercvr-and-uniremotercvrtemplate "Top")<br>
-
+This is best explained in the comments for the calling sequence of uni_remote_rcvr_clear_extended_status_flags().
+- [uni_remote_rcvr_clear_extended_status_flags()](#uni_remote_rcvr_clear_extended_status_flags() "uni_remote_rcvr_clear_extended_status_flags()")
