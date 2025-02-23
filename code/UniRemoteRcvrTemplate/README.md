@@ -78,6 +78,9 @@ There are four routines that can be called from UniRemoteRcvr; listed in the tab
 ### Detailed Calling Sequence
 [Top](#uniremotercvr-and-uniremotercvrtemplate "Top")<br>
 Here is a description of the detiled calling sequence for the above routines, taken from UniRemoteRcvr.h.
+
+#### uni_remote_rcvr_init()
+[Top](#uniremotercvr-and-uniremotercvrtemplate "Top")<br>
 ```c
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_remote_rcvr_init()
@@ -89,7 +92,11 @@ Here is a description of the detiled calling sequence for the above routines, ta
 //      ESP-NOW receive callback installed
 //
 esp_err_t uni_remote_rcvr_init();
+```
 
+#### uni_remote_rcvr_get_msg()
+[Top](#uniremotercvr-and-uniremotercvrtemplate "Top")<br>
+```c
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_remote_rcvr_get_msg()
 //       returns: esp_err_t status
@@ -118,9 +125,13 @@ esp_err_t uni_remote_rcvr_init();
 //      and uni_remote_rcvr_clear_extended_status_flags() 
 //
 esp_err_t uni_remote_rcvr_get_msg(uint16_t * rcvd_len_ptr, char * rcvd_msg_ptr, uint8_t * mac_addr_ptr, uint32_t * p_msg_num_ptr);
+```
 
+#### uni_remote_rcvr_get_extended_status()
+[Top](#uniremotercvr-and-uniremotercvrtemplate "Top")<br>
+```c
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// uni_remote_rcvr_get_extended_status
+// uni_remote_rcvr_get_extended_status()
 //       returns: nothing for status
 //
 // uni_remote_rcvr_cbuf_extended_status_t - returned by uni_remote_rcvr_get_extended_status()
@@ -142,9 +153,13 @@ esp_err_t uni_remote_rcvr_get_msg(uint16_t * rcvd_len_ptr, char * rcvd_msg_ptr, 
 //         Honestly I don't expect to ever see this one.
 //
 void uni_remote_rcvr_get_extended_status(uni_remote_rcvr_cbuf_extended_status_t * extended_status);
+```
 
+#### uni_remote_rcvr_clear_extended_status_flags()
+[Top](#uniremotercvr-and-uniremotercvrtemplate "Top")<br>
+```c
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// uni_remote_rcvr_clear_extended_status_flags
+// uni_remote_rcvr_clear_extended_status_flags()
 //       returns: nothing for status
 //
 // The "flag" entries are global status for uni_remote_rcvr. The code in this file will
