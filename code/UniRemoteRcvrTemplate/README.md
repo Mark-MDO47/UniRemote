@@ -174,7 +174,7 @@ void uni_remote_rcvr_get_extended_status(uni_remote_rcvr_cbuf_extended_status_t 
 //    autonomously set the flags to show that something unusual happened.
 //   Your calling code can notice these events and take any desired actions. After any other
 //    actions your code performs, it can use uni_remote_rcvr_clear_extended_status_flags()
-//    to clear the flags.
+//    to clear the flags. That way you can tell if the event happened again.
 //
 // Currently there are two flags and associated status returns from uni_remote_rcvr_get_msg()
 //    flag_circ_buf_full (UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED) - circular buffer got full and message lost
