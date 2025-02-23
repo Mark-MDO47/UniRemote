@@ -115,7 +115,7 @@ void uni_remote_rcvr_clear_extended_status_flags();
 //       returns: esp_err_t status
 //
 //   Circular Buffer inited
-//   WiFi    - set to WIFI_STA mode
+//   WiFi    - inited and set to WIFI_STA mode
 //   ESP-NOW - inited
 //      ESP-NOW receive callback installed
 //
