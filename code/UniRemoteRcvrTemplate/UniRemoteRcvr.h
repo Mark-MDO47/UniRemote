@@ -10,7 +10,7 @@
  * Below is a list of the codes specific to UniRemoteRcvr
  * UNI_REMOTE_RCVR_OK                   same as ESP_OK
  * UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED circular buffer _put() called but no room in circular buffer; message dropped
- * UNI_REMOTE_RCVR_ERR_MSG_TOO_BIG      ESP-NOW callback message bigger than ESP-NOW allows (cannot happen)
+ * UNI_REMOTE_RCVR_ERR_MSG_TOO_BIG      ESP-NOW rcvr callback message bigger than ESP-NOW allows (cannot happen)
  * UNI_REMOTE_RCVR_INFO_NO_MSG_2_GET    circular buffer _get() called but circular buffer is empty
  *                                      NOTE: this status only used internally, not returned to callers
  *
@@ -35,7 +35,7 @@
 
 // uni_remote_rcvr_cbuf_extended_status_t - returned by uni_remote_rcvr_get_extended_status()
 // The idx_* items are for internal usage by UniRemoteRcvr.
-// The msg_callback_num is the number of times that the ESP-NOW callback routine was called.
+// The msg_callback_num is the number of times that the ESP-NOW rcvr callback routine was called.
 //    It gets stored into the circular buffer each time a message is stored, and returned via p_msg_num_ptr.
 //    The *p_msg_num_ptr returned by uni_remote_rcvr_get_msg() will normally increment by one
 //    each time a message is returned.
@@ -55,14 +55,14 @@ typedef struct {
   uint16_t idx_in;             // next entry index for circ_buf_put
   uint16_t idx_out;            // next entry index for circ_buf_get
   uint16_t idx_num;            // number of entries in circ_buf
-  uint32_t msg_callback_num;   // number of times ESP-NOW callback is called
-  uint16_t flag_circ_buf_full; // non-zero == flag that circular buffer was full in ESP-NOW callback
-  uint16_t flag_data_too_big;  // non-zero == flag that ESP-NOW callback with too much data for ESP-NOW
+  uint32_t msg_callback_num;   // number of times ESP-NOW rcvr callback is called
+  uint16_t flag_circ_buf_full; // non-zero == flag that circular buffer was full in ESP-NOW rcvr callback
+  uint16_t flag_data_too_big;  // non-zero == flag that ESP-NOW rcvr callback with too much data for ESP-NOW
 } uni_remote_rcvr_cbuf_extended_status_t;
 
 #define UNI_REMOTE_RCVR_OK                  ESP_OK // success
 #define UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED  -101 // circular buffer _put() called but no room in circular buffer; message dropped
-#define UNI_REMOTE_RCVR_ERR_MSG_TOO_BIG       -102 // ESP-NOW callback message bigger than ESP-NOW allows (cannot happen)
+#define UNI_REMOTE_RCVR_ERR_MSG_TOO_BIG       -102 // ESP-NOW rcvr callback message bigger than ESP-NOW allows (cannot happen)
 #define UNI_REMOTE_RCVR_INFO_NO_MSG_2_GET     -201 // circular buffer _get() called but circular buffer is empty
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ typedef struct {
 //
 // uni_remote_rcvr_cbuf_extended_status_t - returned by uni_remote_rcvr_get_extended_status()
 // The idx_* items are for internal usage by UniRemoteRcvr.
-// The msg_callback_num is the number of times that the ESP-NOW callback routine was called.
+// The msg_callback_num is the number of times that the ESP-NOW rcvr callback routine was called.
 //    It gets stored into the circular buffer each time a message is stored, and returned via p_msg_num_ptr.
 //    The *p_msg_num_ptr returned by uni_remote_rcvr_get_msg() will normally increment by one
 //    each time a message is returned.

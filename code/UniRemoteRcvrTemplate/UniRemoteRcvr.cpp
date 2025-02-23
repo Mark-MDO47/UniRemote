@@ -10,7 +10,7 @@
  * Below is a list of the codes specific to UniRemoteRcvr
  * UNI_REMOTE_RCVR_OK                   same as ESP_OK
  * UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED circular buffer _put() called but no room in circular buffer; message dropped
- * UNI_REMOTE_RCVR_ERR_MSG_TOO_BIG      ESP-NOW callback message bigger than ESP-NOW allows (cannot happen)
+ * UNI_REMOTE_RCVR_ERR_MSG_TOO_BIG      ESP-NOW rcvr callback message bigger than ESP-NOW allows (cannot happen)
  * UNI_REMOTE_RCVR_INFO_NO_MSG_2_GET    circular buffer _get() called but circular buffer is empty
  *                                      NOTE: this status only used internally, not returned to callers
  *
@@ -133,7 +133,7 @@ static void uni_remote_rcvr_callback(const uint8_t * p_mac_addr, const uint8_t *
 //
 // uni_remote_rcvr_cbuf_extended_status_t - returned by uni_remote_rcvr_get_extended_status()
 // The idx_* items are for internal usage by UniRemoteRcvr.
-// The msg_callback_num is the number of times that the ESP-NOW callback routine was called.
+// The msg_callback_num is the number of times that the ESP-NOW rcvr callback routine was called.
 //    It gets stored into the circular buffer each time a message is stored, and returned via p_msg_num_ptr.
 //    The *p_msg_num_ptr returned by uni_remote_rcvr_get_msg() will normally increment by one
 //    each time a message is returned.
@@ -191,9 +191,9 @@ esp_err_t uni_remote_rcvr_init() {
   // initialize our circular buffer data struct
   g_circ_buf.info.idx_num = UNI_REMOTE_RCVR_NUM_BUFR;
   g_circ_buf.info.idx_in = g_circ_buf.info.idx_out = 0; // when in == out, circ_buf is empty
-  g_circ_buf.info.msg_callback_num = 0;   // number of times ESP-NOW callback is called
-  g_circ_buf.info.flag_circ_buf_full = 0; // non-zero == flag that circular buffer was full in ESP-NOW callback
-  g_circ_buf.info.flag_data_too_big = 0;  // non-zero == flag that ESP-NOW callback with too much data for ESP-NOW
+  g_circ_buf.info.msg_callback_num = 0;   // number of times ESP-NOW rcvr callback is called
+  g_circ_buf.info.flag_circ_buf_full = 0; // non-zero == flag that circular buffer was full in ESP-NOW rcvr callback
+  g_circ_buf.info.flag_data_too_big = 0;  // non-zero == flag that ESP-NOW rcvr callback with too much data for ESP-NOW
 
   // Set device as a Wi-Fi Station
   WiFi.mode(WIFI_STA);
