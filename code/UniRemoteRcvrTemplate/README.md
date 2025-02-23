@@ -87,7 +87,7 @@ There are four routines that can be called from UniRemoteRcvr; listed in the tab
 [Top](#uniremotercvr-and-uniremotercvrtemplate "Top")<br>
 Here is a description of the detiled calling sequence for the above routines, taken from UniRemoteRcvr.h.
 
-### uni_remote_rcvr_init()
+### uni_remote_rcvr_init
 [Top](#uniremotercvr-and-uniremotercvrtemplate "Top")<br>
 ```c
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -102,7 +102,7 @@ Here is a description of the detiled calling sequence for the above routines, ta
 esp_err_t uni_remote_rcvr_init();
 ```
 
-### uni_remote_rcvr_get_msg()
+### uni_remote_rcvr_get_msg
 [Top](#uniremotercvr-and-uniremotercvrtemplate "Top")<br>
 ```c
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -135,7 +135,7 @@ esp_err_t uni_remote_rcvr_init();
 esp_err_t uni_remote_rcvr_get_msg(uint16_t * rcvd_len_ptr, char * rcvd_msg_ptr, uint8_t * mac_addr_ptr, uint32_t * p_msg_num_ptr);
 ```
 
-### uni_remote_rcvr_get_extended_status()
+### uni_remote_rcvr_get_extended_status
 [Top](#uniremotercvr-and-uniremotercvrtemplate "Top")<br>
 ```c
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -163,7 +163,7 @@ esp_err_t uni_remote_rcvr_get_msg(uint16_t * rcvd_len_ptr, char * rcvd_msg_ptr, 
 void uni_remote_rcvr_get_extended_status(uni_remote_rcvr_cbuf_extended_status_t * extended_status);
 ```
 
-### uni_remote_rcvr_clear_extended_status_flags()
+### uni_remote_rcvr_clear_extended_status_flags
 [Top](#uniremotercvr-and-uniremotercvrtemplate "Top")<br>
 ```c
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -219,7 +219,7 @@ ESP_ERR_ESPNOW_INTERNAL     Internal error
 ESP_ERR_ESPNOW_IF           Interface error
 ```
 
-## TLDR Why Call uni_remote_rcvr_clear_extended_status_flags()
+## TLDR Why Call uni_remote_rcvr_clear_extended_status_flags
 [Top](#uniremotercvr-and-uniremotercvrtemplate "Top")<br>
 This is best explained in the comments for the calling sequence of uni_remote_rcvr_clear_extended_status_flags().
 - [uni_remote_rcvr_clear_extended_status_flags()](#uni_remote_rcvr_clear_extended_status_flags() "uni_remote_rcvr_clear_extended_status_flags()")
