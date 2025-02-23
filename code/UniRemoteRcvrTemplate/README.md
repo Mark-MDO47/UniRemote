@@ -17,6 +17,8 @@
 In order to use **UniRemoteCYD** to send ESP-NOW commands to your receiver code, your receiver code must run on an ESP-32 that includes WiFi.
 - https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/network/esp_now.html
 
+UniRemoteRcvr returns a **message** (or **command**) that is a zero-terminated ASCII string.
+
 **UniRemoteRcvr.cpp** and **UniRemoteRcvr.h** are the pattern for interfacing with **UniRemoteCYD** and receiving the ESP-NOW commands.<br>
 In the simplest complete form, your receiver code ***.ino** program does the following.
 - Note that I included a section inside the #ifdef/#endif for **HANDLE_CERTAIN_UNLIKELY_ERRORS**.
@@ -162,6 +164,37 @@ esp_err_t uni_remote_rcvr_get_msg(uint16_t * rcvd_len_ptr, char * rcvd_msg_ptr, 
 //         Honestly I don't expect to ever see this one.
 //
 void uni_remote_rcvr_get_extended_status(uni_remote_rcvr_cbuf_extended_status_t * extended_status);
+```
+
+#### TLDR What Does uni_remote_rcvr_get_extended_status return
+[Top](#uniremotercvr-and-uniremotercvrtemplate "Top")<br>
+```c
+// uni_remote_rcvr_cbuf_extended_status_t - returned by uni_remote_rcvr_get_extended_status()
+// The idx_* items are for internal usage by UniRemoteRcvr.
+// The msg_callback_num is the number of times that the ESP-NOW callback routine was called.
+//    It gets stored into the circular buffer each time a message is stored, and returned via p_msg_num_ptr.
+//    The *p_msg_num_ptr returned by uni_remote_rcvr_get_msg() will normally increment by one
+//    each time a message is returned.
+//      If it skips a number, that means there was no room in the circular buffer to store it.
+//      See the description about flag_circ_buf_full, UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED,
+//      and uni_remote_rcvr_clear_extended_status_flags() 
+// Currently there are two flags and associated status returns from uni_remote_rcvr_get_msg()
+//    flag_circ_buf_full (UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED) - circular buffer got full and message lost
+//         This means that you should either
+//            call uni_remote_rcvr_get_msg() more frequently
+//            increase UNI_REMOTE_RCVR_NUM_BUFR to allow more buffering
+//    flag_data_too_big  (UNI_REMOTE_RCVR_ERR_MSG_TOO_BIG) - some bug in ESP-NOW or a bad actor generated
+//         condition that didn't cause a buffer overflow because we checked.
+//         Honestly I don't expect to ever see this one.
+//
+typedef struct {
+  uint16_t idx_in;             // next entry index for circ_buf_put
+  uint16_t idx_out;            // next entry index for circ_buf_get
+  uint16_t idx_num;            // number of entries in circ_buf
+  uint32_t msg_callback_num;   // number of times ESP-NOW callback is called
+  uint16_t flag_circ_buf_full; // non-zero == flag that circular buffer was full in ESP-NOW callback
+  uint16_t flag_data_too_big;  // non-zero == flag that ESP-NOW callback with too much data for ESP-NOW
+} uni_remote_rcvr_cbuf_extended_status_t;
 ```
 
 ### uni_remote_rcvr_clear_extended_status_flags
