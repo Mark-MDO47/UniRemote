@@ -9,7 +9,9 @@
 In order to use **UniRemoteCYD** to send ESP-NOW commands to your receiver code, your receiver code must run on an ESP-32 that includes WiFi.
 
 **UniRemoteRcvr.cpp** and **UniRemoteRcvr.h** are the pattern for interfacing with **UniRemoteCYD** and receiving the ESP-NOW commands.<br>
-In the simplest form, your receiver code ***.ino**  program does the following:
+In the simplest complete form, your receiver code ***.ino** program does the following.
+- Note that I included a section inside the #ifdef/#endif for **HANDLE_CERTAIN_UNLIKELY_ERRORS**.
+- This is optional code but makes the processing complete.
 
 ```c
 #include "UniRemoteRcvr.h"
@@ -35,6 +37,7 @@ void loop() {
   // get any message received. If 0 == rcvd_len, no message.
   esp_err_t msg_status = uni_remote_rcvr_get_msg(&rcvd_len, &my_message[0], &sender_mac_addr[0], &my_message_num);
 
+#ifdef HANDLE_CERTAIN_UNLIKELY_ERRORS
   // we can get an error even if no message
   if (msg_status != UNI_REMOTE_RCVR_OK) { // (== ESP_OK)
     // handle error status here
@@ -44,6 +47,7 @@ void loop() {
       uni_remote_rcvr_clear_extended_status_flags();
     }
   }
+#endif // HANDLE_CERTAIN_UNLIKELY_ERRORS
 
   // we can get a message with or without an error; see above uni_remote_rcvr_clear_extended_status_flags()
   // If 0 == rcvd_len, no message.
