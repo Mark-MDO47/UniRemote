@@ -149,8 +149,8 @@ static void uni_remote_rcvr_callback(const uint8_t * p_mac_addr, const uint8_t *
 //         condition that didn't cause a buffer overflow because we checked.
 //         Honestly I don't expect to ever see this one.
 //
-void uni_remote_rcvr_get_extended_status(uni_remote_rcvr_cbuf_extended_status_t * extended_status) {
-  memcpy(extended_status, &g_circ_buf.info, sizeof(uni_remote_rcvr_cbuf_extended_status_t));
+void uni_remote_rcvr_get_extended_status(uni_remote_rcvr_cbuf_extended_status_t * extended_status_ptr) {
+  memcpy(extended_status_ptr, &g_circ_buf.info, sizeof(uni_remote_rcvr_cbuf_extended_status_t));
 } // end uni_remote_rcvr_get_extended_status()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////

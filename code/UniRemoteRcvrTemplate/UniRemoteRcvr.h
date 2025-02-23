@@ -87,7 +87,7 @@ typedef struct {
 //         condition that didn't cause a buffer overflow because we checked.
 //         Honestly I don't expect to ever see this one.
 //
-void uni_remote_rcvr_get_extended_status(uni_remote_rcvr_cbuf_extended_status_t * extended_status);
+void uni_remote_rcvr_get_extended_status(uni_remote_rcvr_cbuf_extended_status_t * extended_status_ptr);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_remote_rcvr_clear_extended_status_flags()
