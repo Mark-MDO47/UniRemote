@@ -96,7 +96,7 @@ Here is a description of the detiled calling sequence for the above routines, ta
 //       returns: esp_err_t status
 //
 //   Circular Buffer inited
-//   WiFi    - set to WIFI_STA mode
+//   WiFi    - inited and set to WIFI_STA mode
 //   ESP-NOW - inited
 //      ESP-NOW receive callback installed
 //
