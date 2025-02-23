@@ -9,8 +9,8 @@
   * [uni_remote_rcvr_get_msg()](#uni_remote_rcvr_get_msg() "uni_remote_rcvr_get_msg()")
   * [uni_remote_rcvr_get_extended_status()](#uni_remote_rcvr_get_extended_status() "uni_remote_rcvr_get_extended_status()")
   * [uni_remote_rcvr_clear_extended_status_flags()](#uni_remote_rcvr_clear_extended_status_flags() "uni_remote_rcvr_clear_extended_status_flags()")
-  * [What Error Codes Might I Receive?](#what-error-codes-might-i-receive "What Error Codes Might I Receive?")
-  * [TLDR Why Call uni_remote_rcvr_clear_extended_status_flags()?](#tldr-why-call-uni_remote_rcvr_clear_extended_status_flags() "TLDR Why Call uni_remote_rcvr_clear_extended_status_flags()?")
+* [What Error Codes Might I Receive?](#what-error-codes-might-i-receive "What Error Codes Might I Receive?")
+* [TLDR Why Call uni_remote_rcvr_clear_extended_status_flags()?](#tldr-why-call-uni_remote_rcvr_clear_extended_status_flags() "TLDR Why Call uni_remote_rcvr_clear_extended_status_flags()?")
 
 ## The Simplest Pattern for Using UniRemoteCYD and ESP-NOW Commands
 [Top](#uniremotercvr-and-uniremotercvrtemplate "Top")<br>
