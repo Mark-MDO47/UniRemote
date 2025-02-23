@@ -66,18 +66,7 @@ typedef struct {
 #define UNI_REMOTE_RCVR_INFO_NO_MSG_2_GET     -201 // circular buffer _get() called but circular buffer is empty
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// uni_remote_rcvr_init()
-//       returns: esp_err_t status
-//
-//   Circular Buffer inited
-//   WiFi    - set to WIFI_STA mode
-//   ESP-NOW - inited
-//      ESP-NOW receive callback installed
-//
-esp_err_t uni_remote_rcvr_init();
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-// uni_remote_rcvr_get_extended_status
+// uni_remote_rcvr_get_extended_status()
 //       returns: nothing for status
 //
 // uni_remote_rcvr_cbuf_extended_status_t - returned by uni_remote_rcvr_get_extended_status()
@@ -101,12 +90,13 @@ esp_err_t uni_remote_rcvr_init();
 void uni_remote_rcvr_get_extended_status(uni_remote_rcvr_cbuf_extended_status_t * extended_status);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// uni_remote_rcvr_clear_extended_status_flags
+// uni_remote_rcvr_clear_extended_status_flags()
 //       returns: nothing for status
 //
 // The "flag" entries are global status for uni_remote_rcvr. The code in this file will
 //    autonomously set the flags to show that something unusual happened.
-//    noticing them and taking any desired actions. Use uni_remote_rcvr_clear_extended_status_flags()
+//   Your calling code can notice these events and take any desired actions. After any other
+//    actions your code performs, it can use uni_remote_rcvr_clear_extended_status_flags()
 //    to clear the flags.
 //
 // Currently there are two flags and associated status returns from uni_remote_rcvr_get_msg()
@@ -119,6 +109,17 @@ void uni_remote_rcvr_get_extended_status(uni_remote_rcvr_cbuf_extended_status_t 
 //         Honestly I don't expect to ever see this one.
 //
 void uni_remote_rcvr_clear_extended_status_flags();
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// uni_remote_rcvr_init()
+//       returns: esp_err_t status
+//
+//   Circular Buffer inited
+//   WiFi    - set to WIFI_STA mode
+//   ESP-NOW - inited
+//      ESP-NOW receive callback installed
+//
+esp_err_t uni_remote_rcvr_init();
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_remote_rcvr_get_msg()
@@ -147,6 +148,6 @@ void uni_remote_rcvr_clear_extended_status_flags();
 //      See the description about flag_circ_buf_full, UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED,
 //      and uni_remote_rcvr_clear_extended_status_flags() 
 //
-esp_err_t uni_remote_rcvr_get_msg( uint16_t * rcvd_len_ptr, char * rcvd_msg_ptr, uint8_t * mac_addr_ptr, uint32_t * p_msg_num_ptr);
+esp_err_t uni_remote_rcvr_get_msg(uint16_t * rcvd_len_ptr, char * rcvd_msg_ptr, uint8_t * mac_addr_ptr, uint32_t * p_msg_num_ptr);
 
 #endif // UNI_REMOTE_RCVR_H 

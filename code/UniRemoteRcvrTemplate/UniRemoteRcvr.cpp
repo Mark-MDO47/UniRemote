@@ -128,7 +128,7 @@ static void uni_remote_rcvr_callback(const uint8_t * p_mac_addr, const uint8_t *
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// uni_remote_rcvr_get_extended_status
+// uni_remote_rcvr_get_extended_status()
 //       returns: nothing for status
 //
 // uni_remote_rcvr_cbuf_extended_status_t - returned by uni_remote_rcvr_get_extended_status()
@@ -154,12 +154,13 @@ void uni_remote_rcvr_get_extended_status(uni_remote_rcvr_cbuf_extended_status_t 
 } // end uni_remote_rcvr_get_extended_status()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// uni_remote_rcvr_clear_extended_status_flags
+// uni_remote_rcvr_clear_extended_status_flags()
 //       returns: nothing for status
 //
 // The "flag" entries are global status for uni_remote_rcvr. The code in this file will
 //    autonomously set the flags to show that something unusual happened.
-//    noticing them and taking any desired actions. Use uni_remote_rcvr_clear_extended_status_flags()
+//   Your calling code can notice these events and take any desired actions. After any other
+//    actions your code performs, it can use uni_remote_rcvr_clear_extended_status_flags()
 //    to clear the flags.
 //
 // Currently there are two flags and associated status returns from uni_remote_rcvr_get_msg()
