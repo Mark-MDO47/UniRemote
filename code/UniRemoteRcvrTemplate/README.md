@@ -222,4 +222,4 @@ ESP_ERR_ESPNOW_IF           Interface error
 ## TLDR Why Call uni_remote_rcvr_clear_extended_status_flags
 [Top](#uniremotercvr-and-uniremotercvrtemplate "Top")<br>
 This is best explained in the comments for the calling sequence of uni_remote_rcvr_clear_extended_status_flags().
-- [uni_remote_rcvr_clear_extended_status_flags()](#uni_remote_rcvr_clear_extended_status_flags() "uni_remote_rcvr_clear_extended_status_flags()")
+- [uni_remote_rcvr_clear_extended_status_flags](#uni_remote_rcvr_clear_extended_status_flags "uni_remote_rcvr_clear_extended_status_flags")
