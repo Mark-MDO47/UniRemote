@@ -40,6 +40,7 @@ I have settled on the following hardware for the Universal Remote Control:
     - I purchased this one: https://www.amazon.com/dp/B07VLDSYRW
     - This doesn't support I2C or UART without board modifications; just SPI
       - look for Adrianotiger post #4 on Mar 2023 on https://forum.arduino.cc/t/esp32-rfid-rc522-i2c/1100200/3
+      - here is webpage for the module including schematic https://www.sunrom.com/p/rfid-readerwriter-1356mhz-rc522-spi-module-with-cardkeychain
   - I am using the Meikuler 13.56MHz MIFARE Classic 1K, RFID Smart Cards / M1 Cards, ISO14443A Printable Blank RFID PVC Cards
     - I purchased this one: https://www.amazon.com/dp/B07S63VT7X
     - https://www.nxp.com/docs/en/data-sheet/MF1S50YYX_V1.pdf
