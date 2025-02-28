@@ -23,6 +23,7 @@
 - This RC522 RFID reader doesn't support I2C or UART without board modifications; just SPI
   - even though the IC itself supports I2C and UART, the board pins and strapping are just for SPI interface
   - look for Adrianotiger post #4 on Mar 2023 on https://forum.arduino.cc/t/esp32-rfid-rc522-i2c/1100200/3
+  - here is webpage for the module including schematic https://www.sunrom.com/p/rfid-readerwriter-1356mhz-rc522-spi-module-with-cardkeychain
 - On the other hand, the CYD board doesn't have enough unused GPIO pins coming out natively to use SPI
   - nominally requires 5 lines in addition to GND and 3.3V - see below for discussion of the "RESET" or "RST" line
   - the CYD MicroSD card reader uses SPI; a "sniffer" card can be used to access the GPIO lines from that
