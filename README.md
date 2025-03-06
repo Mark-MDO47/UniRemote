@@ -11,6 +11,13 @@ Current state of software and tools: **v0.9** "basics work: CYD, Tiny Code Reade
 Here is my breadboard setup with the Cheap Yellow Display, the QR code reader and the RFID reader.<br>
 ![alt text](https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/CYD_PICC_RFID_1024_768.jpg "breadboard setup with the Cheap Yellow Display, the QR code reader and the RFID reader")
 
+A little comic relief - the hilarious **Legendary Artifacts Club** by Elle Cordova https://www.youtube.com/shorts/GEJ_KPZY4n4
+
+| One Remote to Rule Them All | I can bend countless devices to my will |
+| --- | --- |
+| <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/LegendaryArtifactsClub_1.png" width="300" alt="Legendary Artifacts Club by Elle Cordova"> | <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/LegendaryArtifactsClub_2.png" width="300" alt="Legendary Artifacts Club by Elle Cordova"> |
+
+
 **Table Of Contents**
 * [Top](#uniremote-\--one-remote-to-rule-them-all "Top")
 * [The Plan](#the-plan "The Plan")
