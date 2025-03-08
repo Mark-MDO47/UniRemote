@@ -140,7 +140,7 @@
 // NOTE WE ARE USING XPT2046_Bitbang INSTEAD OF TFT_eSPI
 
 #define INCLUDE_RFID_SENSOR 1  // set to 1 to include RFID Sensor scan for commands
-#define INCLUDE_QR_SENSOR   1  // set to 1 to include QR Code Reader scan for commands
+#define INCLUDE_QR_SENSOR   0  // set to 1 to include QR Code Reader scan for commands
 
 #if INCLUDE_RFID_SENSOR
 // A library for interfacing with the RC522-based RFID reader either via I2C or SPI
@@ -334,7 +334,7 @@ styled_label_t g_styled_label_opr_comm;    // 5 lines storage for opr communicat
 
 char g_msg[1025]; // for generating text strings
 
-#define DBG_FAKE_CMD 1 // special fake command button
+#define DBG_FAKE_CMD 0 // special fake command button
 uint8_t g_do_dbg_fake_cmd = 0;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -387,7 +387,7 @@ void uni_alert_4_wait_send_or_clear_cmd() {
   uni_lv_button_text_style(ACTION_BUTTON_LEFT, "SEND", "Send Command", &g_style_blue);
   uni_lv_button_text_style(ACTION_BUTTON_MID, "", "", &g_style_ghost);
   uni_lv_button_text_style(ACTION_BUTTON_RIGHT, "CLEAR", "Clear Command", &g_style_red);
-  lv_label_set_text(g_styled_label_opr_comm.label_text, "Scan Command");
+  lv_label_set_text(g_styled_label_opr_comm.label_text, "Send or Clear Command");
   if (UNI_STATE_NO_ERROR == g_uni_state_error) {
     // NO ERROR
   } else {
