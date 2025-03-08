@@ -104,11 +104,13 @@ Here is what the code is:<br>
 
 ## Battery Harness
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
-As mentioned above, I will start with the removable 18650 battery harness. Because these are mounted on the sides of the CYD, they provide some protection for the MicroSD sniffer which sticks out on one side. Below is a diagram of the circuit.<br>
-<img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemote_BatteryHarness_Removable18650.png" width="500" alt="Diagram for Removable 18650 Battery Harness">
+As mentioned above, I would like to come up with a more compact MicroSD sniffer arrangement. Alternatively I might use the two-wire interface to connect to another Arduino that connects to the RFID scanner, although that seems somewhat complicated. When I compare it to the time spent trying other options for MicroSD sniffers, the additional Arduino is looking better and better.
 
-If I can come up with a more compact MicroSD sniffer arrangement I would switch to using fixed Lipo "drone style" batteries. There is a method to detach the Lipo batteries from the UniRemote and attach to a charger without removing the batteries. Below is a diagram of the circuit.<br>
+I will start with the fixed Lipo "drone style" batteries. There is a connector that can be used to disconnect the Lipo batteries from the UniRemote and connect to a charger without removing the batteries. Below is a diagram of the circuit.<br>
 <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemote_BatteryHarness_FixedLipo.png" width="500" alt="Diagram for Fixed Lipo Battery Harness and Charger">
+
+Alternatively I did create a removable 18650 battery harness. Because these would be mounted on the sides of the CYD, the theory was that they would provide some protection for the MicroSD sniffer which sticks out on one side. In practice this did not seem as helpful as I hoped. Below is a diagram of the circuit.<br>
+<img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemote_BatteryHarness_Removable18650.png" width="500" alt="Diagram for Removable 18650 Battery Harness">
 
 ## Interesting Considerations
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
