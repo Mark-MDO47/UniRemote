@@ -31,17 +31,16 @@ A little comic relief - the hilarious **Legendary Artifacts Club** by Elle Cordo
 
 ## The Plan
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
+My current thinking is to just use the RFID reader and leave out the QR code reader. Maybe add it back in later.
+
+Because the MicroSD sniffer sticks out so far, I am planning to use removable 18650 batteries mounted on the side of the CYD to give it some protection. If I come up with a better alternative to the sniffer, I will switch to drone-style batteries and a more compact shape. If interested, see the section on **Battery Harness**
+- [Battery Harness](#battery-harness "Battery Harness")
+
 I have settled on the following hardware for the Universal Remote Control:
 - CYD - Cheap Yellow Display
   - I am using the ESP32-2432S028R (Cheap Yellow Display or CYD) based on ESP32-D0WDQ6 controller.
   - I purchased this one: https://www.aliexpress.us/item/3256805697430313.html
   - This schematic might reflect the CYD: https://oshwlab.com/mariusmym/esp32_cyd_cheap_yellow_display
-- QR code reader
-  - I am using the Tiny Code Reader from Useful Sensors
-  - I purchased this one: https://www.sparkfun.com/products/23352
-  - https://cdn.sparkfun.com/assets/e/9/d/9/f/TCR_Datasheet.pdf
-  - https://github.com/usefulsensors/tiny_code_reader_docs/blob/main/README.md
-  - https://github.com/usefulsensors/tiny_code_reader_arduino
 - RFID Reader
   - I am using the HiLetgo 3pcs RFID Kit - Mifare RC522 RF IC Card Sensor Module + S50 Blank Card + Key Ring
     - I purchased this one: https://www.amazon.com/dp/B07VLDSYRW
@@ -65,6 +64,12 @@ Will be trying these to see if they can be a more compact MicroSD sniffer:
 - Alternative MicroSD sniffer to JTAG: https://shop.blinkinlabs.com/products/microsd-to-jtag-adapter-for-esp32
 
 May use one or more of the following
+- QR code reader
+  - I am using the Tiny Code Reader from Useful Sensors
+  - I purchased this one: https://www.sparkfun.com/products/23352
+  - https://cdn.sparkfun.com/assets/e/9/d/9/f/TCR_Datasheet.pdf
+  - https://github.com/usefulsensors/tiny_code_reader_docs/blob/main/README.md
+  - https://github.com/usefulsensors/tiny_code_reader_arduino
 - Alternative QR code reader
   - https://github.com/IndustrialArduino/NORVI-ESP32-CAMERA/tree/main/ESP32-CAMERA-QR_CODE_SCANNER_WITH_DISPLAY
 - Voice Input - perhaps one of these
@@ -95,6 +100,14 @@ Here is what the code is:<br>
 | [code/UniRemote](https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniRemote "UniRemote") | UniRemote code with QR code reader and **generic ESP32** module - attributions in the code. This is now **unused** and **deprecated**. I am switching to the CYD and the code in **UniRemoteCYD**. |
 | [code/UniTestRcvr](https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniTestRcvr "UniTestRcvr") | UniRemote code testbench for receiver of the commands - attributions in the code. This is now **unused** and **deprecated**. All further development for the receiver will go to the generic **UniRemoteRcvrTemplate**. |
 | --- end of table --- | --- end of table --- |
+
+## Battery Harness
+[Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
+As mentioned above, I will start with the removable 18650 battery harness to provide some protection for the MicroSD sniffer which sticks out on the side. Below is a diagram of the circuit.<br>
+<img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemote_BatteryHarness_Removable18650.png" width="500" alt="Diagram for Removable 18650 Battery Harness">
+
+If I can come up with a more compact MicroSD sniffer arrangement I would switch to using fixed Lipo "drone style" batteries. There is a method to detach the Lipo batteries from the UniRemote and attach to a charger without removing the batteries. Below is a diagram of the circuit.<br>
+<img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemote_BatteryHarness_FixedLipo.png" width="500" alt="Diagram for Fixed Lipo Battery Harness and Charger">
 
 ## Interesting Considerations
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
