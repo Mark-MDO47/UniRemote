@@ -66,7 +66,7 @@ Will be trying these to see if they can be a more compact MicroSD sniffer:
 
 May use one or more of the following
 - QR code reader
-  - I am using the Tiny Code Reader from Useful Sensors
+  - Tiny Code Reader from Useful Sensors
   - I purchased this one: https://www.sparkfun.com/products/23352
   - https://cdn.sparkfun.com/assets/e/9/d/9/f/TCR_Datasheet.pdf
   - https://github.com/usefulsensors/tiny_code_reader_docs/blob/main/README.md
