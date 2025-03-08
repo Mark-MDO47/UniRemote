@@ -34,8 +34,8 @@ A little comic relief - the hilarious **Legendary Artifacts Club** by Elle Cordo
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
 My current thinking is to just use the RFID reader and leave out the QR code reader. Maybe add it back in later.
 
-Because the MicroSD sniffer sticks out so far, I am planning to use removable 18650 batteries mounted on the side of the CYD to give it some protection. If I come up with a better alternative to the sniffer, I will switch to drone-style batteries and a more compact shape. If interested, see the section on **Battery Harness**
-- [Battery Harness](#battery-harness "Battery Harness")
+Because the MicroSD sniffer sticks out so far, I had planned to use removable 18650 batteries mounted on the side of the CYD to give it some protection. However, putting the 18650 batteries on the outside was trickier than I thought due to some connectors and components getting in the way. It also didn't provide much protection for the sniffer. I went ahead and put the Lipo "drone style" batteries in for now. There is a connector that allows me to charge the Lipo batteries without removing them.
+- More details the section [Battery Harness](#battery-harness "Battery Harness")
 
 I have settled on the following hardware for the Universal Remote Control:
 - CYD - Cheap Yellow Display
