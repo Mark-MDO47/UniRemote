@@ -22,6 +22,7 @@ A little comic relief - the hilarious **Legendary Artifacts Club** by Elle Cordo
 * [Top](#uniremote-\--one-remote-to-rule-them-all "Top")
 * [The Plan](#the-plan "The Plan")
 * [Guide to the Code](#guide-to-the-code "Guide to the Code")
+* [Battery Harness](#battery-harness "Battery Harness")
 * [Interesting Considerations](#interesting-considerations "Interesting Considerations")
   * [General CYD and LVGL and Related Info](#general-cyd-and-lvgl-and-related-info "General CYD and LVGL and Related Info")
   * [DRAM_STR - Move Constant Strings to RAM instead of Program Storage](#dram_str-\--move-constant-strings-to-ram-instead-of-program-storage "DRAM_STR - Move Constant Strings to RAM instead of Program Storage")
