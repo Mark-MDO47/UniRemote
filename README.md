@@ -103,7 +103,7 @@ Here is what the code is:<br>
 
 ## Battery Harness
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
-As mentioned above, I will start with the removable 18650 battery harness to provide some protection for the MicroSD sniffer which sticks out on the side. Below is a diagram of the circuit.<br>
+As mentioned above, I will start with the removable 18650 battery harness. Because these are mounted on the sides of the CYD, they provide some protection for the MicroSD sniffer which sticks out on one side. Below is a diagram of the circuit.<br>
 <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemote_BatteryHarness_Removable18650.png" width="500" alt="Diagram for Removable 18650 Battery Harness">
 
 If I can come up with a more compact MicroSD sniffer arrangement I would switch to using fixed Lipo "drone style" batteries. There is a method to detach the Lipo batteries from the UniRemote and attach to a charger without removing the batteries. Below is a diagram of the circuit.<br>
