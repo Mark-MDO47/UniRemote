@@ -104,9 +104,10 @@ Here is what the code is:<br>
 
 ## Battery Harness
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
-As mentioned above, I would like to come up with a more compact MicroSD sniffer arrangement. Alternatively I might use the two-wire interface to connect to another Arduino that connects to the RFID scanner, although that seems somewhat complicated. When I compare it to the time spent trying other options for MicroSD sniffers, the additional Arduino is looking better and better.
+As mentioned above, I would like to come up with a more compact MicroSD sniffer arrangement. The fact that this sticks out so far has driven me to consider multiple ways to handle it in packaging, including the posibility of placing 18650 batteries on the sides to give it some protection.
+- Alternatively I might use the two-wire interface to connect to another Arduino that connects to the RFID scanner, although that seems somewhat complicated. When I compare it to the time spent trying other options for MicroSD sniffers, the additional Arduino is looking better and better.
 
-I will start with the fixed Lipo "drone style" batteries. There is a connector that can be used to disconnect the Lipo batteries from the UniRemote and connect to a charger without removing the batteries. Below is a diagram of the circuit.<br>
+I chose to implement the fixed Lipo "drone style" batteries. There is a connector that can be used to disconnect the Lipo batteries from the UniRemote and connect to a charger without removing the batteries. Below is a diagram of the circuit.<br>
 <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemote_BatteryHarness_FixedLipo.png" width="500" alt="Diagram for Fixed Lipo Battery Harness and Charger">
 
 Alternatively I did create a removable 18650 battery harness. Because these would be mounted on the sides of the CYD, the theory was that they would provide some protection for the MicroSD sniffer which sticks out on one side. In practice this did not seem as helpful as I hoped. Below is a diagram of the circuit.<br>
