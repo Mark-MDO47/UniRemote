@@ -8,8 +8,14 @@ It communicates with my projects via ESP-NOW WiFi
 
 Current state of software and tools: **v0.9** "basics work: CYD, Tiny Code Reader for QRcodes, Mifare RC522 RF IC via MicroSD sniffer for 13.56MHz MIFARE Classic 1K cards, XPT2046_Bitbang lib to free up VSPI"
 
-Here is my breadboard setup with the Cheap Yellow Display, the QR code reader and the RFID reader.<br>
-![alt text](https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/CYD_PICC_RFID_1024_768.jpg "breadboard setup with the Cheap Yellow Display, the QR code reader and the RFID reader")
+This is the UniRemoteCYD breadboard setup with "drone style" batteries.
+- I removed the QR code reader since the RFID reader was so easy to use
+- The contactless RFID PICC cards (Proximity Integrated Circuit Card) are to the left
+- The "drone style" battery charger and charging cable is at the top
+- The XAIO ESP32-Sense target processor is below that, attached to a USB cable
+- The Cheap Yellow Display (CYD) and its RFID sensor and batteries are on the bottom right
+- You can see more photos at https://github.com/Mark-MDO47/UniRemote/blob/master/photos.md
+<img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemote_overview.jpg" width="1000" alt="Image of UniRemote breadboard overview">
 
 A little comic relief - the hilarious **Legendary Artifacts Club** by Elle Cordova https://www.youtube.com/shorts/GEJ_KPZY4n4
 
