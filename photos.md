@@ -10,6 +10,7 @@ This is the UniRemoteCYD breadboard setup with "drone style" batteries.
 - The "drone style" battery charger and charging cable is at the top
 - The XAIO ESP32-Sense target processor is below that, attached to a USB cable
 - The Cheap Yellow Display (CYD) and its RFID sensor and batteries are on the bottom right
+  - The red board sticking out at the bottom is the MicroSD Sniffer card used to communicate with the RFID sensor
 
 <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemote_overview.jpg" width="800" alt="Image of UniRemote breadboard overview">
 
