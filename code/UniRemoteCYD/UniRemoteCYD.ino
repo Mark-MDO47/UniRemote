@@ -280,11 +280,11 @@ static uni_cmd_queue_t g_cmd_queue[UNI_CMD_QNUM_NUM]; // queue for msgs; 0==send
 #define UNI_ESP_NOW_MSEC_PER_MSG_MIN 500 // minimum millisec between sending messages
 
 #define UNI_STATE_WAIT_CMD     0    // last cmd all done, wait for next cmd (any source OK)
-#define UNI_STATE_CMD_SEEN      1    // command in queue, waiting for GO or CLEAR
+#define UNI_STATE_CMD_SEEN     1    // command in queue, waiting for GO or CLEAR
 #define UNI_STATE_SENDING_CMD  2    // command being sent (very short state)
 #define UNI_STATE_WAIT_CB      3    // waiting for send callback (very short state)
 #define UNI_STATE_SHOW_STAT    4    // show error status and allow abort
-#define UNI_STATE_NUM    5    // number of states
+#define UNI_STATE_NUM          5    // number of states
 uint8_t g_uni_state = UNI_STATE_WAIT_CMD;
 
 #define UNI_STATE_NO_ERROR 0  // this UNI_STATE is in error
@@ -297,12 +297,12 @@ uint8_t g_uni_state_error = UNI_STATE_NO_ERROR;
 
 uint32_t g_uni_state_times[UNI_STATE_NUM];
 
-uint16_t g_picc_send_immediate = 0; // nonzero to send the PICC command immediately upon scan without waiting for confirmation
+uint8_t g_change_send_no_view = 1;  // 1==send command immediately, 0==view command before sending
+
 uint16_t g_cmd_scanned_by = 0;      // see below for definitions
 #define UNI_CMD_SCANNED_BY_NONE 0
 #define UNI_CMD_SCANNED_BY_QR   1
 #define UNI_CMD_SCANNED_BY_PICC 2
-#define UNI_CMD_SCANNED_BY_FAKE 3
 
 
 #define ACTION_BUTTON_LEFT  0   // left top
@@ -334,9 +334,6 @@ styled_label_t g_styled_label_opr_comm;    // 5 lines storage for opr communicat
 
 char g_msg[1025]; // for generating text strings
 
-#define DBG_FAKE_CMD 0 // special fake command button
-uint8_t g_do_dbg_fake_cmd = 0;
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_lv_button_text_style - set button texts and style
 //    p_btn_idx - within g_action_buttons[]
@@ -351,15 +348,29 @@ void uni_lv_button_text_style(uint8_t p_btn_idx, char * p_label, char * p_text, 
 } // end uni_lv_button_text_style()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
+// uni_lv_last_status_text_style - set last_status texts and style
+//    p_text    - text for last status
+//
+// uses g_style_green if no FAIL found in p_text
+// else g_style_yellow
+//    
+void uni_lv_last_status_text_style(char * p_text) {
+    if (NULL == strstr(p_text,"FAIL"))
+      lv_obj_add_style(g_styled_label_last_status.label_obj, &g_style_green, 0);
+    else
+      lv_obj_add_style(g_styled_label_last_status.label_obj, &g_style_yellow, 0);
+    lv_label_set_text(g_styled_label_last_status.label_text, p_text);
+} // end uni_lv_last_status_text_style()
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_alert_4_wait_new_cmd
 //
 void uni_alert_4_wait_new_cmd() {
   uni_lv_button_text_style(ACTION_BUTTON_LEFT, "LED ON", "Lights on", &g_style_blue);
-#if DBG_FAKE_CMD
-  uni_lv_button_text_style(ACTION_BUTTON_MID, "Dbg FakeCmd", "Debug Fake", &g_style_grey);
-#else // not DBG_FAKE_CMD
-  uni_lv_button_text_style(ACTION_BUTTON_MID, "", "", &g_style_ghost);
-#endif // not DBG_FAKE_CMD
+  if (0 != g_change_send_no_view)
+    uni_lv_button_text_style(ACTION_BUTTON_MID, "SEND CMD", "press to\nchange state", &g_style_grey);
+  else
+    uni_lv_button_text_style(ACTION_BUTTON_MID, "VIEW B4\n  SEND", "press to\nchange state", &g_style_grey);
   uni_lv_button_text_style(ACTION_BUTTON_RIGHT, "LED OFF", "Lights off", &g_style_red);
   lv_label_set_text(g_styled_label_opr_comm.label_text, "Scan Command");
   if (UNI_STATE_NO_ERROR == g_uni_state_error) {
@@ -597,14 +608,10 @@ int32_t handle_button_press() {
         digitalWrite(CYD_LED_RED, CYD_LED_OFF);
         digitalWrite(CYD_LED_GREEN, CYD_LED_OFF);
         digitalWrite(CYD_LED_BLUE, CYD_LED_OFF);
-#if DBG_FAKE_CMD
       } else if (ACTION_BUTTON_MID == g_button_press.btn_idx) {
-        // fake command
-        g_do_dbg_fake_cmd = 1;
+        // change state of g_change_send_no_view
+        g_change_send_no_view = 1-g_change_send_no_view; // change state
       }
-#else // not DBG_FAKE_CMD
-      }
-#endif // DBG_FAKE_CMD
       break;
     case UNI_STATE_CMD_SEEN:   // command in queue, waiting for GO or CLEAR
       if (ACTION_BUTTON_LEFT == g_button_press.btn_idx) {
@@ -842,7 +849,7 @@ void uni_do_esp_now_callback_status() {
   } // end if need to rebuild status message from callback
   if (0 != g_msg_last_esp_now_display_status_cb) {
     g_msg_last_esp_now_display_status_cb = 0;
-    lv_label_set_text(g_styled_label_last_status.label_text, g_msg_last_esp_now_result_status);
+    uni_lv_last_status_text_style(g_msg_last_esp_now_result_status); // yellow if "FAIL"
   } // end if need to display status on screen
   if (0 != g_msg_last_esp_now_reset_esp_now) {
     g_msg_last_esp_now_reset_esp_now = 0;
@@ -866,7 +873,10 @@ void uni_esp_now_cmd_send_callback(const uint8_t *mac_addr, esp_now_send_status_
     g_uni_state = UNI_STATE_WAIT_CMD;
   } else { // ESP_NOW_SEND_FAIL
     g_uni_state_error = UNI_STATE_IN_ERROR;
-    g_uni_state = UNI_STATE_SHOW_STAT; // show error status and allow abort
+    if (0 != g_change_send_no_view)
+      g_uni_state = UNI_STATE_WAIT_CMD;  // show error status and scan next cmd
+    else
+      g_uni_state = UNI_STATE_SHOW_STAT; // show error status and allow abort
   }
 } // end uni_esp_now_cmd_send_callback()
 
@@ -982,35 +992,6 @@ uint16_t uni_get_command(uint32_t p_msec_now) {
 
   uint16_t num_cmds_scanned = 0;
 
-  static char * fake_cmd[] = { 
-    // "74:4d:bd:11:11:11|dbg non-existing",
-    // "74:4d:bd:11:11:1|dbg address too short",
-    // "74:4d:bd:11:11:11c|dbg address too long",
-    "74:4d:bd:98:7f:1c|dbg XIAO ESP32-Sense"
-   };
-#define FAKE_CMD_NUM 1
-   static uint8_t fake_cmd_idx = 0;
-   static uint8_t tmp;
-
-  if (0 == first_time) { DBG_SERIALPRINTLN("first_time fake command code"); }
-  if (0 != g_do_dbg_fake_cmd) {
-    // do next fake command
-    DBG_SERIALPRINTLN("Doing fake command");
-    num_cmds_scanned = 1;
-    g_do_dbg_fake_cmd = 0;
-    g_last_scanned_cmd_count += 1;
-    g_uni_state_times[g_uni_state] = p_msec_now;
-    strncpy(g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd, fake_cmd[fake_cmd_idx], sizeof(g_cmd_queue[0].scanned_cmd));
-    tmp = fake_cmd_idx + 1;
-    if (tmp < FAKE_CMD_NUM) {
-      fake_cmd_idx = tmp;
-    } else { // not really required here but this way fake_cmd_idx is NEVER out of bounds
-      fake_cmd_idx = 0;
-    }
-    g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd_len = strlen(g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
-    sprintf(g_msg, "DBG Fake CMD #%d:\n %s", g_last_scanned_cmd_count, g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
-    g_cmd_scanned_by = UNI_CMD_SCANNED_BY_FAKE;
-  }
 #if INCLUDE_RFID_SENSOR
   if (0 == first_time) { DBG_SERIALPRINTLN("first_time RFID PICC code"); }
   if ((0 == num_cmds_scanned) && (next_rfid_msec <= p_msec_now)) {
@@ -1049,13 +1030,13 @@ uint16_t uni_get_command(uint32_t p_msec_now) {
 
   if (0 != num_cmds_scanned) {
     // Show new status and change state
-    lv_label_set_text(g_styled_label_last_status.label_text, g_msg);
-    if ((0 == g_picc_send_immediate) || (UNI_CMD_SCANNED_BY_PICC != g_cmd_scanned_by)) {
+    uni_lv_last_status_text_style(g_msg);
+    if (0 == g_change_send_no_view) {
       g_uni_state = UNI_STATE_CMD_SEEN;
       DBG_SERIALPRINTLN("Change state to UNI_STATE_CMD_SEEN");
     } else {
       g_uni_state = UNI_STATE_SENDING_CMD;
-      DBG_SERIALPRINTLN("g_picc_send_immediate so change state to UNI_STATE_SENDING_CMD");
+      DBG_SERIALPRINTLN("g_change_send_no_view so change state to UNI_STATE_SENDING_CMD");
     }
   }
 
@@ -1181,7 +1162,7 @@ void loop() {
       uni_do_esp_now_callback_status(); // if there is callback status, show it
       if (0 == uni_get_command(msec_now)) {
         sprintf(g_msg,"No scanned command found, waiting...\n  %s", g_msg_last_esp_now_result_status);
-        lv_label_set_text(g_styled_label_last_status.label_text, g_msg);
+        uni_lv_last_status_text_style(g_msg);
       }
       break;
     case UNI_STATE_CMD_SEEN:   // command in queue, waiting for GO or CLEAR
@@ -1190,15 +1171,17 @@ void loop() {
       send_status = uni_esp_now_cmd_send((char *)g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
       if (send_status == ESP_OK) {
         sprintf(g_msg_last_esp_now_result_status, "ESP-NOW send success CMD #%d %s", g_last_scanned_cmd_count, g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
-        lv_label_set_text(g_styled_label_last_status.label_text, g_msg_last_esp_now_result_status);
+        uni_lv_last_status_text_style(g_msg_last_esp_now_result_status);
         g_uni_state = UNI_STATE_WAIT_CB;
         DBG_SERIALPRINTLN("Change state to UNI_STATE_WAIT_CB");
       }
       else {
         sprintf(g_msg_last_esp_now_result_status, "ESP-NOW ERROR: sending CMD #%d: %s\n  %s", g_last_scanned_cmd_count, g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd, uni_esp_now_decode_error(send_status));
-        lv_label_set_text(g_styled_label_last_status.label_text, g_msg_last_esp_now_result_status);
-        g_uni_state = UNI_STATE_SHOW_STAT; // show error status and allow abort
-        DBG_SERIALPRINTLN("Change state to UNI_STATE_WAIT_CMD");
+        uni_lv_last_status_text_style(g_msg_last_esp_now_result_status); // yellow if "FAIL"
+        if (0 != g_change_send_no_view)
+          g_uni_state = UNI_STATE_WAIT_CMD;  // show error status and scan next cmd
+        else
+          g_uni_state = UNI_STATE_SHOW_STAT; // show error status and allow abort
       }
       break;
     case UNI_STATE_WAIT_CB:     // waiting for send callback
