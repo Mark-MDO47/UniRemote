@@ -17,10 +17,14 @@ This is the UniRemoteCYD breadboard setup with "drone style" batteries.
 
 <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemote_overview.jpg" width="800" alt="Image of UniRemote breadboard overview">
 
-Image of UniRemote breadboard - <br>
+Image of UniRemote breadboard - bottom.
+- The blue module towards the left is the RFID sensor.
+- The black blob on the right is the on/off switch.
 <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemote_bottom.jpg" width="500" alt="Image of UniRemote breadboard bottom">
 
-Image of UniRemote breadboard - <br>
+Image of UniRemote breadboard - top
+- The silvery things on the left are the "drone style" Lipo batteries.
+- The blue module towards the right is the RFID sensor.
 <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemote_top.jpg" width="500" alt="Image of UniRemote breadboard top">
 
 
@@ -30,7 +34,8 @@ Image of UniRemote breadboard interior from bottom<br>
 Image of UniRemote breadboard interior from left<br>
 <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemote_interior_left.jpg" width="500" alt="Image of UniRemote breadboard interior from left">
 
-Image of UniRemote breadboard interior from right<br>
+Image of UniRemote breadboard interior from right
+- This gives a good view of the black on/off button in the foreground
 <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemote_interior_right.jpg" width="500" alt="Image of UniRemote breadboard interior from right">
 
 ## Previous Photos - Initial Breadboard
