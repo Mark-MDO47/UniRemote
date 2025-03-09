@@ -4,8 +4,14 @@
 
 ## Latest Photos - Breadboard
 
-Image of UniRemote breadboard - overview<br>
-<img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemote_overview.jpg" width="500" alt="Image of UniRemote breadboard overview">
+This is the UniRemoteCYD breadboard setup with "drone style" batteries.
+- I removed the QR code reader since the RFID reader was so easy to use
+- The contactless RFID PICC cards (Proximity Integrated Circuit Card) are to the left
+- The "drone style" battery charger and charging cable is at the top
+- The XAIO ESP32-Sense target processor is below that, attached to a USB cable
+- The Cheap Yellow Display (CYD) and its RFID sensor and batteries are on the bottom right
+
+<img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemote_overview.jpg" width="800" alt="Image of UniRemote breadboard overview">
 
 Image of UniRemote breadboard - <br>
 <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemote_bottom.jpg" width="500" alt="Image of UniRemote breadboard bottom">
