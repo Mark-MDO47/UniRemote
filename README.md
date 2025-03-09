@@ -8,6 +8,9 @@ It communicates with my projects via ESP-NOW WiFi
 
 Current state of software and tools: **v0.9** "basics work: CYD, Tiny Code Reader for QRcodes, Mifare RC522 RF IC via MicroSD sniffer for 13.56MHz MIFARE Classic 1K cards, XPT2046_Bitbang lib to free up VSPI"
 
+Here is a short YouTube demonstration of the latest version
+- https://youtu.be/a9atNTkQOKo
+
 This is the UniRemoteCYD breadboard setup with "drone style" batteries.
 - I removed the QR code reader since the RFID reader was so easy to use
 - The contactless RFID PICC cards (Proximity Integrated Circuit Card) are to the left
