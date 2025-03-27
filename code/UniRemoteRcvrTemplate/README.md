@@ -89,7 +89,7 @@ There are four routines that can be called from UniRemoteRcvr; listed in the tab
 
 ## Detailed Calling Sequence
 [Top](#uniremotercvr-and-uniremotercvrtemplate "Top")<br>
-Here is a description of the detiled calling sequence for the above routines, taken from UniRemoteRcvr.h.
+Here is a description of the detailed calling sequence for the above routines, taken from UniRemoteRcvr.h.
 
 ### uni_remote_rcvr_init
 [Top](#uniremotercvr-and-uniremotercvrtemplate "Top")<br>
