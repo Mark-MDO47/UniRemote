@@ -81,8 +81,9 @@ May use one or more of the following
   - https://cdn.sparkfun.com/assets/e/9/d/9/f/TCR_Datasheet.pdf
   - https://github.com/usefulsensors/tiny_code_reader_docs/blob/main/README.md
   - https://github.com/usefulsensors/tiny_code_reader_arduino
-- Alternative QR code reader
+- Alternative QR code readers
   - https://github.com/IndustrialArduino/NORVI-ESP32-CAMERA/tree/main/ESP32-CAMERA-QR_CODE_SCANNER_WITH_DISPLAY
+  - https://randomnerdtutorials.com/esp32-cam-qr-code-reader-scanner-arduino/
 - Voice Input - perhaps one of these
   - https://www.seeedstudio.com/XIAO-ESP32S3-Sense-p-5639.html
   - https://www.dfrobot.com/product-2665.html
