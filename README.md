@@ -68,6 +68,7 @@ I have settled on the following hardware for the Universal Remote Control:
   - A bit of effort to use this. Got a "sniffer" card to use the SPI pins in the MicroSD slot, needed to do "bit banging" for touchscreen so could use hardware SPI for SD card.
     - I purchased this one: https://www.sparkfun.com/sparkfun-microsd-sniffer.html
     - https://github.com/sparkfun/MicroSD_Sniffer
+    - Schematic https://cdn.sparkfun.com/datasheets/Tools/SparkFun_MicroSD_Sniffer_v10.pdf
     - https://github.com/Mark-MDO47/UniRemote/blob/master/code/RFIDRC522test/README.md
 
 Will be trying these to see if they can be a more compact MicroSD sniffer:
