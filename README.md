@@ -21,6 +21,10 @@ This is the UniRemoteCYD breadboard setup with "drone style" batteries.
 - You can see more photos at https://github.com/Mark-MDO47/UniRemote/blob/master/photos.md
 <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemote_overview.jpg" width="1000" alt="Image of UniRemote breadboard overview">
 
+<img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemoteCYD_schem_1.png" width="800" alt="Schematic of UniRemoteCYD showing CYD connections">
+
+<img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemoteCYD_schem_2.png" width="800" alt="Schematic of UniRemoteCYD showing Battery connections">
+
 A little comic relief - the hilarious **Legendary Artifacts Club** by Elle Cordova https://www.youtube.com/shorts/GEJ_KPZY4n4
 
 | One Remote to Rule Them All | I can bend countless devices to my will |
@@ -32,7 +36,8 @@ A little comic relief - the hilarious **Legendary Artifacts Club** by Elle Cordo
 * [Top](#uniremote-\--one-remote-to-rule-them-all "Top")
 * [The Plan](#the-plan "The Plan")
 * [Guide to the Code](#guide-to-the-code "Guide to the Code")
-* [Battery Harness](#battery-harness "Battery Harness")
+* [Schematic](#schematic "Schematic")
+  * [Battery Harness](#battery-harness "Battery Harness")
 * [Interesting Considerations](#interesting-considerations "Interesting Considerations")
   * [General CYD and LVGL and Related Info](#general-cyd-and-lvgl-and-related-info "General CYD and LVGL and Related Info")
   * [DRAM_STR - Move Constant Strings to RAM instead of Program Storage](#dram_str-\--move-constant-strings-to-ram-instead-of-program-storage "DRAM_STR - Move Constant Strings to RAM instead of Program Storage")
@@ -115,7 +120,15 @@ Here is what the code is:<br>
 | [code/UniTestRcvr](https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniTestRcvr "UniTestRcvr") | UniRemote code testbench for receiver of the commands - attributions in the code. This is now **unused** and **deprecated**. All further development for the receiver will go to the generic **UniRemoteRcvrTemplate**. |
 | --- end of table --- | --- end of table --- |
 
-## Battery Harness
+## Schematic
+[Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
+This shows the connections to the CYD<br>
+<img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemoteCYD_schem_1.png" width="800" alt="Schematic of UniRemoteCYD showing CYD connections">
+
+This shows the connections to the batteries<br>
+<img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemoteCYD_schem_2.png" width="800" alt="Schematic of UniRemoteCYD showing Battery connections">
+
+### Battery Harness
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
 As mentioned above, I would like to come up with a more compact MicroSD sniffer arrangement. The fact that this sticks out so far has driven me to consider multiple ways to handle it in packaging, including the posibility of placing 18650 batteries on the sides to give it some protection.
 - Alternatively I might use the two-wire interface to connect to another Arduino that connects to the RFID scanner, although that seems somewhat complicated. When I compare it to the time spent trying other options for MicroSD sniffers, the additional Arduino is looking better and better.
