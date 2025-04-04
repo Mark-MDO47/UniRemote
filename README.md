@@ -21,10 +21,6 @@ This is the UniRemoteCYD breadboard setup with "drone style" batteries.
 - You can see more photos at https://github.com/Mark-MDO47/UniRemote/blob/master/photos.md
 <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemote_overview.jpg" width="1000" alt="Image of UniRemote breadboard overview">
 
-<img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemoteCYD_schem_1.png" width="800" alt="Schematic of UniRemoteCYD showing CYD connections">
-
-<img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemoteCYD_schem_2.png" width="800" alt="Schematic of UniRemoteCYD showing Battery connections">
-
 A little comic relief - the hilarious **Legendary Artifacts Club** by Elle Cordova https://www.youtube.com/shorts/GEJ_KPZY4n4
 
 | One Remote to Rule Them All | I can bend countless devices to my will |
