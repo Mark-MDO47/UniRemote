@@ -52,6 +52,7 @@ I have settled on the following hardware for the Universal Remote Control:
   - I am using the ESP32-2432S028R (Cheap Yellow Display or CYD) based on ESP32-D0WDQ6 controller.
   - I purchased this one: https://www.aliexpress.us/item/3256805697430313.html
   - This schematic might reflect the CYD: https://oshwlab.com/mariusmym/esp32_cyd_cheap_yellow_display
+  - This gives an excellent CYD introduction: https://randomnerdtutorials.com/esp32-cheap-yellow-display-cyd-pinout-esp32-2432s028r
 - RFID Reader
   - I am using the HiLetgo 3pcs RFID Kit - Mifare RC522 RF IC Card Sensor Module + S50 Blank Card + Key Ring
     - I purchased this one: https://www.amazon.com/dp/B07VLDSYRW
