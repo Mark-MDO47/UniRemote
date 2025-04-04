@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "mdoLibrary")(type "KiCad")(uri "C:/Users/mdo/Documents/GitHub_Mark-MDO47/UniRemote/resources/KiCad/mdoLibrary.kicad_sym")(options "")(descr ""))
+)

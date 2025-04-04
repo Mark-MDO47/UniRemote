@@ -174,20 +174,23 @@ MFRC522::MIFARE_Key key;
 // parse_string - parse input string into string for PICC writing
 //    strptr_desc  - input string starting at <DESCRIPTION STRING><TAB><MAC ADDRESS><"|"><COMMAND STRING>
 //    build_string - PICC writing string <MAC ADDRESS><"|"><COMMAND STRING><TAB><DESCRIPTION STRING>
+//    output_desc  - non-zero to output <TAB><DESCRIPTION STRING>
 //
 // returns 0 if success; else non-zero
 // 
 // assumes the input is well formed
 //
-uint8_t parse_string(char *build_string, char *strptr_desc) {
+uint8_t parse_string(char *build_string, char *strptr_desc, uint8_t output_desc) {
   uint8_t ret_val = 0xFF;
   char * strptr_mac = strstr(strptr_desc,"\t");
 
   if ((ESP_NOW_MAX_DATA_LEN-1) > strlen(strptr_desc)) {
     build_string[0] = '\0';
     strcat(build_string,1+strptr_mac); // copy MAC address and Command String
-    strcat(build_string,"\t");
-    strncat(build_string,strptr_desc,strptr_mac-strptr_desc);
+    if (output_desc) {
+      strcat(build_string,"\t");
+      strncat(build_string,strptr_desc,strptr_mac-strptr_desc);
+    }
     ret_val = 0;
   }
   return(ret_val);
@@ -308,10 +311,19 @@ void setup() {
 //    but when used as a remote control there is no code to write a PICC card.
 //
 char * write_strings[] = {
-  "XIAO_test_msg.png	Test Message to XIAO ESP32-Sense	74:4d:bd:98:7f:1c|TestMessage XIAO ESP32-Sense",
-  "bad_test_ne_msg.png	Test Message to non-existing destination	74:4d:bd:11:11:11|TestMessage non-existing",
-  "bad_test_sh_msg.png	Test Message is too short	74:4d:bd:11:11:1|TestMessage address too short",
-  "bad_test_lg_msg.png	Test Message is too long	74:4d:bd:11:11:11c|TestMessage address too long" };
+  /*
+  "XIAO_test_msg.png\tTest Message to XIAO ESP32-Sense\t74:4d:bd:98:7f:1c|TestMessage XIAO ESP32-Sense",
+  "bad_test_ne_msg.png\tTest Message to non-existing destination\t74:4d:bd:11:11:11|TestMessage non-existing",
+  "bad_test_sh_msg.png\tTest Message is too short\t74:4d:bd:11:11:1|TestMessage address too short",
+  "bad_test_lg_msg.png\tTest Message is too long\t74:4d:bd:11:11:11c|TestMessage address too long" };
+   */
+  "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; EYES:PATTERN TOGETHER/64/SINELON",
+  "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; EYES:PATTERN TOGETHER/64/BLINK",
+  "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; EYES:PATTERN OPPOSITE/64/BLINK",
+  "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; EYES:PATTERN TOGETHER/64/BL-OPN",
+  "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; EYES:PATTERN TOGETHER/64/OPEN",
+  "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; EYES:PATTERN OPPOSITE/64/OPEN",
+  "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; EYES:PATTERN TOGETHER/64/OFF" };
 
 // #define STATE_READ_1 0
 #define STATE_DESCRIBE 0
@@ -340,7 +352,7 @@ void loop() {
       opr_input = get_ascii_string();
       Serial.println(" "); Serial.print("You Entered \""); Serial.print(opr_input); Serial.println("\"");
       if (('w' == *opr_input) || ('W' == *opr_input)) {
-        if (0 == parse_string(build_string,strptr)) {
+        if (0 == parse_string(build_string,strptr,0)) {
           Serial.print(" --Write--> \""); Serial.print(build_string); Serial.println("\"");
           state = STATE_WRITE;
           Serial.println("Please place card on writer");
