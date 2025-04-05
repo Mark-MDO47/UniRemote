@@ -2,8 +2,13 @@
 
 **Table Of Contents**
 * [Top](#uniremotecyd-software-\--one-remote-to-rule-them-all "Top")
+* [Arduino IDE Board Selection](#arduino-ide-board-selection "Arduino IDE Board Selection")
 * [Expected Flow for V1.0](#expected-flow-for-v10 "Expected Flow for V1.0")
 * [Licensing](#licensing "Licensing")
+
+## Arduino IDE Board Selection
+[Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
+In the Arduino IDE, select the board as "ESP32 Dev Module". The CYD is based on the ESP32 D0WDQ6.
 
 ## Expected Flow for V1.0
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
