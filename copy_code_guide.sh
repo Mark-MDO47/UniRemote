@@ -2,10 +2,10 @@
 # strip this out and also put in code directory
 echo "# Guide to Code" > gitignore.tmp
 echo " " >> gitignore.tmp
-# ptrn is regular expression to find line of last line of table
-ptrn=`grep -n "^[|].*[-][-][-] end of table [-][-][-]" README.md | head -1 | sed "s?:.*?:?" | sed "s?.*?^&?"`
+# ptrn_last is regular expression to find line of last line of table
+ptrn_last=`grep -n "^[|].*[-][-][-] end of table [-][-][-]" README.md | head -1 | sed "s?:.*?:?" | sed "s?.*?^&?"`
 # num is number of lines in table
-num=`grep -n "^[|]" README.md | grep -n "${ptrn}" | sed "s?:.*??"`
+num=`grep -n "^[| Link | Description |]" README.md | grep -n "${ptrn_last}" | sed "s?:.*??"`
 # this will store the table into gitignore.tmp
 grep "^[|]" README.md | head -${num} >> gitignore.tmp
 echo "diff of new file follows"
