@@ -7,7 +7,7 @@
 * [Attributions](#attributions "Attributions")
 
 ## Arduino IDE Board Selection
-[Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
+* [Top](#cydbitbangcalibrate "Top")
 In the Arduino IDE, select the board as "ESP32 Dev Module". The CYD is based on the ESP32 D0WDQ6.
 
 ## The Idea
