@@ -2,8 +2,13 @@
 
 **Table Of Contents**
 * [Top](#writerfid_cyd "Top")
+* [Arduino IDE Board Selection](#arduino-ide-board-selection "Arduino IDE Board Selection")
 * [Description](#description "Description")
 * [Example Run of WriteRFID_CYD](#example-run-of-writerfid_cyd "Example Run of WriteRFID_CYD")
+
+## Arduino IDE Board Selection
+[Top](#writerfid_cyd "Top")<br>
+In the Arduino IDE, select the board as "ESP32 Dev Module". The CYD is based on the ESP32 D0WDQ6.
 
 ## Description
 [Top](#writerfid_cyd "Top")<br>
