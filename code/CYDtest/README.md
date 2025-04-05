@@ -10,7 +10,7 @@
 I am using the ESP32-2432S028R (Cheap Yellow Display or CYD) based on ESP32-D0WDQ6 controller. The display I am using was purchased here:
 - https://www.aliexpress.us/item/3256805697430313.html
 
-In the Arduino IDE, select the board as "ESP32 Dev Module". It is based on the ESP32 D0WDQ6.
+In the Arduino IDE, select the board as "ESP32 Dev Module". The CYD is based on the ESP32 D0WDQ6.
 
 ## Tutorials and Courses
 [Top](#cheap-yellow-display-(cyd)-testing "Top")<br>
