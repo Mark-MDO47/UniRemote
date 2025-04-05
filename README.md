@@ -118,6 +118,9 @@ Here is what the code is:<br>
 
 ## Schematic
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
+Connector P1 is some sort of JST connector. My best info on figuring this out is
+- https://www.mattmillman.com/info/crimpconnectors/common-jst-connector-types/
+
 This shows the connections to the CYD<br>
 <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemoteCYD_schem_1.png" width="800" alt="Schematic of UniRemoteCYD showing CYD connections">
 
