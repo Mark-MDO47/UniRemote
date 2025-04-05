@@ -1,8 +1,5 @@
 # Guide to Code
  
-| One Remote to Rule Them All | I can bend countless devices to my will |
-| --- | --- |
-| <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/LegendaryArtifactsClub_1.png" width="300" alt="Legendary Artifacts Club by Elle Cordova"> | <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/LegendaryArtifactsClub_2.png" width="300" alt="Legendary Artifacts Club by Elle Cordova"> |
 | Link | Description |
 | --- | --- |
 | --- | **MAINLINE CODE** |
@@ -20,24 +17,3 @@
 | [code/RFIDRC522test](https://github.com/Mark-MDO47/UniRemote/tree/master/code/RFIDRC522test "RFIDRC522test")  | RFID RC522 pointers to tutorials and hardware information |
 | [code/UniRemote](https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniRemote "UniRemote") | UniRemote code with QR code reader and **generic ESP32** module - attributions in the code. This is now **unused** and **deprecated**. I am switching to the CYD and the code in **UniRemoteCYD**. |
 | [code/UniTestRcvr](https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniTestRcvr "UniTestRcvr") | UniRemote code testbench for receiver of the commands - attributions in the code. This is now **unused** and **deprecated**. All further development for the receiver will go to the generic **UniRemoteRcvrTemplate**. |
-| --- end of table --- | --- end of table --- |
-| Description | URL |
-| --- | --- |
-| CYD Pinouts & Connectors | https://randomnerdtutorials.com/esp32-cheap-yellow-display-cyd-pinout-esp32-2432s028r |
-| More CYD Pinouts in useful format | https://debugdiaries.co.uk/esp32-cheap-display-cyd-pinouts |
-| CYD info in Japanese; need Google Translate but info looks quite good | https://macsbug.wordpress.com/2022/08/17/esp32-2432s028 |
-| Info/Code for CYD and many variants | https://github.com/rzeldent/esp32-smartdisplay |
-| --- | --- |
-| RFID library I use | https://docs.arduino.cc/libraries/rfid_mfrc522v2 |
-| LVGL and CYD | https://randomnerdtutorials.com/lvgl-cheap-yellow-display-esp32-2432s028r |
-| LVGL and CYD | https://rntlab.com/module-1/esp32-lvgl-ebook |
-| CYD and alternative library with lots of good info | https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display.git|
-| CYD LVGL interesting project | https://github.com/bitbank2/CYD_Projects.git<br>https://github.com/TheNitek/CYD-LVGL-Template.git |
-| YouTube Ralph S. Bacon "#203 SPIFFS vs LITTLEFS for ESP32 & ESP8266 (not Arduino UNO)" | https://www.youtube.com/watch?v=4r6YZlLfKfw |
-| --- | --- |
-| Espressif ESP32 example using non-standard SPI pins | https://docs.espressif.com/projects/arduino-esp32/en/latest/api/spi.html |
-| Using bit-banging so touch and SD can work in same program | https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display/blob/main/TROUBLESHOOTING.md#display-touch-and-sd-card-are-not-working-at-the-same-time |
-| Routine | Description |
-| --- | --- |
-| void lv_indev_set_long_press_time(lv_indev_t * indev, uint16_t long_press_time); | Setting value to 65,535 after creating indev did not help |
-| void lv_indev_reset_long_press(lv_indev_t * indev); | Calling within indev read_cb function (cyd_input_read() in my code) when .tirqTouched() or .touched() caused buttons to not operate |
