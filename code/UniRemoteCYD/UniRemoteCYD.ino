@@ -282,6 +282,9 @@ static uint16_t g_msg_last_esp_now_rebuild_msg_cb = 0;    // nonzero when need t
 static uint16_t g_msg_last_esp_now_display_status_cb = 0; // nonzero when need to display status message on screen
 static uint16_t g_msg_last_esp_now_reset_esp_now = 0;     // nonzero when need to completely reset esp-now
 static char g_msg_last_esp_now_result_status[1024];
+static char g_msg_last_opr_comm_status[1024];
+static char g_msg_prev_opr_comm_status[1024];
+static char g_cmd_in_proc_or_prev[ESP_NOW_MAX_DATA_LEN+1];
 
 #define UNI_CMD_QNUM_NOW    0 // 0==sending now, 1==next up
 #define UNI_CMD_QNUM_NEXT   1 // 0==sending now, 1==next up
@@ -388,7 +391,15 @@ void uni_alert_4_wait_new_cmd() {
   else
     uni_lv_button_text_style(ACTION_BUTTON_MID, "VIEW B4\n  SEND", "press to\nchange state", &g_style_grey);
   uni_lv_button_text_style(ACTION_BUTTON_RIGHT, "LED OFF", "Lights off", &g_style_red);
-  lv_label_set_text(g_styled_label_opr_comm.label_text, "Scan Command");
+  strcpy(g_msg, "Scan Command");
+  char tmp_msg[36];
+  sprintf(tmp_msg, "Previous CMD #%d: ", g_last_scanned_cmd_count);
+  str_display_cmd(g_msg, g_cmd_in_proc_or_prev, tmp_msg);
+  if (0 != strcmp(g_msg_prev_opr_comm_status, g_msg)) {
+    lv_label_set_text(g_styled_label_opr_comm.label_text, g_msg);
+    strcpy(g_msg_prev_opr_comm_status, g_msg);
+    Serial.printf("DBG 05 proc_or_prev=|%s| msg=|%s|\n", g_cmd_in_proc_or_prev, g_msg);
+  }
   if (UNI_STATE_NO_ERROR == g_uni_state_error) {
     // NO ERROR
   } else {
@@ -414,7 +425,11 @@ void uni_alert_4_wait_send_or_clear_cmd() {
   uni_lv_button_text_style(ACTION_BUTTON_LEFT, "SEND", "Send Command", &g_style_blue);
   uni_lv_button_text_style(ACTION_BUTTON_MID, "", "", &g_style_ghost);
   uni_lv_button_text_style(ACTION_BUTTON_RIGHT, "CLEAR", "Clear Command", &g_style_red);
-  lv_label_set_text(g_styled_label_opr_comm.label_text, "Send or Clear Command");
+  strcpy(g_msg, "Send or Clear Command");
+  str_display_cmd(g_msg, g_cmd_in_proc_or_prev, "This CMD: ");
+  lv_label_set_text(g_styled_label_opr_comm.label_text, g_msg);
+  strcpy(g_msg_prev_opr_comm_status, g_msg);
+  Serial.printf("DBG 04 proc_or_prev=|%s| msg=|%s|\n", g_cmd_in_proc_or_prev, g_msg);
   if (UNI_STATE_NO_ERROR == g_uni_state_error) {
     // NO ERROR
   } else {
@@ -450,7 +465,11 @@ void uni_alert_4_sending_cmd() {
   uni_lv_button_text_style(ACTION_BUTTON_LEFT, "", "", &g_style_ghost);
   uni_lv_button_text_style(ACTION_BUTTON_MID, "", "", &g_style_ghost);
   uni_lv_button_text_style(ACTION_BUTTON_RIGHT, "ABORT", "Abort send and\nClear Command", &g_style_red);
-  lv_label_set_text(g_styled_label_opr_comm.label_text, "Sending Command\n  please wait...");
+  sprintf(g_msg, "\nSending CMD #%d - please wait ", g_last_scanned_cmd_count);
+  lv_label_set_text(g_styled_label_opr_comm.label_text, g_msg_last_opr_comm_status);
+  str_display_cmd(g_msg, g_cmd_in_proc_or_prev, "This CMD: ");
+  strcpy(g_msg_prev_opr_comm_status, g_msg);
+  Serial.printf("DBG 03 proc_or_prev=|%s| msg=|%s|\n", g_cmd_in_proc_or_prev, g_msg);
   if (UNI_STATE_NO_ERROR == g_uni_state_error) {
     // NO ERROR
   } else {
@@ -465,7 +484,12 @@ void uni_alert_4_wait_callback() {
   uni_lv_button_text_style(ACTION_BUTTON_LEFT, "", "", &g_style_ghost);
   uni_lv_button_text_style(ACTION_BUTTON_MID, "", "", &g_style_ghost);
   uni_lv_button_text_style(ACTION_BUTTON_RIGHT, "ABORT", "Abort send and\nClear Command", &g_style_red);
-  lv_label_set_text(g_styled_label_opr_comm.label_text, "Waiting callback from Command\n  please wait...");
+  strcpy(g_msg_last_opr_comm_status, "");
+  sprintf(g_msg, "\nWaiting CMD #%d callback - please wait ", g_last_scanned_cmd_count);
+  str_display_cmd(g_msg, g_cmd_in_proc_or_prev, "This CMD: ");
+  lv_label_set_text(g_styled_label_opr_comm.label_text, g_msg);
+  strcpy(g_msg_prev_opr_comm_status, g_msg);
+  Serial.printf("DBG 02 proc_or_prev=|%s| msg=|%s|\n", g_cmd_in_proc_or_prev, g_msg_last_opr_comm_status);
   if (UNI_STATE_NO_ERROR == g_uni_state_error) {
     // NO ERROR
   } else {
@@ -483,7 +507,11 @@ void uni_alert_4_rcvd_callback() {
   uni_lv_button_text_style(ACTION_BUTTON_LEFT, "SEND", "Send again", &g_style_blue);
   uni_lv_button_text_style(ACTION_BUTTON_MID, "", "", &g_style_ghost);
   uni_lv_button_text_style(ACTION_BUTTON_RIGHT, "ABORT", "Abort send and\nClear Command", &g_style_red);
-  lv_label_set_text(g_styled_label_opr_comm.label_text, "Command Send callback failed\n  SEND again or ABORT this command...");
+  strcpy(g_msg, "CMD Send failed; SEND again or ABORT...");
+  str_display_cmd(g_msg, g_cmd_in_proc_or_prev, "This CMD: ");
+  lv_label_set_text(g_styled_label_opr_comm.label_text, g_msg);
+  strcpy(g_msg_prev_opr_comm_status, g_msg);
+  Serial.print("DBG 01 "); Serial.println(g_msg);
   if (UNI_STATE_NO_ERROR == g_uni_state_error) {
     // NO ERROR
   } else {
@@ -516,6 +544,49 @@ void uni_display_state() {
       break;
   }
 } // end uni_display_state()
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// str_trim - trim tabs & spaces from front and back
+// MODIFIES p_str
+//
+char* str_trim(char* p_str) {
+  char* my_str = p_str;
+  while ((' ' == my_str[0]) || ('\t' == my_str[0])) {
+    my_str += 1;
+  }
+  size_t my_len = strlen(my_str);
+  while ((' ' == my_str[my_len - 1]) || ('\t' == my_str[my_len - 1])) {
+    my_len -= 1;
+    my_str[my_len] = 0;
+  }
+  return(my_str);
+} // end str_trim()
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// str_display_cmd - builds formatted string from command into p_msg_str; preserving existing contents
+// returns: pointer to formatted string
+//     p_msg_str      - writeable string to append our formatted command display text
+//     p_cmd          - ESP-NOW text message we will format into p_msg_str
+//     p_insert_words - typically "Processing CMD " or "Last CMD "; ends with a space
+//
+void str_display_cmd(char* p_msg_str, char* p_cmd, const char* p_insert_words) {
+  char delimiters[] = ";";
+  char* token;
+  const char* my_insert_word = p_insert_words;
+  static char tmp_msg[ESP_NOW_MAX_DATA_LEN + 1];
+
+  if('\0' == p_cmd[0]) return;
+  strncpy(tmp_msg, p_cmd, ESP_NOW_MAX_DATA_LEN);
+
+  token = strtok(tmp_msg, delimiters);
+  if (token == NULL) { sprintf(p_msg_str, "%s\n\n%sERROR no command found", p_msg_str, p_insert_words);  return; }
+  while (token != NULL) {
+    sprintf(p_msg_str, "%s\n%s%s", p_msg_str, my_insert_word, str_trim(token));
+    my_insert_word = "";
+    token = strtok(NULL, delimiters);
+  } // end while
+  return;
+}   // end str_display_cmd()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // static void cyd_input_read(lv_indev_t * indev, lv_indev_data_t * data)
@@ -633,10 +704,12 @@ int32_t handle_button_press() {
       if (ACTION_BUTTON_LEFT == g_button_press.btn_idx) {
         // send ESP_NOW command
         g_uni_state = UNI_STATE_SENDING_CMD;
+        sprintf(g_msg_last_opr_comm_status, "\nESP-NOW sending CMD #%d ", g_last_scanned_cmd_count);
         DBG_SERIALPRINTLN("Change state to UNI_STATE_SENDING_CMD");
       } else if (ACTION_BUTTON_RIGHT == g_button_press.btn_idx) {
         // clear ESP_NOW command
         g_uni_state = UNI_STATE_WAIT_CMD;
+        sprintf(g_msg_last_opr_comm_status, "\nESP-NOW OPR CLEAR CMD #%d ", g_last_scanned_cmd_count);
         DBG_SERIALPRINTLN("Change state to UNI_STATE_WAIT_CMD");
       }
       break;
@@ -648,10 +721,12 @@ int32_t handle_button_press() {
       if (ACTION_BUTTON_LEFT == g_button_press.btn_idx) {
         // send ESP_NOW command
         g_uni_state = UNI_STATE_SENDING_CMD;
+        sprintf(g_msg_last_opr_comm_status, "\nESP-NOW sending CMD #%d ", g_last_scanned_cmd_count);
         DBG_SERIALPRINTLN("Change state to UNI_STATE_SENDING_CMD");
       } else if (ACTION_BUTTON_RIGHT == g_button_press.btn_idx) {
         // clear ESP_NOW command
         g_uni_state = UNI_STATE_WAIT_CMD;
+        sprintf(g_msg_last_opr_comm_status, "\nESP-NOW OPR ABORT CMD #%d ", g_last_scanned_cmd_count);
         DBG_SERIALPRINTLN("Change state to UNI_STATE_WAIT_CMD");
       }
       break;
@@ -859,8 +934,10 @@ void uni_do_esp_now_callback_status() {
     g_msg_last_esp_now_rebuild_msg_cb = 0;
     if (ESP_NOW_SEND_SUCCESS == g_last_send_callback_status) {
       sprintf(g_msg_last_esp_now_result_status, "ESP-Now callback OK CMD #%d", g_last_scanned_cmd_count);
+      sprintf(g_msg_last_opr_comm_status, "\nESP-NOW success CMD #%d ", g_last_scanned_cmd_count);
     } else { // ESP_NOW_SEND_FAIL
       sprintf(g_msg_last_esp_now_result_status, "ESP-Now callback FAIL CMD #%d", g_last_scanned_cmd_count);
+      sprintf(g_msg_last_opr_comm_status, "\nESP-NOW FAIL CMD #%d ", g_last_scanned_cmd_count);
     }
   } // end if need to rebuild status message from callback
   if (0 != g_msg_last_esp_now_display_status_cb) {
@@ -941,30 +1018,25 @@ int16_t uni_esp_now_register_peer(uint8_t * mac_addr) {
 } // end uni_esp_now_register_peer()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// uni_esp_now_cmd_send() - decipher QR code and send as needed
+// uni_esp_now_cmd_parse() - decipher PICC or QR code and register the MAC address
 //       returns: status from call
-//   sends a string up to length ESP_NOW_MAX_DATA_LEN; includes the zero termination of the string   
+//   a legal message is a string up to length ESP_NOW_MAX_DATA_LEN; includes the zero termination of the string   
+//
+// on exit:
+//   g_cmd_in_proc_or_prev is filled with the message to send up to length ESP_NOW_MAX_DATA_LEN (zero length if parse error)
+//   g_esp_now_mac_addr_ptr will point to the  MAC address of the target ##:##:##:##:##
 //
 // FIXME TODO WARNING this can modify p_cmd
 //
-esp_err_t uni_esp_now_cmd_send(char * p_cmd) {
-  esp_err_t send_status = ESP_OK;
-  static char esp_now_msg_data[ESP_NOW_MAX_DATA_LEN+1];
-  static uint32_t msec_prev_send = 0;
-  uint32_t msec_now = millis();
-
-  // see if waited long enough to send another ESP-NOW message
-  if (msec_now < (UNI_ESP_NOW_MSEC_PER_MSG_MIN+msec_prev_send)) {
-    DBG_SERIALPRINTLN("ERROR: too soon to send");
-    return(UNI_ERR_TOO_SOON); // too soon to send another message
-  }
-  msec_prev_send = msec_now;
+static uint8_t * g_esp_now_mac_addr_ptr;
+esp_err_t uni_esp_now_cmd_parse(char * p_cmd) {
+  memset(g_cmd_in_proc_or_prev, '\0', sizeof(g_cmd_in_proc_or_prev));
 
   // see if we can obtain and register the MAC address for sending
-  uint8_t * mac_addr_ptr = uni_cmd_decode_get_mac_addr(p_cmd);
+  g_esp_now_mac_addr_ptr = uni_cmd_decode_get_mac_addr(p_cmd);
   int16_t mac_addr_index;
-  if ((uint8_t *)0 != mac_addr_ptr) {
-    mac_addr_index = uni_esp_now_register_peer(mac_addr_ptr); // sets g_msg_last_esp_now_result_status
+  if ((uint8_t *)0 != g_esp_now_mac_addr_ptr) {
+    mac_addr_index = uni_esp_now_register_peer(g_esp_now_mac_addr_ptr); // sets g_msg_last_esp_now_result_status
   } else {
   sprintf(g_msg_last_esp_now_result_status, "ERROR: CMD #%d bad MAC address", g_last_scanned_cmd_count);
     DBG_SERIALPRINTLN(g_msg_last_esp_now_result_status);
@@ -977,10 +1049,36 @@ esp_err_t uni_esp_now_cmd_send(char * p_cmd) {
   }
 
   // copy message over starting after the MAC address
-  memset(esp_now_msg_data, '\0', sizeof(esp_now_msg_data));
-  strncpy(esp_now_msg_data, &p_cmd[3*ESP_NOW_ETH_ALEN], ESP_NOW_MAX_DATA_LEN-1); // max ESP-NOW msg size
-  int len = strlen(esp_now_msg_data)+1; // length to send
-  send_status = esp_now_send(mac_addr_ptr, (uint8_t *) esp_now_msg_data, strlen(esp_now_msg_data)+1);
+  strncpy(g_cmd_in_proc_or_prev, &p_cmd[3*ESP_NOW_ETH_ALEN], ESP_NOW_MAX_DATA_LEN-1); // max ESP-NOW msg size
+  return(ESP_OK);
+} // end uni_esp_now_cmd_parse()
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// uni_esp_now_cmd_send() - send PICC or QR code as needed
+//       returns: status from call
+//   sends a string up to length ESP_NOW_MAX_DATA_LEN; includes the zero termination of the string   
+//
+// when called:
+//   g_cmd_in_proc_or_prev is filled with the message to send up to length ESP_NOW_MAX_DATA_LEN (zero length if parse error)
+//   g_esp_now_mac_addr_ptr will point to the  MAC address of the target ##:##:##:##:##
+//
+esp_err_t uni_esp_now_cmd_send() {
+  esp_err_t send_status = ESP_OK;
+  static uint32_t msec_prev_send = 0;
+  uint32_t msec_now = millis();
+
+  // if the message length is zero then the decode failed
+  int len = strlen(g_cmd_in_proc_or_prev);
+  if (0 == len) { return(UNI_ERR_CMD_DECODE_FAIL); }
+
+  // see if waited long enough to send another ESP-NOW message
+  if (msec_now < (UNI_ESP_NOW_MSEC_PER_MSG_MIN+msec_prev_send)) {
+    DBG_SERIALPRINTLN("ERROR: too soon to send");
+    return(UNI_ERR_TOO_SOON); // too soon to send another message
+  }
+  msec_prev_send = msec_now;
+
+  send_status = esp_now_send(g_esp_now_mac_addr_ptr, (uint8_t *) g_cmd_in_proc_or_prev, len+1);
   return (send_status);
 } // end uni_esp_now_cmd_send()
 
@@ -1045,6 +1143,7 @@ uint16_t uni_get_command(uint32_t p_msec_now) {
 #endif // INCLUDE_QR_SENSOR
 
   if (0 != num_cmds_scanned) {
+    uni_esp_now_cmd_parse(g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
     // Show new status and change state
     uni_lv_last_status_text_style(g_msg);
     if (0 == g_change_send_no_view) {
@@ -1184,14 +1283,16 @@ void loop() {
     case UNI_STATE_CMD_SEEN:   // command in queue, waiting for GO or CLEAR
       break;
     case UNI_STATE_SENDING_CMD: // command being sent (very short state)
-      send_status = uni_esp_now_cmd_send((char *)g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
+      send_status = uni_esp_now_cmd_send();
       if (send_status == ESP_OK) {
+        sprintf(g_msg_last_opr_comm_status, "\nESP-NOW send success CMD #%d ", g_last_scanned_cmd_count);
         sprintf(g_msg_last_esp_now_result_status, "ESP-NOW send success CMD #%d %s", g_last_scanned_cmd_count, g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd);
         uni_lv_last_status_text_style(g_msg_last_esp_now_result_status);
         g_uni_state = UNI_STATE_WAIT_CB;
         DBG_SERIALPRINTLN("Change state to UNI_STATE_WAIT_CB");
       }
       else {
+        sprintf(g_msg_last_opr_comm_status, "\nESP-NOW send ERROR CMD #%d ", g_last_scanned_cmd_count);
         sprintf(g_msg_last_esp_now_result_status, "ESP-NOW ERROR: sending CMD #%d: %s\n  %s", g_last_scanned_cmd_count, g_cmd_queue[UNI_CMD_QNUM_NOW].scanned_cmd, uni_esp_now_decode_error(send_status));
         uni_lv_last_status_text_style(g_msg_last_esp_now_result_status); // yellow if "FAIL"
         if (0 != g_change_send_no_view)
