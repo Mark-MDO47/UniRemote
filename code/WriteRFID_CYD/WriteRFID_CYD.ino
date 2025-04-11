@@ -102,7 +102,8 @@
 /*
  * I am using this MicroSD sniffer https://www.sparkfun.com/sparkfun-microsd-sniffer.html to get access to pins to
  *    use for the SPI interface of the RFID reader. In order to free up a hardware SPI channel (VSPI), I am using the
- *    
+ *    XPT2046_Bitbang library for the touchscreen so I can use VSPI through the MicroSD interface to control the
+ *    RFID reader.
  */
 
 /* 
