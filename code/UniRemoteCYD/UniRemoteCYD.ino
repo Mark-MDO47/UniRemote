@@ -360,7 +360,7 @@ char g_msg[1025]; // for generating text strings
 //    p_text    - text under button
 //    p_style   - button style to use
 //    
-void uni_lv_button_text_style(uint8_t p_btn_idx, char * p_label, char * p_text, lv_style_t * p_style) {
+void uni_lv_button_text_style(uint8_t p_btn_idx, const char * p_label, const char * p_text, lv_style_t * p_style) {
   lv_obj_add_style(g_action_buttons[p_btn_idx].button, p_style, 0);
   lv_label_set_text(g_action_buttons[p_btn_idx].button_label, p_label);
   lv_label_set_text(g_action_buttons[p_btn_idx].button_text_label, p_text);
@@ -745,7 +745,7 @@ int32_t handle_button_press() {
 //    p_text    - initial text under button
 //    p_style   - initial button style to use
 //    
-void uni_lv_button_create(uint8_t p_btn_idx, lv_align_t p_align, char * p_label, char * p_text, lv_style_t * p_style) {
+void uni_lv_button_create(uint8_t p_btn_idx, lv_align_t p_align, const char * p_label, const char * p_text, lv_style_t * p_style) {
   // Create a Button
   g_action_buttons[p_btn_idx].btn_idx = p_btn_idx;
   g_action_buttons[p_btn_idx].button = lv_button_create(lv_screen_active());    
@@ -878,8 +878,8 @@ uint8_t * uni_cmd_decode_get_mac_addr(char * p_cmd) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // uni_esp_now_decode_error() - return string with ESP-NOW error
 //
-char * uni_esp_now_decode_error(uint16_t errcode) {
-  char * str;
+const char * uni_esp_now_decode_error(uint16_t errcode) {
+  const char * str;
   switch (errcode)
   {
     case ESP_ERR_ESPNOW_NOT_INIT:

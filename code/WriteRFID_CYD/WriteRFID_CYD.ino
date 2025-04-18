@@ -318,6 +318,11 @@ char * write_strings[] = {
   "bad_test_sh_msg.png\tTest Message is too short\t74:4d:bd:11:11:1|TestMessage address too short",
   "bad_test_lg_msg.png\tTest Message is too long\t74:4d:bd:11:11:11c|TestMessage address too long" };
    */
+  "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; MUSIC:SONG MERRY-GENTLEMEN",
+  "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; MUSIC:SONG SILENCE",
+  "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; MUSIC:TYPE CHRISTMAS",
+  "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; MUSIC:NEXT ignore EYES:PATTERN OPPOSITE/64/BLINK" };
+  /*
   "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; EYES:PATTERN TOGETHER/64/SINELON",
   "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; EYES:PATTERN TOGETHER/64/BLINK",
   "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; EYES:PATTERN OPPOSITE/64/BLINK",
@@ -325,6 +330,7 @@ char * write_strings[] = {
   "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; EYES:PATTERN TOGETHER/64/OPEN",
   "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; EYES:PATTERN OPPOSITE/64/OPEN",
   "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; EYES:PATTERN TOGETHER/64/OFF" };
+  */
 
 // #define STATE_READ_1 0
 #define STATE_DESCRIBE 0
