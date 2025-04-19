@@ -321,7 +321,7 @@ char * write_strings[] = {
   "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; MUSIC:SONG MERRY-GENTLEMEN",
   "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; MUSIC:SONG SILENCE",
   "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; MUSIC:TYPE CHRISTMAS",
-  "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; MUSIC:NEXT ignore EYES:PATTERN OPPOSITE/64/BLINK" };
+  "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; MUSIC:NEXT ignore ; EYES:PATTERN OPPOSITE/64/BLINK" };
   /*
   "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; EYES:PATTERN TOGETHER/64/SINELON",
   "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; EYES:PATTERN TOGETHER/64/BLINK",
