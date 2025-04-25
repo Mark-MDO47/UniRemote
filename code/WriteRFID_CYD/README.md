@@ -28,17 +28,18 @@ The PICC command info is entered in array write_strings[] in the code before run
 The text in write_strings[] is the same format as the input file to QRCode.py
 - https://github.com/Mark-MDO47/MDOpythonUtils/tree/master/QRCode
 
-Typically the command is a one-line zero-terminated ASCII string (without line end) of the following form
-- Example: "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; MUSIC:NEXT ignore ; EYES:PATTERN OPPOSITE/64/BLINK"
-- <destination>\t<description>\t<WiFiMACaddress>|<destination> ; <command, perhaps broken up with colon> <parameters, perhaps broken up with forward slash> { optional further  **; <command> <parameters>** triplets }
-  - <destination>: a human readable name for the target
-  - <description>: a human readable summary of the command(s)
-  - <WiFiMACaddress>: the ESP-NOW WiFi MAC address of the destination - 6 hexadecimal bytes separated with colon, case insensitive
-  - <destination>: a human readable name for the target that will display on UniRemoteCYD
-  - **;** - semicolon surrounded by spaces starts each command
-  - <commmand>: a command for the destination. Optionally broken up with colon **":"**
-  - <parameters>: one or more parameters for the command. If more than one parameter, broken up with forward slash **"/"**. If no parameters are needed, still one must be provided - see **ignore** above.
-
+The command is a one-line zero-terminated ASCII string (without line end) of the following form
+```
+Example: "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; MUSIC:NEXT ignore ; EYES:PATTERN OPPOSITE/64/BLINK"
+<destination>\t<description>\t<WiFiMACaddress>|<destination> ; <command, perhaps broken up with colon> <parameters, perhaps broken up with forward slash> { optional further  "; <command> <parameters>" triplets }
+   <destination>: a human readable name for the target
+   <description>: a human readable summary of the command(s)
+   <WiFiMACaddress>: the ESP-NOW WiFi MAC address of the destination - 6 hexadecimal bytes separated with colon, case insensitive
+   <destination>: a human readable name for the target that will display on UniRemoteCYD
+   ; - semicolon surrounded by spaces starts each command
+   <commmand>: a command for the destination. Optionally broken up with colon ":"
+   <parameters>: one or more parameters for the command. If more than one parameter, broken up with forward slash "/". If no parameters are needed, still one must be provided - see "ignore" above.
+```
 
 ## Example Run of WriteRFID_CYD
 [Top](#writerfid_cyd "Top")<br>
