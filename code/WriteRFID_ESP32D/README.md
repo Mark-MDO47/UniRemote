@@ -9,7 +9,7 @@
 ## Arduino IDE Board Selection
 [Top](#writerfid_cyd "Top")<br>
 In the Arduino IDE, select the board as "ESP32 Dev Module". The board is based on the ESP32-WROOM-32D Devkit C.
-- https://docs.espressif.com/projects/esp-idf/en/v5.1/esp32/hw-reference/esp32/get-started-devkitc.html
+- https://docs.espressif.com/projects/esp-idf/en/latest/esp32/hw-reference/esp32/get-started-devkitc.html
 
 ## Description
 [Top](#writerfid_cyd "Top")<br>
@@ -19,7 +19,8 @@ It is intended to write PICC cards to be used by UniRemoteCYD.
 - https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniRemoteCYD
 
 This routine runs on ESP32-WROOM-32D Devkit C using the Mifare RC522 RF IC Card Sensor Module.
-- https://docs.espressif.com/projects/esp-idf/en/v5.1/esp32/hw-reference/esp32/get-started-devkitc.html (ESP32-DevKitC V4)
+- https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32/esp32-devkitc/user_guide.html
+- https://docs.espressif.com/projects/esp-idf/en/latest/esp32/hw-reference/esp32/get-started-devkitc.html (ESP32-DevKitC V4)
 - https://www.espressif.com/sites/default/files/documentation/esp32-wroom-32d_esp32-wroom-32u_datasheet_en.pdf
 
 It is essentially the same code as the WriteRFID_CYD.
