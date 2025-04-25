@@ -311,7 +311,7 @@ void setup() {
 // Thus the UniRemoteCYD hardware is used to write the PICC cards
 //    but when used as a remote control there is no code to write a PICC card.
 //
-char * write_strings[] = {
+const char * write_strings[] = {
   /*
   "XIAO_test_msg.png\tTest Message to XIAO ESP32-Sense\t74:4d:bd:98:7f:1c|TestMessage XIAO ESP32-Sense",
   "bad_test_ne_msg.png\tTest Message to non-existing destination\t74:4d:bd:11:11:11|TestMessage non-existing",
