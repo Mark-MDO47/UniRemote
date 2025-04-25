@@ -8,8 +8,13 @@
 
 ## Arduino IDE Board Selection
 [Top](#writerfid_cyd "Top")<br>
-In the Arduino IDE, select the board as "ESP32 Dev Module". The board is based on the ESP32-WROOM-32D Devkit C.
+I am using this board
+- https://www.aliexpress.com/item/3256806553795646.html
+
+I think this board is based on the ESP32-WROOM-32D Devkit C.
 - https://docs.espressif.com/projects/esp-idf/en/latest/esp32/hw-reference/esp32/get-started-devkitc.html
+
+If using this board in the Arduino IDE, select the board as **"ESP32 Dev Module"**.
 
 ## Description
 [Top](#writerfid_cyd "Top")<br>
