@@ -8,7 +8,7 @@
 
 ## Arduino IDE Board Selection
 [Top](#writerfid_cyd "Top")<br>
-I am using this board
+I am using this board - the **32D** variant.
 - https://www.aliexpress.com/item/3256806553795646.html
 
 I think this board is based on the ESP32-WROOM-32D Devkit C.
