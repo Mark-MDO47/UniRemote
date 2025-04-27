@@ -13,6 +13,23 @@
 * [What Error Codes Might I Receive](#what-error-codes-might-i-receive "What Error Codes Might I Receive")
 * [TLDR Why Call uni_remote_rcvr_clear_extended_status_flags](#tldr-why-call-uni_remote_rcvr_clear_extended_status_flags "TLDR Why Call uni_remote_rcvr_clear_extended_status_flags")
 
+## New News - Now Including OTA Web Update
+[Top](#uniremotercvr-and-uniremotercvrtemplate "Top")<br>
+When the code is installed as shown here, there is not much the user would need to do.
+The main thing is to create an include file - I named mine **gitignore_wifi_key.h** and placed it in the ".." directory - that has the following info
+
+```C
+#define WIFI_PWD "<your password to your WiFi>"
+#define WIFI_SSID "<your WiFi SSID>"
+#define WIFI_OTA_WEB_USR "<your login name to ESP32 OTA web server>"
+#define WIFI_OTA_WEB_PWD "<your password for ESP32 OTA web server>"
+#define WIFI_OTA_ESP_NOW_PWD "<your password for ESP-NOW message to start ESP32 OTA web server>"
+```
+
+If you then send an "OTA:WEB command with your WIFI_OTA_ESP_NOW_PWD following the command, UniRemoteRcvrTemplate will log-in to your WiFi and generate a webpage to login to do the code upload Over-The-Air.
+
+If you have a serial port attached when you do this, it will tell what the IP address is.
+
 ## The Simplest Pattern for Using UniRemoteCYD and ESP-NOW Commands
 [Top](#uniremotercvr-and-uniremotercvrtemplate "Top")<br>
 In order to use **UniRemoteCYD** to send ESP-NOW commands to your receiver code, your receiver code must run on an ESP-32 that includes WiFi.
