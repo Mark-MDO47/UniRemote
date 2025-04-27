@@ -34,6 +34,12 @@
 
 #include "UniRemoteRcvr.h" // my library for UniRemoteRcvr
 
+#define MDO_USE_OTA 1   // zero to not use, non-zero to use OTA ESP32 Over-The-Air software updates
+
+#if MDO_USE_OTA
+#include "mdo_use_ota_webupdater.h"
+#endif // MDO_USE_OTA
+
 static char g_my_message[ESP_NOW_MAX_DATA_LEN];     // received message
 static uint8_t g_sender_mac_addr[ESP_NOW_ETH_ALEN]; // sender MAC address
 static uint32_t g_my_message_num = 0;               // increments for each msg received unless UNI_REMOTE_RCVR_ERR_CBUF_MSG_DROPPED
@@ -61,11 +67,12 @@ void print_error_status_info(esp_err_t msg_status) {
 } // end print_error_status_info()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// print_message_info()
+// handle_message()
 //       returns: nothing
 //   prints info about the received message
+//   if MDO_USE_OTA and message is OTA:WEB then start ota_webupdater
 //
-void print_message_info(uint16_t rcvd_len) {
+void handle_message(uint16_t rcvd_len) {
   // start the print
   Serial.print("UniRemoteRcvrTemplate received ESP-NOW message number: ");
   Serial.print(g_my_message_num);
@@ -87,7 +94,14 @@ void print_message_info(uint16_t rcvd_len) {
   Serial.print(" '");
   Serial.print((char *)g_my_message);
   Serial.println("'");
-} // end print_message_info()
+
+#if MDO_USE_OTA // if using Over-The-Air software updates
+  if ((NULL != strstr(g_my_message,"OTA:WEB")) && (NULL != strstr(g_my_message,WIFI_OTA_ESP_NOW_PWD))) {
+    g_ota_state = MDO_USE_OTA_WEB_UPDATER_REQUESTED; // loop() will handle it
+  }
+#endif // MDO_USE_OTA if using Over-The-Air software updates
+
+} // end handle_message()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // setup() - initialize hardware and software
@@ -134,8 +148,19 @@ void loop() {
   // we can get a message with or without an error; see above uni_remote_rcvr_clear_extended_status_flags()
   // If 0 == rcvd_len, no message.
   if (rcvd_len > 0) {
-    print_message_info(rcvd_len);
+    handle_message(rcvd_len);
   }
+
+#if MDO_USE_OTA // if using Over-The-Air software updates
+  // if using Over-The-Air software updates
+  if (MDO_USE_OTA_WEB_UPDATER_REQUESTED == g_ota_state) {
+    start_ota_webserver();
+    g_ota_state = MDO_USE_OTA_WEB_UPDATER_INIT;
+  }
+  if (MDO_USE_OTA_WEB_UPDATER_INIT == g_ota_state) {
+    g_ota_server.handleClient();
+  } // end if MDO_USE_OTA_WEB_UPDATER_INIT
+#endif // MDO_USE_OTA if using Over-The-Air software updates
 
   delay(200);
 } // end loop()
