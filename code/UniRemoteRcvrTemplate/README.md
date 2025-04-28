@@ -16,7 +16,7 @@
 
 ## New News - Now Including OTA Web Update
 [Top](#uniremotercvr-and-uniremotercvrtemplate "Top")<br>
-When the code is installed as shown here, there is not much the user would need to do.
+When the code is installed as shown here, there is not much the user would need to do to make ESP32 Over-The-Air Web Update work.
 The main thing is to create an include file - I named mine **gitignore_wifi_key.h** and placed it in the ".." directory - that has the following info
 
 ```C
