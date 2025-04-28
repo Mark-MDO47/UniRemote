@@ -2,6 +2,7 @@
 
 **Table Of Contents**
 * [Top](#uniremotercvr-and-uniremotercvrtemplate "Top")
+* [New News - Now Including OTA Web Update](#new-news-\--now-including-ota-web-update "New News - Now Including OTA Web Update")
 * [The Simplest Pattern for Using UniRemoteCYD and ESP-NOW Commands](#the-simplest-pattern-for-using-uniremotecyd-and-esp\-now-commands "The Simplest Pattern for Using UniRemoteCYD and ESP-NOW Commands")
 * [What are all the routines I might call](#what-are-all-the-routines-i-might-call "What are all the routines I might call")
 * [Detailed Calling Sequence](#detailed-calling-sequence "Detailed Calling Sequence")
@@ -12,6 +13,25 @@
   * [uni_remote_rcvr_clear_extended_status_flags](#uni_remote_rcvr_clear_extended_status_flags "uni_remote_rcvr_clear_extended_status_flags")
 * [What Error Codes Might I Receive](#what-error-codes-might-i-receive "What Error Codes Might I Receive")
 * [TLDR Why Call uni_remote_rcvr_clear_extended_status_flags](#tldr-why-call-uni_remote_rcvr_clear_extended_status_flags "TLDR Why Call uni_remote_rcvr_clear_extended_status_flags")
+
+## New News - Now Including OTA Web Update
+[Top](#uniremotercvr-and-uniremotercvrtemplate "Top")<br>
+When the code is installed as shown here, there is not much the user would need to do.
+The main thing is to create an include file - I named mine **gitignore_wifi_key.h** and placed it in the ".." directory - that has the following info
+
+```C
+#define WIFI_PWD "<your password to your WiFi>"
+#define WIFI_SSID "<your WiFi SSID>"
+#define WIFI_OTA_WEB_USR "<your login name to ESP32 OTA web server>"
+#define WIFI_OTA_WEB_PWD "<your password for ESP32 OTA web server>"
+#define WIFI_OTA_ESP_NOW_PWD "<your password for ESP-NOW message to start ESP32 OTA web server>"
+```
+
+The binary file you will point the website to is generated from the Arduino IDE by **Sketch** --> **Export Compiled Binary**
+
+If you then send an **"OTA:WEB"** command with your WIFI_OTA_ESP_NOW_PWD following the command, UniRemoteRcvrTemplate will log-in to your WiFi and generate an OTAWebUpdate webpage. You login to this OTAWebUpdate webpage, choose the file to upload, and start the binary file code upload Over-The-Air.
+
+If you have a USB serial monitor attached when you do this, it will tell what the IP address of the OTAWebUpdate website is.
 
 ## The Simplest Pattern for Using UniRemoteCYD and ESP-NOW Commands
 [Top](#uniremotercvr-and-uniremotercvrtemplate "Top")<br>
