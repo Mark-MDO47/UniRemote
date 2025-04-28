@@ -31,7 +31,9 @@ The binary file you will point the website to is generated from the Arduino IDE 
 
 If you then send an **"OTA:WEB"** command with your WIFI_OTA_ESP_NOW_PWD following the command, UniRemoteRcvrTemplate will log-in to your WiFi and generate an OTAWebUpdate webpage. You login to this OTAWebUpdate webpage, choose the file to upload, and start the binary file code upload Over-The-Air.
 
-If you have a USB serial monitor attached when you do this, it will tell what the IP address of the OTAWebUpdate website is.
+If you have a USB serial monitor attached when you do this, it will tell what the IP address of the OTAWebUpdate website is. Of course, that sort of defeats the purpose of OTA.
+
+My approach is to make my WiFi router give a static IP address to the ESP32 so I don't have to search for it.
 
 ## The Simplest Pattern for Using UniRemoteCYD and ESP-NOW Commands
 [Top](#uniremotercvr-and-uniremotercvrtemplate "Top")<br>
