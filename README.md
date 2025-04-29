@@ -108,6 +108,7 @@ Here is what the code is:<br>
 | --- | **UTILITIES** |
 | [code/readMacAddress](https://github.com/Mark-MDO47/UniRemote/tree/master/code/readMacAddress "readMacAddress") | Code to read the WiFi MAC address of pretty much any ESP32 - used on remotes to get info - attribution in its README |
 | [code/CYDbitBangCalibrate](https://github.com/Mark-MDO47/UniRemote/tree/master/code/CYDbitBangCalibrate "CYDbitBangCalibrate") | Modified Random Nerds CYD Calibrate routine that uses the XPT2046_Bitbang software-based SPI library instead of the TFT_eSPI hardware based SPI library for the touchscreen - attributions in the code |
+| [code/WriteRFID_ESP32D](https://github.com/Mark-MDO47/UniRemote/tree/master/code/WriteRFID_ESP32D "WriteRFID_ESP32D") | Code for purpose-built HW to write RFID cards using input text strings in same format as input to QRCode.py - attributions in the code |
 | [code/WriteRFID_CYD](https://github.com/Mark-MDO47/UniRemote/tree/master/code/WriteRFID_CYD "WriteRFID_CYD") | Code with same hardware setup as UniRemoteCYD to write RFID cards using input text strings in same format as input to QRCode.py - attributions in the code |
 | [MDOpythonUtils QRCode.py](https://github.com/Mark-MDO47/MDOpythonUtils/tree/master/QRCode "QRCode.py") | Python routine to generate QR code based on directions in a text file |
 | --- | **DOCUMENTATION** |
