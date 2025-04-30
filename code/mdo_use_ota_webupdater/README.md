@@ -11,7 +11,7 @@ The minimum implementation of mdo_use_ota_webupdater inside your *.ino program.
 
 With the other includes"<br>
 ```C
-#include "mdo_use_ota_webupdater.h" // for commanded OTA ESP32 Over-The-Air (OTA) software updates
+#include "mdo_use_ota_webupdater.h" // for commanded OTA ESP32 Over-The-Air (OTA) software updates via a webserver
 ```
 
 Inside the routine that respondes to the command to perform OTA, whether from ESP-NOW or other sources<br>
