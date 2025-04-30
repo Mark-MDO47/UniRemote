@@ -40,7 +40,7 @@ Inside your *.ino file, near the other includes<br>
 #include "mdo_use_ota_webupdater.h" // for commanded ESP32 Over-The-Air (OTA) software updates via a webserver
 ```
 
-Inside the routine that respondes to the command to perform OTA, whether from ESP-NOW or other sources<br>
+Inside the routine that responds to the command to perform OTA, whether from ESP-NOW or other sources<br>
 ```C
   if ((NULL != strstr(g_my_message,"OTA:WEB")) && (NULL != strstr(g_my_message,WIFI_OTA_ESP_NOW_PWD))) {
     g_ota_state = MDO_USE_OTA_WEB_UPDATER_REQUESTED; // loop() will handle it without getting multi-tasking issues
