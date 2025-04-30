@@ -47,7 +47,7 @@ Inside the routine that respondes to the command to perform OTA, whether from ES
   }
 ```
 
-Inside "loop() or else in a routine called from loop()"<br>
+Inside "loop()" or else in a routine called from "loop()"<br>
 ```C
   // if using Over-The-Air software updates
   if (MDO_USE_OTA_WEB_UPDATER_REQUESTED == g_ota_state) {
