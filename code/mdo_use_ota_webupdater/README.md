@@ -29,7 +29,12 @@ The story showing how to use this capability (in my DuelWithBanjos project using
 [Top](#mdo_use_ota_webupdater "Top")<br>
 The minimum implementation of mdo_use_ota_webupdater inside your *.ino program to obtain this capability is shown below.
 
-With the other includes"<br>
+Do this first:<br>
+```
+Copy the files mdo_use_ota_webupdater.cpp and mdo_use_ota_webupdater.h into the files
+```
+
+Inside your *.ino file, near the other includes"<br>
 ```C
 #include "mdo_use_ota_webupdater.h" // for commanded ESP32 Over-The-Air (OTA) software updates via a webserver
 ```
