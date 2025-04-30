@@ -49,7 +49,6 @@ Inside the routine that responds to the command to perform OTA, whether from ESP
 
 Inside "loop()" or else in a routine called from "loop()"<br>
 ```C
-  // if using Over-The-Air software updates
   if (MDO_USE_OTA_WEB_UPDATER_REQUESTED == g_ota_state) {
     start_ota_webserver();
     g_ota_state = MDO_USE_OTA_WEB_UPDATER_INIT;
