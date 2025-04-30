@@ -35,6 +35,9 @@ If you have a USB serial monitor attached when you do this, it will tell what th
 
 My approach is to make my WiFi router give a static IP address to the ESP32 so I don't have to search for it.
 
+An example story of how to use this capability in my DuelWithBanjos project is here
+- https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/code/DuelWithBanjos/OTA_story.md
+
 ## The Simplest Pattern for Using UniRemoteCYD and ESP-NOW Commands
 [Top](#uniremotercvr-and-uniremotercvrtemplate "Top")<br>
 In order to use **UniRemoteCYD** to send ESP-NOW commands to your receiver code, your receiver code must run on an ESP-32 that includes WiFi.
