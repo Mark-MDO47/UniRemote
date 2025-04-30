@@ -33,10 +33,10 @@ Do this first:<br>
 
 Copy the files mdo_use_ota_webupdater.cpp and mdo_use_ota_webupdater.h
    into the directory  containing your *.ino program.
-Edit the mdo_use_ota_webupdater.cpp line below to include your Wifi and etc. credentials
+Edit the mdo_use_ota_webupdater.cpp line below to include your Wifi and etc. credentials. I placed the file in the .. directory but you can place it wherever you want as long as your "#include" statement can find it.
 - #include "../gitignore_wifi_key.h" // WiFi and WebUpdate credentials
 
-The file I use defines 5 things. The first four are mandatory, the fifth one is an optional password on the command to run the webserver.
+The file gitignore_wifi_key.h I use defines 5 things. The first four are mandatory, the fifth one is an optional password on the command to run the webserver.
 ```C
 #define WIFI_PWD "<your password to your WiFi>"
 #define WIFI_SSID "<your WiFi SSID>"
