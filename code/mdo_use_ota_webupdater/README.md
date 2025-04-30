@@ -35,7 +35,7 @@ Copy the files mdo_use_ota_webupdater.cpp and mdo_use_ota_webupdater.h
    into the directory  containing your *.ino program
 ```
 
-Inside your *.ino file, near the other includes"<br>
+Inside your *.ino file, near the other includes<br>
 ```C
 #include "mdo_use_ota_webupdater.h" // for commanded ESP32 Over-The-Air (OTA) software updates via a webserver
 ```
