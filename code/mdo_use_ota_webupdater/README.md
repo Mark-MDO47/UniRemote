@@ -30,9 +30,19 @@ The story showing how to use this capability (in my DuelWithBanjos project using
 The minimum implementation of mdo_use_ota_webupdater inside your *.ino program to obtain this capability is shown below.
 
 Do this first:<br>
-```
+
 Copy the files mdo_use_ota_webupdater.cpp and mdo_use_ota_webupdater.h
-   into the directory  containing your *.ino program
+   into the directory  containing your *.ino program.
+Edit the mdo_use_ota_webupdater.cpp line below to include your Wifi and etc. credentials
+- #include "../gitignore_wifi_key.h" // WiFi and WebUpdate credentials
+
+The file I use defines 5 things. The first four are mandatory, the fifth one is an optional password on the command to run the webserver.
+```C
+#define WIFI_PWD "<your password to your WiFi>"
+#define WIFI_SSID "<your WiFi SSID>"
+#define WIFI_OTA_WEB_USR "<your login name to ESP32 OTA web server>"
+#define WIFI_OTA_WEB_PWD "<your password for ESP32 OTA web server>"
+#define WIFI_OTA_ESP_NOW_PWD "<your password for comand to start ESP32 OTA web server>"
 ```
 
 Inside your *.ino file, near the other includes<br>
@@ -40,7 +50,8 @@ Inside your *.ino file, near the other includes<br>
 #include "mdo_use_ota_webupdater.h" // for commanded ESP32 Over-The-Air (OTA) software updates via a webserver
 ```
 
-Inside the routine that responds to the command to perform OTA, whether from ESP-NOW or other sources<br>
+Inside the routine that responds to the command to perform OTA, whether from ESP-NOW or other sources.
+- NOTE that the implementation shown checks for a string command that includes "OTA:WEB" and the optional password that allows the command to succeed
 ```C
   if ((NULL != strstr(g_my_message,"OTA:WEB")) && (NULL != strstr(g_my_message,WIFI_OTA_ESP_NOW_PWD))) {
     g_ota_state = MDO_USE_OTA_WEB_UPDATER_REQUESTED; // loop() will handle it without getting multi-tasking issues
