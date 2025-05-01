@@ -35,7 +35,7 @@
  */
 #define MDO_USE_OTA_WEBUPDATER_H
 
-#include "../gitignore_wifi_key.h" // for OTA updating
+#include "../gitignore_wifi_key.h" // WiFi and WebUpdate credentials
 
 #include <WiFi.h>
 #include <WiFiClient.h>
