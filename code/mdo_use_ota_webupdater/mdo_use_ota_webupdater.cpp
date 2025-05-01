@@ -9,9 +9,11 @@
  *    Obviously any code from that file is under its own license terms not mine.
  *    I am not sure what its license is, but it must be pretty permissive to be an example.
  *
- * The idea is that the OTA Web Updater is not started until we receive an ESP-NOW
- *    command to initialize and start it up. Prior to that, we do not connect to any
- *    WiFi SSID, using only ESP-NOW.
+ * The idea is that the OTA Web Updater is not started until we receive a command
+ *    (ESP-NOW or otherwise) to initialize and start it up.
+ *    Prior to that, we do not connect to any WiFi SSID nor get an IP address.
+ *    Note: using ESP-NOW does not connect to any WiFi SSID nor get an IP address.
+ *
  * In this implementation, it will probably hang if it cannot connect to the specified
  *    WiFi SSID.
  *
