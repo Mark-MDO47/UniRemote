@@ -7,6 +7,7 @@
 * [Minimum Implementation](#minimum-implementation "Minimum Implementation")
 * [Detailed Calling Sequence](#detailed-calling-sequence "Detailed Calling Sequence")
   * [start_ota_webserver function](#start_ota_webserver-function "start_ota_webserver function")
+  * [g_ota_server global and its usage](#g_ota_server-global-and-its-usage "g_ota_server global and its usage")
   * [g_ota_state global and associated states](#g_ota_state-global-and-associated-states "g_ota_state global and associated states")
 
 ## mdo_use_ota_webupdater - My Adaptation of the ESP32 Example OTAWebUpdater.ino
