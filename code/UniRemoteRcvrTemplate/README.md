@@ -46,6 +46,12 @@ An example story of how to use this capability in my DuelWithBanjos project is h
 In order to use **UniRemoteCYD** to send ESP-NOW commands to your receiver code, your receiver code must run on an ESP-32 that includes WiFi.
 - https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/network/esp_now.html
 
+**NOTE:** The information below shows how to do UniRemoteCYD and ESP-NOW but does not show how to integrate it with WEB Over-The-Air (OTA) updates. There are additional steps to do for that as shown immediately below.
+- https://github.com/Mark-MDO47/UniRemote/blob/master/code/mdo_use_ota_webupdater/README.md - how to include it in your code
+- https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/code/DuelWithBanjos/OTA_story.md - how to use it (with ESP-NOW commanding)
+
+**Implementing ESP-NOW Commands in your Receiver Code**
+
 UniRemoteRcvr returns a **message** (or **command**) that is a zero-terminated ASCII string.
 
 **UniRemoteRcvr.cpp** and **UniRemoteRcvr.h** are the pattern for interfacing with **UniRemoteCYD** and receiving the ESP-NOW commands.<br>
