@@ -69,6 +69,13 @@ Inside "loop()" or else in a routine called from "loop()" (NOTE: this assumes we
   } // end if MDO_USE_OTA_WEB_UPDATER_INIT
 ```
 
+**OTHER OPTIONS for start_ota_webserver**
+- example if not using WiFi at all and not connecting to router and also not using ESP-NOW:
+  - start_ota_webserver(START_OTA_WEB_INIT_WIFI_STA | START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
+- example if using ESP-NOW but not connecting to router (already in WiFi STA mode but no IP address):
+  - start_ota_webserver(START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
+- example if already connected to router and have IP address:
+  - start_ota_webserver(START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
 
 ## Detailed Calling Sequence
 [Top](#mdo_use_ota_webupdater "Top")<br>
