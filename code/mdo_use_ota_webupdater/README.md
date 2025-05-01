@@ -58,13 +58,63 @@ Inside the routine that responds to the command to perform OTA, whether from ESP
   }
 ```
 
-Inside "loop()" or else in a routine called from "loop()"<br>
+Inside "loop()" or else in a routine called from "loop()" (NOTE: this assumes we are using ESP-NOW already; see after code for other options)<br>
 ```C
   if (MDO_USE_OTA_WEB_UPDATER_REQUESTED == g_ota_state) {
-    start_ota_webserver();
+    start_ota_webserver(START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
     g_ota_state = MDO_USE_OTA_WEB_UPDATER_INIT;
   }
   if (MDO_USE_OTA_WEB_UPDATER_INIT == g_ota_state) {
     g_ota_server.handleClient();
   } // end if MDO_USE_OTA_WEB_UPDATER_INIT
+```
+
+
+## Detailed Calling Sequence
+[Top](#mdo_use_ota_webupdater "Top")<br>
+
+### start_ota_webserver function
+[Top](#mdo_use_ota_webupdater "Top")<br>
+```C
+// start_ota_webserver() -  connects to the WiFi router (using the built-in SSID and credentials) and then starts the web page.
+//    returns nothing
+//
+//    Parameters:
+//      p_init_flags - input  - set bit-flags to specify what to do; "bitwise-OR" them together
+//         START_OTA_WEB_INIT_WIFI_STA        - init WiFi to STA mode (do not set if already init ESP-NOW)
+//         START_OTA_WEB_BEGIN_WIFI           - connect to router using known SSID and Password and get IP address
+//         START_OTA_WEB_INIT_MDNS            - init mdns so can route http://esp32.local to the ESP32
+//         START_OTA_WEB_INIT_UPDATER_WEBPAGE - init and start the updater webpage
+//
+//       example if not using WiFi at all and not connecting to router and also not using ESP-NOW:
+//         start_ota_webserver(START_OTA_WEB_INIT_WIFI_STA | START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
+//       example if using ESP-NOW but not connecting to router (already in WiFi STA mode but no IP address):
+//         start_ota_webserver(START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
+//       example if already connected to router and have IP address:
+//         start_ota_webserver(START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
+//
+// Restriction:
+//    It will probably hang if it cannot connect to the specified WiFi SSID.
+//
+// Results:
+//    The web browser address http://esp32.local will find the webpage.
+//       Restriction: only one at a time webpage with this name per WiFi router SSID
+//    Otherwise if you know the IP address (w.x.y.z) you can just enter http://w.x.y.z in the browser
+//
+// The Web Page allows a user to login and launch the OTA upload/update page.
+// There is a weakness that allows the OTA upload/update web page to be entered without loging in.
+//    I have not looked into fixing this. The problem is somewhat mitigated by not calling
+//    start_ota_webserver() all the time but only when commanded to actually do an update.
+//    The weakness cannot be exploited until after start_ota_webserver() is called, and also
+//    goes away with the automatic reboot after the update completes.
+//
+void start_ota_webserver(uint16_t p_init_flags);
+```
+### g_ota_state global and associated states
+[Top](#mdo_use_ota_webupdater "Top")<br>
+```C
+#define MDO_USE_OTA_WEB_UPDATER_NOT_INIT  0 // OTA Web Server not initialized/started
+#define MDO_USE_OTA_WEB_UPDATER_REQUESTED 1 // We are requested to initialize/start OTA Web Server from loop()
+#define MDO_USE_OTA_WEB_UPDATER_INIT      2 // OTA Web Server initialized/started; periodically call g_ota_server.handleClient()
+extern uint16_t g_ota_state;
 ```
