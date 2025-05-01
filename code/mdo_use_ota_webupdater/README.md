@@ -123,6 +123,13 @@ Inside "loop()" or else in a routine called from "loop()" (NOTE: this assumes we
 //
 void start_ota_webserver(uint16_t p_init_flags);
 ```
+
+### g_ota_server global and its usage
+[Top](#mdo_use_ota_webupdater "Top")<br>
+```C
+extern WebServer g_ota_server; // call g_ota_server.handleClient() periodically once MDO_USE_OTA_WEB_UPDATER_INIT
+```
+
 ### g_ota_state global and associated states
 [Top](#mdo_use_ota_webupdater "Top")<br>
 ```C
