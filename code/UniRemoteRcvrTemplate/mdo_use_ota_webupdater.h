@@ -8,9 +8,11 @@
  * mdo_use_ota_webupdater - My adaptation of Over-The-Air ESP32 software updates.
  * It is based on the Arduino ESP32 example code OTAWebUpdater.ino
  *
- * The idea is that the OTA Web Updater is not started until we receive an ESP-NOW
- *    command to initialize and start it up. Prior to that, we do not connect to any
- *    WiFi SSID, using only ESP-NOW.
+ * The idea is that the OTA Web Updater is not started until we receive a command
+ *    (ESP-NOW or otherwise) to initialize and start it up.
+ *    Prior to that, we do not connect to any WiFi SSID nor get an IP address.
+ *    Note: using ESP-NOW does not connect to any WiFi SSID nor get an IP address.
+ *
  * In this implementation, it will probably hang if it cannot connect to the specified
  *    WiFi SSID.
  *
@@ -46,15 +48,48 @@ extern const char* g_ssid;
 extern const char* g_password;
 
 #define MDO_USE_OTA_WEB_UPDATER_NOT_INIT  0 // OTA Web Server not initialized/started
-#define MDO_USE_OTA_WEB_UPDATER_REQUESTED 1 // ESP-NOW requested to initialize/start OTA Web Server
+#define MDO_USE_OTA_WEB_UPDATER_REQUESTED 1 // We are requested to initialize/start OTA Web Server from loop()
 #define MDO_USE_OTA_WEB_UPDATER_INIT      2 // OTA Web Server initialized/started; periodically call g_ota_server.handleClient()
 extern uint16_t g_ota_state;
 
 extern WebServer g_ota_server;
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-// start_ota_webserver() - 
+// start_ota_webserver() -  connects to the WiFi router (using the built-in SSID and credentials) and then starts the web page.
 //    returns nothing
-extern void start_ota_webserver();
+//
+//    Parameters:
+//      p_init_flags - input  - set bit-flags to specify what to do; "bitwise-OR" them together
+//         START_OTA_WEB_INIT_WIFI_STA        - init WiFi to STA mode (do not set if already init ESP-NOW)
+//         START_OTA_WEB_BEGIN_WIFI           - connect to router using known SSID and Password and get IP address
+//         START_OTA_WEB_INIT_MDNS            - init mdns so can route http://esp32.local to the ESP32
+//         START_OTA_WEB_INIT_UPDATER_WEBPAGE - init and start the updater webpage
+//
+//       example if not using WiFi at all and not connecting to router and also not using ESP-NOW:
+//         start_ota_webserver(START_OTA_WEB_INIT_WIFI_STA | START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
+//       example if using ESP-NOW but not connecting to router (already in WiFi STA mode but no IP address):
+//         start_ota_webserver(START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
+//       example if already connected to router and have IP address:
+//         start_ota_webserver(START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
+//
+// Restriction:
+//    It will probably hang if it cannot connect to the specified WiFi SSID.
+//
+// Results:
+//    The web browser address http://esp32.local will find the webpage.
+//       Restriction: only one at a time webpage with this name per WiFi router SSID
+//    Otherwise if you know the IP address (w.x.y.z) you can just enter http://w.x.y.z in the browser
+//
+// The Web Page allows a user to login and launch the OTA upload/update page.
+// There is a weakness that allows the OTA upload/update web page to be entered without loging in.
+//    I have not looked into fixing this. The problem is somewhat mitigated by not calling
+//    start_ota_webserver() all the time but only when commanded to actually do an update.
+//    The weakness cannot be exploited until after start_ota_webserver() is called, and also
+//    goes away with the automatic reboot after the update completes.
+//
+void start_ota_webserver(uint16_t p_init_flags);
+#define START_OTA_WEB_INIT_WIFI_STA        0x0001 // init WiFi from beginning (do not set if already init ESP-NOW)
+#define START_OTA_WEB_BEGIN_WIFI           0x0002 // connect to router using known SSID and Password and get IP address
+#define START_OTA_WEB_INIT_MDNS            0x0004 // init mdns so can route http://esp32.local to the ESP32
+#define START_OTA_WEB_INIT_UPDATER_WEBPAGE 0x0008 // init and start the updater webpage
 
 #endif // MDO_USE_OTA_WEBUPDATER_H

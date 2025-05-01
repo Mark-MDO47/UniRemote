@@ -154,7 +154,7 @@ void loop() {
 #if MDO_USE_OTA // if using Over-The-Air software updates
   // if using Over-The-Air software updates
   if (MDO_USE_OTA_WEB_UPDATER_REQUESTED == g_ota_state) {
-    start_ota_webserver();
+    start_ota_webserver(START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE); // already have ESP-NOW
     g_ota_state = MDO_USE_OTA_WEB_UPDATER_INIT;
   }
   if (MDO_USE_OTA_WEB_UPDATER_INIT == g_ota_state) {
