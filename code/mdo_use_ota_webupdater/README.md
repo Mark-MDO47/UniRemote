@@ -2,6 +2,12 @@
 
 **Table Of Contents**
 * [Top](#mdo_use_ota_webupdater "Top")
+* [mdo_use_ota_webupdater - My Adaptation of the ESP32 Example OTAWebUpdater.ino](#mdo_use_ota_webupdater-\--my-adaptation-of-the-esp32-example-otawebupdaterino "mdo_use_ota_webupdater - My Adaptation of the ESP32 Example OTAWebUpdater.ino")
+* [How to Use mdo_use_ota_webupdater](#how-to-use-mdo_use_ota_webupdater "How to Use mdo_use_ota_webupdater")
+* [Minimum Implementation](#minimum-implementation "Minimum Implementation")
+* [Detailed Calling Sequence](#detailed-calling-sequence "Detailed Calling Sequence")
+  * [start_ota_webserver function](#start_ota_webserver-function "start_ota_webserver function")
+  * [g_ota_state global and associated states](#g_ota_state-global-and-associated-states "g_ota_state global and associated states")
 
 ## mdo_use_ota_webupdater - My Adaptation of the ESP32 Example OTAWebUpdater.ino
 [Top](#mdo_use_ota_webupdater "Top")<br>

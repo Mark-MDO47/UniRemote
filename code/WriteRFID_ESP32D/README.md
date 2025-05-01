@@ -8,10 +8,10 @@ Bottom View of WriteRFID_ESP32D<br>
 <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/RFID_ESP32D_bottom.png" width="500" alt="Bottom View of WriteRFID_ESP32D">
 
 **Table Of Contents**
-* [Top](#writerfid_cyd "Top")
+* [Top](#writerfid_esp32d "Top")
 * [Arduino IDE Board Selection](#arduino-ide-board-selection "Arduino IDE Board Selection")
 * [Description](#description "Description")
-* [Example Run of WriteRFID_ESP32D](#example-run-of-writerfid_cyd "Example Run of WriteRFID_ESP32D")
+* [Example Run of WriteRFID_ESP32D](#example-run-of-writerfid_esp32d "Example Run of WriteRFID_ESP32D")
 
 ## Arduino IDE Board Selection
 [Top](#writerfid_cyd "Top")<br>

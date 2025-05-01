@@ -2,7 +2,7 @@
 
 **Table Of Contents**
 * [Top](#cheap-yellow-display-(cyd)-testing "Top")
-* [Hardware](#hardware "Hardware")s
+* [Hardware](#hardware "Hardware")
 * [Tutorials and Courses](#tutorials-and-courses "Tutorials and Courses")
 
 ## Hardware
