@@ -16,7 +16,10 @@
 
 ## New News - Now Including OTA Web Update
 [Top](#uniremotercvr-and-uniremotercvrtemplate "Top")<br>
-When the code is installed as shown here, there is not much the user would need to do to make ESP32 Over-The-Air Web Update work.
+When the Over-The-Air (OTA) re-programming code is installed as shown here, there is not much the user would need to do to make ESP32 Over-The-Air Web Update work. See the links just below to get details on how to use the capability (as implemented with ESP-NOW in my DuelWithBanjos project) and how to implement it in your projects (whether you command via ESP-NOW or a button or whatever).
+- https://github.com/Mark-MDO47/DuelWithBanjos/blob/master/code/DuelWithBanjos/OTA_story.md
+- https://github.com/Mark-MDO47/UniRemote/blob/master/code/mdo_use_ota_webupdater/README.md
+
 The main thing is to create an include file - I named mine **gitignore_wifi_key.h** and placed it in the ".." directory - that has the following info
 
 ```C
