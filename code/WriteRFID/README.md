@@ -20,7 +20,7 @@ WriteRFID has been run on two different hardware platforms
 
 | UniRemoteCYD | ESP32D HW |
 | --- | --- |
-| <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemoteCYD_glamour.png" width="300" alt="The UniRemoteCYD"> | <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/RFID_ESP32D_top.png" width="300" alt="ESP32D Special Hardware"> |
+| <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemoteCYD_glamour.png" width="400" alt="The UniRemoteCYD"> | <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/RFID_ESP32D_top.png" width="400" alt="ESP32D Special Hardware"> |
 
 The same setup works for both hardware platforms. In the Arduino IDE, select the board as "ESP32 Dev Module".
 
