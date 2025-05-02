@@ -1,5 +1,0 @@
- --------> Test Message to XIAO ESP32-Sense	74:4d:bd:98:7f:1c|TestMessage XIAO ESP32-Sense
-enter your string to process RFID card >  
-You Entered |y|
- --------> |74:4d:bd:98:7f:1c|	|TestMessage XIAO ESP32-SenseTest Message to XIAO ESP32-Sense|
-Please place card on writer
