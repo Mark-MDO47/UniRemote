@@ -27,6 +27,9 @@
  *  This routine runs on ESP32-2432S028R (Cheap Yellow Display or CYD) using
  *     the same hardware setup as UniRemoteCYD, with a "sniffer" on the MicroSD
  *     slot connecting the VSPI port to the Mifare RC522 RF IC Card Sensor Module.
+ *  This routine also runs on ESP32-WROOM-32D Devkit C using the Mifare RC522 RF IC Card Sensor Module
+ *     and the special hardware shown in the schematic https://github.com/Mark-MDO47/UniRemote/blob/master/resources/KiCad/RFIDwriter.pdf
+ *  If you do anything to change the pinouts for the SPI interface, you will need to change this code.
  *  The dialog with the operator is done using the serial port, not the display
  *     and touchscreen. Because I am lazy.
  *  The PICC command info is entered in array write_strings[]. The input and output
@@ -36,9 +39,9 @@
  *
  *########################## INPUT ###########################
  * The input QR code file should be a tab-separated-variable text file
- *     of the following form. The input text array for the WriteRFID_CYD program
+ *     of the following form. The input text array for the WriteRFID program
  *     should be of the same form for ease of transcription, but the *.png
- *     filename is ignored in WriteRFID_CYD.
+ *     filename is ignored in WriteRFID.
  * <*.png filename><TAB><DESCRIPTION STRING><TAB><MAC ADDRESS><"|"><COMMAND STRING>
  *
  * Most of those fields are described in the output section.
@@ -294,7 +297,7 @@ void setup() {
   delay(1000); // 1 second delay - XIAO ESP32S3 Sense and others need this
 
   mfrc522.PCD_Init();    // Init MFRC522 board.
-  Serial.println(F("\nstarting WriteRFID_CYD - writes to a PICC RFID card"));
+  Serial.println(F("\nstarting WriteRFID - writes to a PICC RFID card"));
   Serial.println(F("   see https://github.com/Mark-MDO47/UniRemote\n"));
  
   // Prepare key - all keys are set to FFFFFFFFFFFF at chip delivery from the factory.
