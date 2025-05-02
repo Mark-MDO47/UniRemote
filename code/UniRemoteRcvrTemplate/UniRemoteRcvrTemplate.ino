@@ -97,7 +97,8 @@ void handle_message(uint16_t rcvd_len) {
 
 #if MDO_USE_OTA // if using Over-The-Air software updates
   if ((NULL != strstr(g_my_message,"OTA:WEB")) && (NULL != strstr(g_my_message,WIFI_OTA_ESP_NOW_PWD))) {
-    g_ota_state = MDO_USE_OTA_WEB_UPDATER_REQUESTED; // loop() will handle it
+    // This is the correct parameter for code that is using ESP-NOW but not connecting to router (already in WiFi STA mode but no IP address)
+    mdo_ota_web_request(START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE); // loop() will handle it
   }
 #endif // MDO_USE_OTA if using Over-The-Air software updates
 
@@ -153,13 +154,7 @@ void loop() {
 
 #if MDO_USE_OTA // if using Over-The-Air software updates
   // if using Over-The-Air software updates
-  if (MDO_USE_OTA_WEB_UPDATER_REQUESTED == g_ota_state) {
-    start_ota_webserver(START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE); // already have ESP-NOW
-    g_ota_state = MDO_USE_OTA_WEB_UPDATER_INIT;
-  }
-  if (MDO_USE_OTA_WEB_UPDATER_INIT == g_ota_state) {
-    g_ota_server.handleClient();
-  } // end if MDO_USE_OTA_WEB_UPDATER_INIT
+  mdo_ota_web_loop();
 #endif // MDO_USE_OTA if using Over-The-Air software updates
 
   delay(200);

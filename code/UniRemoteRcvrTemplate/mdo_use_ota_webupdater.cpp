@@ -41,9 +41,17 @@ const char* host = "esp32";
 const char* g_ssid = WIFI_SSID;
 const char* g_password = WIFI_PWD;
 
-uint16_t g_ota_state = MDO_USE_OTA_WEB_UPDATER_NOT_INIT;
+#define MDO_USE_OTA_WEB_UPDATER_NOT_INIT  0 // OTA Web Server not initialized/started
+#define MDO_USE_OTA_WEB_UPDATER_REQUESTED 1 // We are requested to initialize/start OTA Web Server from loop()
+#define MDO_USE_OTA_WEB_UPDATER_INIT      2 // OTA Web Server initialized/started; periodically call g_ota_server.handleClient()
+// not visible to the user
+static uint16_t g_ota_state = MDO_USE_OTA_WEB_UPDATER_NOT_INIT;
 
-WebServer g_ota_server(80);
+// not visible to the user
+static uint16_t g_init_flags = 0; // mdo_ota_web_request() is guaranteed to be called with this flag setting
+
+// not visible to the user
+static WebServer g_ota_server(80);
 
 /*
  * Login page
@@ -133,23 +141,11 @@ const char* serverIndex =
  "</script>";
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// start_ota_webserver() -  connects to the WiFi router (using the built-in SSID and credentials) and then starts the web page.
+// mdo_ota_web_start() -  connects to the WiFi router (using the built-in SSID and credentials) and then starts the web page.
 //    returns nothing
 //
 //    Parameters:
-//      p_init_flags - input  - set bit-flags to specify what to do; "bitwise-OR" them together
-//         START_OTA_WEB_INIT_WIFI_STA        - init WiFi to STA mode (do not set if already init ESP-NOW)
-//         START_OTA_WEB_BEGIN_WIFI           - connect to router using known SSID and Password and get IP address
-//         START_OTA_WEB_INIT_MDNS            - init mdns so can route http://esp32.local to the ESP32
-//         START_OTA_WEB_INIT_UPDATER_WEBPAGE - init and start the updater webpage
-//
-//       example if not using WiFi at all and not connecting to router and also not using ESP-NOW:
-//         start_ota_webserver(START_OTA_WEB_INIT_WIFI_STA | START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
-//       example if using ESP-NOW but not connecting to router (already in WiFi STA mode but no IP address):
-//         start_ota_webserver(START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
-//       example if already connected to router and have IP address:
-//         start_ota_webserver(START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
-//
+//      None ... but call mdo_ota_web_request() before this
 // Restriction:
 //    It will probably hang if it cannot connect to the specified WiFi SSID.
 //
@@ -161,18 +157,19 @@ const char* serverIndex =
 // The Web Page allows a user to login and launch the OTA upload/update page.
 // There is a weakness that allows the OTA upload/update web page to be entered without loging in.
 //    I have not looked into fixing this. The problem is somewhat mitigated by not calling
-//    start_ota_webserver() all the time but only when commanded to actually do an update.
-//    The weakness cannot be exploited until after start_ota_webserver() is called, and also
+//    mdo_ota_web_start() all the time but only when commanded to actually do an update.
+//    The weakness cannot be exploited until after mdo_ota_web_start() is called, and also
 //    goes away with the automatic reboot after the update completes.
 //
-void start_ota_webserver(uint16_t p_init_flags) {
+void mdo_ota_web_start(uint16_t p_init_flags);
+void mdo_ota_web_start() {
 
-  if (p_init_flags & START_OTA_WEB_INIT_WIFI_STA) {
+  if (g_init_flags & START_OTA_WEB_INIT_WIFI_STA) {
     // Set device as a Wi-Fi Station
     WiFi.mode(WIFI_STA);
   } // end if START_OTA_WEB_INIT_WIFI_STA
 
-  if (p_init_flags & START_OTA_WEB_BEGIN_WIFI) {
+  if (g_init_flags & START_OTA_WEB_BEGIN_WIFI) {
     // Connect to WiFi network
     WiFi.begin(g_ssid, g_password);
     Serial.println("");
@@ -189,7 +186,7 @@ void start_ota_webserver(uint16_t p_init_flags) {
     Serial.println(WiFi.localIP());
   } // end if START_OTA_WEB_BEGIN_WIFI
 
-  if (p_init_flags & START_OTA_WEB_INIT_MDNS) {
+  if (g_init_flags & START_OTA_WEB_INIT_MDNS) {
     /*use mdns for host name resolution*/
     if (!MDNS.begin(host)) { //http://esp32.local
       Serial.println("Error setting up MDNS responder!");
@@ -201,7 +198,7 @@ void start_ota_webserver(uint16_t p_init_flags) {
   } // end if START_OTA_WEB_INIT_MDNS
 
 
-  if (p_init_flags & START_OTA_WEB_INIT_UPDATER_WEBPAGE) {
+  if (g_init_flags & START_OTA_WEB_INIT_UPDATER_WEBPAGE) {
     /*return index page which is stored in serverIndex */
     g_ota_server.on("/", HTTP_GET, []() {
       g_ota_server.sendHeader("Connection", "close");
@@ -239,4 +236,65 @@ void start_ota_webserver(uint16_t p_init_flags) {
     g_ota_server.begin();
   } // end if START_OTA_WEB_INIT_UPDATER_WEBPAGE
 
-} // end start_ota_webserver()
+} // end mdo_ota_web_start()
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// mdo_ota_web_request() -  Requests that mdo_ota_web_loop() starts the ota_webserver
+//    returns nothing
+//
+//    Parameters:
+//      p_init_flags - input  - set bit-flags to specify what to do; "bitwise-OR" them together
+//         START_OTA_WEB_INIT_WIFI_STA        - init WiFi to STA mode (do not set if already init ESP-NOW)
+//         START_OTA_WEB_BEGIN_WIFI           - connect to router using known SSID and Password and get IP address
+//         START_OTA_WEB_INIT_MDNS            - init mdns so can route http://esp32.local to the ESP32
+//         START_OTA_WEB_INIT_UPDATER_WEBPAGE - init and start the updater webpage
+//
+//       example if not using WiFi at all and not connecting to router and also not using ESP-NOW:
+//         mdo_ota_web_request(START_OTA_WEB_INIT_WIFI_STA | START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
+//       example if using ESP-NOW but not connecting to router (already in WiFi STA mode but no IP address):
+//         mdo_ota_web_request(START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
+//       example if already connected to router and have IP address:
+//         mdo_ota_web_request(START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
+//
+// Rationale: if the command to do ota_webserver is an interrupt service routine or a callback routine,
+//    we don't want to do the actual process at that time. Instead we set a flag so the next time through
+//    loop() we start it with no multitasking problems.
+//
+// Restriction:
+//    It will probably hang if it cannot connect to the specified WiFi SSID.
+//
+// Results:
+//    The web browser address http://esp32.local will find the webpage.
+//       Restriction: only one at a time webpage with this name per WiFi router SSID
+//    Otherwise if you know the IP address (w.x.y.z) you can just enter http://w.x.y.z in the browser
+//
+// The Web Page allows a user to login and launch the OTA upload/update page.
+// There is a weakness that allows the OTA upload/update web page to be entered without loging in.
+//    I have not looked into fixing this. The problem is somewhat mitigated by not calling
+//    mdo_ota_web_request() all the time but only when commanded to actually do an update.
+//    The weakness cannot be exploited until after mdo_ota_web_request() is called, and also
+//    goes away with the automatic reboot after the update completes.
+//
+void mdo_ota_web_request(uint16_t p_init_flags) {
+  if (MDO_USE_OTA_WEB_UPDATER_NOT_INIT == g_ota_state) {
+    g_init_flags = p_init_flags;
+    g_ota_state = MDO_USE_OTA_WEB_UPDATER_REQUESTED; // loop() will handle it
+  }
+} // end mdo_ota_web_request()
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// mdo_ota_web_loop() -  handles the  OTA webserver through its various states. Call periodically from loop()
+//    returns nothing
+//
+//    Parameters:
+//      None.
+// 
+void mdo_ota_web_loop() {
+  if (MDO_USE_OTA_WEB_UPDATER_REQUESTED == g_ota_state) {
+    mdo_ota_web_start(); // already have ESP-NOW and flags already set for it
+    g_ota_state = MDO_USE_OTA_WEB_UPDATER_INIT;
+  }
+  if (MDO_USE_OTA_WEB_UPDATER_INIT == g_ota_state) {
+    g_ota_server.handleClient();
+  } // end if MDO_USE_OTA_WEB_UPDATER_INIT
+} // end of mdo_ota_web_loop()
