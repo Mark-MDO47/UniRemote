@@ -7,8 +7,6 @@
 * [Minimum Implementation](#minimum-implementation "Minimum Implementation")
 * [Detailed Calling Sequence](#detailed-calling-sequence "Detailed Calling Sequence")
   * [start_ota_webserver function](#start_ota_webserver-function "start_ota_webserver function")
-  * [g_ota_server global and its usage](#g_ota_server-global-and-its-usage "g_ota_server global and its usage")
-  * [g_ota_state global and associated states](#g_ota_state-global-and-associated-states "g_ota_state global and associated states")
 
 ## mdo_use_ota_webupdater - My Adaptation of the ESP32 Example OTAWebUpdater.ino
 [Top](#mdo_use_ota_webupdater "Top")<br>
@@ -36,12 +34,10 @@ The story showing how to use this capability (in my DuelWithBanjos project using
 [Top](#mdo_use_ota_webupdater "Top")<br>
 The minimum implementation of mdo_use_ota_webupdater inside your *.ino program to obtain this capability is shown below.
 
-Do this first:<br>
-
-Copy the files mdo_use_ota_webupdater.cpp and mdo_use_ota_webupdater.h
-   into the directory  containing your *.ino program.
-Edit the mdo_use_ota_webupdater.cpp line below to include your Wifi and etc. credentials. I placed the file in the .. directory but you can place it wherever you want as long as your "#include" statement can find it.
-- #include "../gitignore_wifi_key.h" // WiFi and WebUpdate credentials
+**Do this first:**<br>
+- Copy the files mdo_use_ota_webupdater.cpp and mdo_use_ota_webupdater.h into the directory  containing your *.ino program.
+- Edit the mdo_use_ota_webupdater.cpp line below to include your Wifi and etc. credentials. I placed the file in the .. directory but you can place it wherever you want as long as your "#include" statement can find it.
+  - #include "../gitignore_wifi_key.h" // WiFi and WebUpdate credentials
 
 The file gitignore_wifi_key.h I use defines 5 things. The first four are mandatory, the fifth one is an optional password on the command to run the webserver.
 ```C
@@ -52,45 +48,42 @@ The file gitignore_wifi_key.h I use defines 5 things. The first four are mandato
 #define WIFI_OTA_ESP_NOW_PWD "<your password for comand to start ESP32 OTA web server>"
 ```
 
-Inside your *.ino file, near the other includes<br>
+**Do this near the other #includes**<br>
 ```C
 #include "mdo_use_ota_webupdater.h" // for commanded ESP32 Over-The-Air (OTA) software updates via a webserver
 ```
 
-Inside the routine that responds to the command to perform OTA, whether from ESP-NOW or other sources
-- NOTE that the implementation shown checks for a string command that includes "OTA:WEB" and the optional password that allows the command to succeed
+**Do this inside the routine that responds to the command to perform OTA, whether from ESP-NOW or other sources**
+- NOTE that
+  - the implementation shown uses example two from the "Detailed Calling Sequence" for mdo_ota_web_request(). See just after this for other options.
+  - the implementation shown checks an ESP-NOW command for a string that includes "OTA:WEB" and the optional password that allows the command to succeed.
+    - your code might use a button for the command or other means instead of this string comparison
 ```C
   if ((NULL != strstr(g_my_message,"OTA:WEB")) && (NULL != strstr(g_my_message,WIFI_OTA_ESP_NOW_PWD))) {
-    g_ota_state = MDO_USE_OTA_WEB_UPDATER_REQUESTED; // loop() will handle it without getting multi-tasking issues
+    // This is the correct parameter for code that is using ESP-NOW but not connecting to router (already in WiFi STA mode but no IP address)
+    mdo_ota_web_request(START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE); // loop() will handle it
   }
 ```
-
-Inside "loop()" or else in a routine called from "loop()" (NOTE: this assumes we are using ESP-NOW already; see after code for other options)<br>
-```C
-  if (MDO_USE_OTA_WEB_UPDATER_REQUESTED == g_ota_state) {
-    start_ota_webserver(START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
-    g_ota_state = MDO_USE_OTA_WEB_UPDATER_INIT;
-  }
-  if (MDO_USE_OTA_WEB_UPDATER_INIT == g_ota_state) {
-    g_ota_server.handleClient();
-  } // end if MDO_USE_OTA_WEB_UPDATER_INIT
-```
-
-**OTHER OPTIONS for start_ota_webserver**
+**OTHER OPTIONS for mdo_ota_web_request**
 - example if not using WiFi at all and not connecting to router and also not using ESP-NOW:
-  - start_ota_webserver(START_OTA_WEB_INIT_WIFI_STA | START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
+  - mdo_ota_web_request(START_OTA_WEB_INIT_WIFI_STA | START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
 - example if using ESP-NOW but not connecting to router (already in WiFi STA mode but no IP address):
-  - start_ota_webserver(START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
+  - mdo_ota_web_request(START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
 - example if already connected to router and have IP address:
-  - start_ota_webserver(START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
+  - mdo_ota_web_request(START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
+
+**Do this inside "loop()" (called periodically) or else in a routine called periodically from "loop()"**<br>
+```C
+    // if using Over-The-Air software updates
+    mdo_ota_web_loop();
+```
 
 ## Detailed Calling Sequence
 [Top](#mdo_use_ota_webupdater "Top")<br>
 
-### start_ota_webserver function
-[Top](#mdo_use_ota_webupdater "Top")<br>
-```C
-// start_ota_webserver() -  connects to the WiFi router (using the built-in SSID and credentials) and then starts the web page.
+### mdo_ota_web_request function
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// mdo_ota_web_request() -  Requests that mdo_ota_web_loop() starts the ota_webserver
 //    returns nothing
 //
 //    Parameters:
@@ -101,11 +94,15 @@ Inside "loop()" or else in a routine called from "loop()" (NOTE: this assumes we
 //         START_OTA_WEB_INIT_UPDATER_WEBPAGE - init and start the updater webpage
 //
 //       example if not using WiFi at all and not connecting to router and also not using ESP-NOW:
-//         start_ota_webserver(START_OTA_WEB_INIT_WIFI_STA | START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
+//         mdo_ota_web_request(START_OTA_WEB_INIT_WIFI_STA | START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
 //       example if using ESP-NOW but not connecting to router (already in WiFi STA mode but no IP address):
-//         start_ota_webserver(START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
+//         mdo_ota_web_request(START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
 //       example if already connected to router and have IP address:
-//         start_ota_webserver(START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
+//         mdo_ota_web_request(START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
+//
+// Rationale: if the command to do ota_webserver is an interrupt service routine or a callback routine,
+//    we don't want to do the actual process at that time. Instead we set a flag so the next time through
+//    loop() we start it with no multitasking problems.
 //
 // Restriction:
 //    It will probably hang if it cannot connect to the specified WiFi SSID.
@@ -118,24 +115,21 @@ Inside "loop()" or else in a routine called from "loop()" (NOTE: this assumes we
 // The Web Page allows a user to login and launch the OTA upload/update page.
 // There is a weakness that allows the OTA upload/update web page to be entered without loging in.
 //    I have not looked into fixing this. The problem is somewhat mitigated by not calling
-//    start_ota_webserver() all the time but only when commanded to actually do an update.
-//    The weakness cannot be exploited until after start_ota_webserver() is called, and also
+//    mdo_ota_web_request() all the time but only when commanded to actually do an update.
+//    The weakness cannot be exploited until after mdo_ota_web_request() is called, and also
 //    goes away with the automatic reboot after the update completes.
 //
-void start_ota_webserver(uint16_t p_init_flags);
+void mdo_ota_web_request(uint16_t p_init_flags);
 ```
 
-### g_ota_server global and its usage
-[Top](#mdo_use_ota_webupdater "Top")<br>
+### mdo_ota_web_loop function
 ```C
-extern WebServer g_ota_server; // call g_ota_server.handleClient() from loop() periodically once MDO_USE_OTA_WEB_UPDATER_INIT
-```
-
-### g_ota_state global and associated states
-[Top](#mdo_use_ota_webupdater "Top")<br>
-```C
-#define MDO_USE_OTA_WEB_UPDATER_NOT_INIT  0 // OTA Web Server not initialized/started
-#define MDO_USE_OTA_WEB_UPDATER_REQUESTED 1 // We are requested to initialize/start OTA Web Server from loop()
-#define MDO_USE_OTA_WEB_UPDATER_INIT      2 // OTA Web Server initialized/started; periodically call g_ota_server.handleClient()
-extern uint16_t g_ota_state;
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// mdo_ota_web_loop() -  handles the OTA webserver through its various states. Call periodically from loop()
+//    returns nothing
+//
+//    Parameters:
+//      None.
+// 
+void mdo_ota_web_loop();
 ```
