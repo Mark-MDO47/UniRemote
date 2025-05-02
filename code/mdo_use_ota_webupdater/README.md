@@ -6,7 +6,8 @@
 * [How to Use mdo_use_ota_webupdater](#how-to-use-mdo_use_ota_webupdater "How to Use mdo_use_ota_webupdater")
 * [Minimum Implementation](#minimum-implementation "Minimum Implementation")
 * [Detailed Calling Sequence](#detailed-calling-sequence "Detailed Calling Sequence")
-  * [start_ota_webserver function](#start_ota_webserver-function "start_ota_webserver function")
+  * [mdo_ota_web_request function](#mdo_ota_web_request-function "mdo_ota_web_request function")
+  * [mdo_ota_web_loop function](#mdo_ota_web_loop-function "mdo_ota_web_loop function")
 
 ## mdo_use_ota_webupdater - My Adaptation of the ESP32 Example OTAWebUpdater.ino
 [Top](#mdo_use_ota_webupdater "Top")<br>
