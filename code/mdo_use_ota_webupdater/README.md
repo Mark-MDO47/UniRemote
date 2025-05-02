@@ -102,7 +102,7 @@ The file gitignore_wifi_key.h I use defines 5 things. The first four are mandato
 //       example if already connected to router and have IP address:
 //         mdo_ota_web_request(START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
 //
-// Rationale: if the command to do ota_webserver is an interrupt service routine or a callback routine,
+// Rationale: if the command to do ota_webserver is inside an interrupt service routine or a callback routine,
 //    we don't want to do the actual process at that time. Instead we set a flag so the next time through
 //    loop() we start it with no multitasking problems.
 //
