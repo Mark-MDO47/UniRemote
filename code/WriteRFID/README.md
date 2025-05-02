@@ -8,7 +8,21 @@
 
 ## Arduino IDE Board Selection
 [Top](#WriteRFID "Top")<br>
-In the Arduino IDE, select the board as "ESP32 Dev Module". The CYD is based on the ESP32 D0WDQ6.
+WriteRFID has been run on two different hardware platforms
+- UniRemote_CYD
+  - Based on ESP32-2432S028R (Cheap Yellow Display or CYD). The CYD is based on the ESP32 D0WDQ6.
+  - UniRemoteCYD includes other hardware, especially a "sniffer" on the MicroSD slot connecting the VSPI port to the Mifare RC522 RF IC Card Sensor Module.
+  - https://github.com/Mark-MDO47/UniRemote/blob/master/README.md
+- Special hardware
+  - An ESP32D processor embedded in a module that seems to be based on the ESP32-WROOM-32D Devkit C
+    - https://docs.espressif.com/projects/esp-idf/en/latest/esp32/hw-reference/esp32/get-started-devkitc.html
+  - Also connecting the VSPI port to the Mifare RC522 RF IC Card Sensor Module.
+
+| UniRemoteCYD | ESP32D HW |
+| --- | --- |
+| <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemoteCYD_glamour.png" width="300" alt="The UniRemoteCYD"> | <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/RFID_ESP32D_top.png" width="300" alt="ESP32D Special Hardware"> |
+
+The same setup works for both hardware platforms. In the Arduino IDE, select the board as "ESP32 Dev Module".
 
 ## Description
 [Top](#WriteRFID "Top")<br>
