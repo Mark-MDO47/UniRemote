@@ -82,6 +82,7 @@ The file gitignore_wifi_key.h I use defines 5 things. The first four are mandato
 [Top](#mdo_use_ota_webupdater "Top")<br>
 
 ### mdo_ota_web_request function
+```C
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // mdo_ota_web_request() -  Requests that mdo_ota_web_loop() starts the ota_webserver
 //    returns nothing
