@@ -19,7 +19,7 @@ WriteRFID has been run on two different hardware platforms
   - An ESP32D processor embedded in a module that seems to be based on the ESP32-WROOM-32D Devkit C
     - https://docs.espressif.com/projects/esp-idf/en/latest/esp32/hw-reference/esp32/get-started-devkitc.html
   - Also connects the VSPI port to the Mifare RC522 RF IC Card Sensor Module.
-  - https://github.com/Mark-MDO47/UniRemote/blob/master/code/WriteRFID/ESP32_HW.md
+  - https://github.com/Mark-MDO47/UniRemote/blob/master/code/WriteRFID/ESP32D_HW.md
 
 | UniRemoteCYD | ESP32D HW |
 | --- | --- |
