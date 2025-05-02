@@ -1,17 +1,17 @@
-# WriteRFID_CYD
+# WriteRFID
 
 **Table Of Contents**
-* [Top](#writerfid_cyd "Top")
+* [Top](#WriteRFID "Top")
 * [Arduino IDE Board Selection](#arduino-ide-board-selection "Arduino IDE Board Selection")
 * [Description](#description "Description")
-* [Example Run of WriteRFID_CYD](#example-run-of-writerfid_cyd "Example Run of WriteRFID_CYD")
+* [Example Run of WriteRFID](#example-run-of-WriteRFID "Example Run of WriteRFID")
 
 ## Arduino IDE Board Selection
-[Top](#writerfid_cyd "Top")<br>
+[Top](#WriteRFID "Top")<br>
 In the Arduino IDE, select the board as "ESP32 Dev Module". The CYD is based on the ESP32 D0WDQ6.
 
 ## Description
-[Top](#writerfid_cyd "Top")<br>
+[Top](#WriteRFID "Top")<br>
 This routine writes and checks command info to PICC (RFID) cards.
 It is intended to write PICC cards to be used by UniRemoteCYD.
 - https://github.com/Mark-MDO47/UniRemote
@@ -41,10 +41,10 @@ Example: "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; MUSIC:NEXT ignore 
    <parameters>: one or more parameters for the command. If more than one parameter, broken up with forward slash "/". If no parameters are needed, still one must be provided - see "ignore" above.
 ```
 
-## Example Run of WriteRFID_CYD
-[Top](#writerfid_cyd "Top")<br>
+## Example Run of WriteRFID
+[Top](#WriteRFID "Top")<br>
 ```
-starting WriteRFID_CYD - writes to a PICC RFID card
+starting WriteRFID - writes to a PICC RFID card
    see https://github.com/Mark-MDO47/UniRemote
 
 Prepare to write MIFARE Classic EV1 1K card
