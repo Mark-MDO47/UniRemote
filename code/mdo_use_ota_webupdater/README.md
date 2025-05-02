@@ -66,12 +66,12 @@ The file gitignore_wifi_key.h I use defines 5 things. The first four are mandato
   }
 ```
 **OTHER OPTIONS for mdo_ota_web_request**
-- example if not using WiFi at all and not connecting to router and also not using ESP-NOW:
-  - mdo_ota_web_request(START_OTA_WEB_INIT_WIFI_STA | START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
-- example if using ESP-NOW but not connecting to router (already in WiFi STA mode but no IP address):
-  - mdo_ota_web_request(START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
-- example if already connected to router and have IP address:
-  - mdo_ota_web_request(START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
+1. example if not using WiFi at all and not connecting to router and also not using ESP-NOW:
+   - mdo_ota_web_request(START_OTA_WEB_INIT_WIFI_STA | START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
+2. example if using ESP-NOW but not connecting to router (already in WiFi STA mode but no IP address):
+   - mdo_ota_web_request(START_OTA_WEB_BEGIN_WIFI | START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
+3. example if already connected to router and have IP address:
+   - mdo_ota_web_request(START_OTA_WEB_INIT_MDNS | START_OTA_WEB_INIT_UPDATER_WEBPAGE);
 
 **Do this inside "loop()" (called periodically) or else in a routine called periodically from "loop()"**<br>
 ```C
