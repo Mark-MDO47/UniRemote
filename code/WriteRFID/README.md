@@ -8,6 +8,8 @@
 
 ## Arduino IDE Board Selection
 [Top](#WriteRFID "Top")<br>
+The same setup works for both hardware platforms. In the Arduino IDE, select the board as "ESP32 Dev Module".
+
 WriteRFID has been run on two different hardware platforms
 - UniRemote_CYD
   - Based on ESP32-2432S028R (Cheap Yellow Display or CYD). The CYD is based on the ESP32 D0WDQ6.
@@ -16,13 +18,12 @@ WriteRFID has been run on two different hardware platforms
 - Special hardware
   - An ESP32D processor embedded in a module that seems to be based on the ESP32-WROOM-32D Devkit C
     - https://docs.espressif.com/projects/esp-idf/en/latest/esp32/hw-reference/esp32/get-started-devkitc.html
-  - Also connecting the VSPI port to the Mifare RC522 RF IC Card Sensor Module.
+  - Also connects the VSPI port to the Mifare RC522 RF IC Card Sensor Module.
+  - https://github.com/Mark-MDO47/UniRemote/blob/master/code/WriteRFID/ESP32_HW.md
 
 | UniRemoteCYD | ESP32D HW |
 | --- | --- |
 | <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemoteCYD_glamour.png" width="400" alt="The UniRemoteCYD"> | <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/RFID_ESP32D_top.png" width="400" alt="ESP32D Special Hardware"> |
-
-The same setup works for both hardware platforms. In the Arduino IDE, select the board as "ESP32 Dev Module".
 
 ## Description
 [Top](#WriteRFID "Top")<br>
@@ -35,10 +36,12 @@ This routine runs on ESP32-2432S028R (Cheap Yellow Display or CYD) using
 the same hardware setup as UniRemoteCYD, with a "sniffer" on the MicroSD
 slot connecting the VSPI port to the Mifare RC522 RF IC Card Sensor Module.
 
-The dialog with the operator is done using the serial port, not the display
-and touchscreen. Because I am lazy.
+This unmodified routine also runs on the specialized ESP32D hardware described in [Arduino IDE Board Selection](#arduino-ide-board-selection "Arduino IDE Board Selection")
 
-The PICC command info is entered in array write_strings[] in the code before running.
+The dialog with the operator is done using the serial port, not the display
+and touchscreen. Because I am lazy and also because the specialized ESP32D hardware doesn't have a display.
+
+The PICC command info is entered in array write_strings[] in the code before running WriteRFID.
 The text in write_strings[] is the same format as the input file to QRCode.py
 - https://github.com/Mark-MDO47/MDOpythonUtils/tree/master/QRCode
 
