@@ -1,19 +1,21 @@
 (kicad_sch
-	(version 20231120)
+	(version 20250114)
 	(generator "eeschema")
-	(generator_version "8.0")
+	(generator_version "9.0")
 	(uuid "e5b5dd44-e95b-4d42-91af-ac6faef1b2d3")
 	(paper "A4")
 	(title_block
 		(title "UniRemoteCYD")
-		(date "2025-04-04")
+		(date "2025-05-08")
 		(rev "Rev 0.9")
 		(company "https://github.com/Mark-MDO47")
 	)
 	(lib_symbols
 		(symbol "Connector:Conn_01x02_Pin"
 			(pin_names
-				(offset 1.016) hide)
+				(offset 1.016)
+				(hide yes)
+			)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -87,16 +89,26 @@
 				)
 			)
 			(symbol "Conn_01x02_Pin_1_1"
-				(polyline
-					(pts
-						(xy 1.27 -2.54) (xy 0.8636 -2.54)
-					)
+				(rectangle
+					(start 0.8636 0.127)
+					(end 0 -0.127)
 					(stroke
 						(width 0.1524)
 						(type default)
 					)
 					(fill
-						(type none)
+						(type outline)
+					)
+				)
+				(rectangle
+					(start 0.8636 -2.413)
+					(end 0 -2.667)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type outline)
 					)
 				)
 				(polyline
@@ -111,26 +123,16 @@
 						(type none)
 					)
 				)
-				(rectangle
-					(start 0.8636 -2.413)
-					(end 0 -2.667)
+				(polyline
+					(pts
+						(xy 1.27 -2.54) (xy 0.8636 -2.54)
+					)
 					(stroke
 						(width 0.1524)
 						(type default)
 					)
 					(fill
-						(type outline)
-					)
-				)
-				(rectangle
-					(start 0.8636 0.127)
-					(end 0 -0.127)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type outline)
+						(type none)
 					)
 				)
 				(pin passive line
@@ -170,10 +172,13 @@
 					)
 				)
 			)
+			(embedded_fonts no)
 		)
 		(symbol "Connector:Conn_01x04_Pin"
 			(pin_names
-				(offset 1.016) hide)
+				(offset 1.016)
+				(hide yes)
+			)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -247,21 +252,53 @@
 				)
 			)
 			(symbol "Conn_01x04_Pin_1_1"
-				(polyline
-					(pts
-						(xy 1.27 -5.08) (xy 0.8636 -5.08)
-					)
+				(rectangle
+					(start 0.8636 2.667)
+					(end 0 2.413)
 					(stroke
 						(width 0.1524)
 						(type default)
 					)
 					(fill
-						(type none)
+						(type outline)
+					)
+				)
+				(rectangle
+					(start 0.8636 0.127)
+					(end 0 -0.127)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(rectangle
+					(start 0.8636 -2.413)
+					(end 0 -2.667)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(rectangle
+					(start 0.8636 -4.953)
+					(end 0 -5.207)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type outline)
 					)
 				)
 				(polyline
 					(pts
-						(xy 1.27 -2.54) (xy 0.8636 -2.54)
+						(xy 1.27 2.54) (xy 0.8636 2.54)
 					)
 					(stroke
 						(width 0.1524)
@@ -285,7 +322,7 @@
 				)
 				(polyline
 					(pts
-						(xy 1.27 2.54) (xy 0.8636 2.54)
+						(xy 1.27 -2.54) (xy 0.8636 -2.54)
 					)
 					(stroke
 						(width 0.1524)
@@ -295,48 +332,16 @@
 						(type none)
 					)
 				)
-				(rectangle
-					(start 0.8636 -4.953)
-					(end 0 -5.207)
+				(polyline
+					(pts
+						(xy 1.27 -5.08) (xy 0.8636 -5.08)
+					)
 					(stroke
 						(width 0.1524)
 						(type default)
 					)
 					(fill
-						(type outline)
-					)
-				)
-				(rectangle
-					(start 0.8636 -2.413)
-					(end 0 -2.667)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type outline)
-					)
-				)
-				(rectangle
-					(start 0.8636 0.127)
-					(end 0 -0.127)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type outline)
-					)
-				)
-				(rectangle
-					(start 0.8636 2.667)
-					(end 0 2.413)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type outline)
+						(type none)
 					)
 				)
 				(pin passive line
@@ -412,10 +417,13 @@
 					)
 				)
 			)
+			(embedded_fonts no)
 		)
 		(symbol "Connector:Conn_01x04_Socket"
 			(pin_names
-				(offset 1.016) hide)
+				(offset 1.016)
+				(hide yes)
+			)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -489,45 +497,9 @@
 				)
 			)
 			(symbol "Conn_01x04_Socket_1_1"
-				(arc
-					(start 0 -4.572)
-					(mid -0.5058 -5.08)
-					(end 0 -5.588)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(arc
-					(start 0 -2.032)
-					(mid -0.5058 -2.54)
-					(end 0 -3.048)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
 				(polyline
 					(pts
-						(xy -1.27 -5.08) (xy -0.508 -5.08)
-					)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -1.27 -2.54) (xy -0.508 -2.54)
+						(xy -1.27 2.54) (xy -0.508 2.54)
 					)
 					(stroke
 						(width 0.1524)
@@ -551,7 +523,19 @@
 				)
 				(polyline
 					(pts
-						(xy -1.27 2.54) (xy -0.508 2.54)
+						(xy -1.27 -2.54) (xy -0.508 -2.54)
+					)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.27 -5.08) (xy -0.508 -5.08)
 					)
 					(stroke
 						(width 0.1524)
@@ -562,21 +546,45 @@
 					)
 				)
 				(arc
-					(start 0 0.508)
-					(mid -0.5058 0)
-					(end 0 -0.508)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(arc
-					(start 0 3.048)
+					(start 0 2.032)
 					(mid -0.5058 2.54)
-					(end 0 2.032)
+					(end 0 3.048)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 0 -0.508)
+					(mid -0.5058 0)
+					(end 0 0.508)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 0 -3.048)
+					(mid -0.5058 -2.54)
+					(end 0 -2.032)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 0 -5.588)
+					(mid -0.5058 -5.08)
+					(end 0 -4.572)
 					(stroke
 						(width 0.1524)
 						(type default)
@@ -658,11 +666,16 @@
 					)
 				)
 			)
+			(embedded_fonts no)
 		)
 		(symbol "Device:Battery_Cell"
-			(pin_numbers hide)
+			(pin_numbers
+				(hide yes)
+			)
 			(pin_names
-				(offset 0) hide)
+				(offset 0)
+				(hide yes)
+			)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -745,7 +758,7 @@
 				)
 				(polyline
 					(pts
-						(xy 0 0.762) (xy 0 0)
+						(xy 0 1.778) (xy 0 2.54)
 					)
 					(stroke
 						(width 0)
@@ -757,7 +770,7 @@
 				)
 				(polyline
 					(pts
-						(xy 0 1.778) (xy 0 2.54)
+						(xy 0 0.762) (xy 0 0)
 					)
 					(stroke
 						(width 0)
@@ -830,10 +843,13 @@
 					)
 				)
 			)
+			(embedded_fonts no)
 		)
 		(symbol "MDO:SW_SPST"
 			(pin_names
-				(offset 0) hide)
+				(offset 0)
+				(hide yes)
+			)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -954,6 +970,7 @@
 					)
 				)
 			)
+			(embedded_fonts no)
 		)
 		(symbol "MDO:UBEC"
 			(power)
@@ -1021,45 +1038,27 @@
 			)
 			(symbol "UBEC_1_0"
 				(pin input line
-					(at -12.7 -3.81 0)
-					(length 5.08)
-					(name "GNDin"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at 17.78 -3.81 180)
-					(length 5.08)
-					(name "GNDout"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
 					(at -12.7 6.35 0)
 					(length 5.08)
 					(name "Vin"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -12.7 -3.81 0)
+					(length 5.08)
+					(name "GNDin"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1092,8 +1091,192 @@
 						)
 					)
 				)
+				(pin input line
+					(at 17.78 -3.81 180)
+					(length 5.08)
+					(name "GNDout"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+	)
+	(rectangle
+		(start 134.62 99.06)
+		(end 149.86 129.54)
+		(stroke
+			(width 1)
+			(type default)
+		)
+		(fill
+			(type none)
+		)
+		(uuid 54e2e240-d74b-48c9-89a8-782571b98456)
+	)
+	(text "Charger"
+		(exclude_from_sim no)
+		(at 147.32 114.3 0)
+		(effects
+			(font
+				(size 2 2)
+			)
+			(justify right bottom)
+		)
+		(uuid "1c905efc-f82c-4995-8c62-13a900bbe393")
+	)
+	(text "Black"
+		(exclude_from_sim no)
+		(at 91.44 73.66 0)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "28d763f7-951b-40c4-a590-08d9978b6895")
+	)
+	(text "Clip in middlle"
+		(exclude_from_sim no)
+		(at 101.6 82.55 0)
+		(effects
+			(font
+				(size 1.27 1.27)
 			)
 		)
+		(uuid "31a58fff-8263-44e1-ae45-1d920891e386")
+	)
+	(text "Green"
+		(exclude_from_sim no)
+		(at 91.44 71.12 0)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "4cbee522-76db-47d1-80ea-73ba939730d8")
+	)
+	(text "Blue"
+		(exclude_from_sim no)
+		(at 91.44 66.04 0)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "72a98d25-a555-44e7-a155-9e0482bd167b")
+	)
+	(text "Green"
+		(exclude_from_sim no)
+		(at 93.98 116.84 0)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "9015184f-37a0-4126-97e0-d6c3c72dc602")
+	)
+	(text "Blue"
+		(exclude_from_sim no)
+		(at 93.98 111.76 0)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "cb0cf800-b818-451b-9c57-5937f80c0546")
+	)
+	(text "3.8V"
+		(exclude_from_sim no)
+		(at 33.02 81.28 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(bold yes)
+			)
+			(justify right bottom)
+		)
+		(uuid "cce82f62-2f53-43ab-9d53-a08bde15f5c2")
+	)
+	(text "2 clips on sides"
+		(exclude_from_sim no)
+		(at 83.566 82.296 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "ccf9ce93-b373-4a4a-b248-da2556acc8cb")
+	)
+	(text "3.8V"
+		(exclude_from_sim no)
+		(at 33.02 63.5 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(bold yes)
+			)
+			(justify right bottom)
+		)
+		(uuid "cdc6236b-4987-4fdf-bc5e-264a41eee845")
+	)
+	(text "Red"
+		(exclude_from_sim no)
+		(at 91.44 68.58 0)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "d00ff0ae-8426-46fd-9a51-76aa23028151")
+	)
+	(text "Red"
+		(exclude_from_sim no)
+		(at 93.98 114.3 0)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "e9604457-da04-4468-890b-78372cd64a80")
+	)
+	(text "Black"
+		(exclude_from_sim no)
+		(at 93.98 119.38 0)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "f6f9af2b-9660-4fa9-aff8-6730da72b8bf")
+	)
+	(text "Clip in middlle"
+		(exclude_from_sim no)
+		(at 104.902 127.762 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "ff1ec5a9-c51d-4e03-94ce-34b7e4ea9dbf")
 	)
 	(wire
 		(pts
@@ -1435,175 +1618,9 @@
 		)
 		(uuid "feb92946-af0f-4e62-addf-2d33010083c1")
 	)
-	(rectangle
-		(start 134.62 99.06)
-		(end 149.86 129.54)
-		(stroke
-			(width 1)
-			(type default)
-		)
-		(fill
-			(type none)
-		)
-		(uuid 54e2e240-d74b-48c9-89a8-782571b98456)
-	)
-	(text "Charger"
-		(exclude_from_sim no)
-		(at 147.32 114.3 0)
-		(effects
-			(font
-				(size 2 2)
-			)
-			(justify right bottom)
-		)
-		(uuid "1c905efc-f82c-4995-8c62-13a900bbe393")
-	)
-	(text "Black"
-		(exclude_from_sim no)
-		(at 91.44 73.66 0)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify left bottom)
-		)
-		(uuid "28d763f7-951b-40c4-a590-08d9978b6895")
-	)
-	(text "Clip in middlle"
-		(exclude_from_sim no)
-		(at 101.6 82.55 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "31a58fff-8263-44e1-ae45-1d920891e386")
-	)
-	(text "Green"
-		(exclude_from_sim no)
-		(at 91.44 71.12 0)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify left bottom)
-		)
-		(uuid "4cbee522-76db-47d1-80ea-73ba939730d8")
-	)
-	(text "Blue"
-		(exclude_from_sim no)
-		(at 91.44 66.04 0)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify left bottom)
-		)
-		(uuid "72a98d25-a555-44e7-a155-9e0482bd167b")
-	)
-	(text "Green"
-		(exclude_from_sim no)
-		(at 93.98 116.84 0)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify left bottom)
-		)
-		(uuid "9015184f-37a0-4126-97e0-d6c3c72dc602")
-	)
-	(text "Blue"
-		(exclude_from_sim no)
-		(at 93.98 111.76 0)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify left bottom)
-		)
-		(uuid "cb0cf800-b818-451b-9c57-5937f80c0546")
-	)
-	(text "3.8V"
-		(exclude_from_sim no)
-		(at 33.02 81.28 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-				(bold yes)
-			)
-			(justify right bottom)
-		)
-		(uuid "cce82f62-2f53-43ab-9d53-a08bde15f5c2")
-	)
-	(text "2 clips on sides"
-		(exclude_from_sim no)
-		(at 83.566 82.296 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "ccf9ce93-b373-4a4a-b248-da2556acc8cb")
-	)
-	(text "3.8V"
-		(exclude_from_sim no)
-		(at 33.02 63.5 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-				(bold yes)
-			)
-			(justify right bottom)
-		)
-		(uuid "cdc6236b-4987-4fdf-bc5e-264a41eee845")
-	)
-	(text "Red"
-		(exclude_from_sim no)
-		(at 91.44 68.58 0)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify left bottom)
-		)
-		(uuid "d00ff0ae-8426-46fd-9a51-76aa23028151")
-	)
-	(text "Red"
-		(exclude_from_sim no)
-		(at 93.98 114.3 0)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify left bottom)
-		)
-		(uuid "e9604457-da04-4468-890b-78372cd64a80")
-	)
-	(text "Black"
-		(exclude_from_sim no)
-		(at 93.98 119.38 0)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify left bottom)
-		)
-		(uuid "f6f9af2b-9660-4fa9-aff8-6730da72b8bf")
-	)
-	(text "Clip in middlle"
-		(exclude_from_sim no)
-		(at 104.902 127.762 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "ff1ec5a9-c51d-4e03-94ce-34b7e4ea9dbf")
-	)
 	(hierarchical_label "+5V"
 		(shape output)
 		(at 205.74 68.58 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 2 2)
@@ -1617,7 +1634,6 @@
 	(hierarchical_label "Gnd"
 		(shape output)
 		(at 205.74 78.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 2 2)
