@@ -32,9 +32,12 @@ The main thing is to create an include file - I named mine **gitignore_wifi_key.
 
 The binary file you will point the website to is generated from the Arduino IDE by **Sketch** --> **Export Compiled Binary**
 
-If you then send an **"OTA:WEB"** command with your WIFI_OTA_ESP_NOW_PWD following the command, UniRemoteRcvrTemplate will log-in to your WiFi and generate an OTAWebUpdate webpage. You login to this OTAWebUpdate webpage, choose the file to upload, and start the binary file code upload Over-The-Air.
+If you then send an **"OTA:WEB"** command with your WIFI_OTA_ESP_NOW_PWD following the command, UniRemoteRcvrTemplate will log-in to your WiFi SSID and generate an OTAWebUpdate webpage. Use a browser to login to this OTAWebUpdate webpage, choose the file to upload, and start the binary file code upload Over-The-Air.
 
-If you have a USB serial monitor attached when you do this, it will tell what the IP address of the OTAWebUpdate website is. Of course, that sort of defeats the purpose of OTA.
+### IP Address of OTAWebUpdate webpage
+If you have a USB serial monitor attached when you do this, it will tell the IP address of the OTAWebUpdate website. Of course, having a USB port attached sort of defeats the purpose of OTA updates.
+
+UniRemoteRcvrTemplate also registers the name **ESP32.local**. You can either enter that or enter **http://esp32.local/** into your browser to open the OTAWebUpdate website.
 
 My approach is to make my WiFi router give a static IP address to the ESP32 so I don't have to search for it.
 
