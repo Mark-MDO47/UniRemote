@@ -1,6 +1,7 @@
 d=`echo ~/Documents/Arduino/libraries`
 
 # if there is no saved original file, make one
+if ! test -f "${d}/TFT_eSPI/User_Setup_original.h"; then
     mv ${d}/TFT_eSPI/User_Setup.h ${d}/TFT_eSPI/User_Setup_original.h
 fi
 echo Y | cp -p gitignoreRandomNerdFiles/User_Setup.h ${d}/TFT_eSPI
