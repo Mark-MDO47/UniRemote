@@ -15,8 +15,8 @@ WriteRFID has been run on two different hardware platforms
   - Based on ESP32-2432S028R (Cheap Yellow Display or CYD). The CYD is based on the ESP32 D0WDQ6.
   - UniRemoteCYD includes other hardware, especially a "sniffer" on the MicroSD slot connecting the VSPI port to the Mifare RC522 RF IC Card Sensor Module.
   - https://github.com/Mark-MDO47/UniRemote/blob/master/README.md
-- Special hardware
-  - An ESP32D processor embedded in a module that seems to be based on the ESP32-WROOM-32D Devkit C
+- Special purpose ESP32D hardware
+  - Based on an ESP32D processor embedded in a module that seems to be based on the ESP32-WROOM-32D Devkit C
     - https://docs.espressif.com/projects/esp-idf/en/latest/esp32/hw-reference/esp32/get-started-devkitc.html
   - Also connects the VSPI port to the Mifare RC522 RF IC Card Sensor Module.
   - https://github.com/Mark-MDO47/UniRemote/blob/master/code/WriteRFID/ESP32D_HW.md
