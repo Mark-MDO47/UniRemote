@@ -66,7 +66,7 @@ I have settled on the following hardware for the Universal Remote Control:
     - A.K.A. PICC = Proximity Integrated Circuit Card (Contactless Card)
   - See following for more RFID Reader details:
     - https://github.com/Mark-MDO47/UniRemote/tree/master/code/RFIDRC522test
-  - It took a bit of effort to use this. I got a "sniffer" card to use the SPI pins in the MicroSD slot, needed to do "bit banging" for touchscreen so could use hardware SPI for SD card.
+  - It took a bit of effort to use this with the CYD. I got a "sniffer" card to use the SPI pins in the CYD MicroSD slot, needed to do "bit banging" for touchscreen so could use hardware SPI for SD card.
     - I purchased this one: https://www.sparkfun.com/sparkfun-microsd-sniffer.html
     - https://github.com/sparkfun/MicroSD_Sniffer
     - Schematic https://cdn.sparkfun.com/datasheets/Tools/SparkFun_MicroSD_Sniffer_v10.pdf
