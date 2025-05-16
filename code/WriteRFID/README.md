@@ -25,6 +25,10 @@ WriteRFID has been run on two different hardware platforms
 | --- | --- |
 | <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemoteCYD_glamour.png" width="400" alt="The UniRemoteCYD"> | <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/RFID_ESP32D_top.png" width="400" alt="ESP32D Special Hardware"> |
 
+This diagram shows the pin connections to the RC522 RFID reader/writer for both hardware configurations. In the case of UniRemoteCYD, the connections go through the MicroSD slot and a sniffer card. The actual GPIO pin connections are the same in both cases.
+
+<img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/RFIDWriterESP32D_schem.png" width="600" alt="ESP32D Special Hardware schematic">
+
 ## Description
 [Top](#WriteRFID "Top")<br>
 This routine writes and checks command info to PICC (RFID) cards.
