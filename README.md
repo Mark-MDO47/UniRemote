@@ -39,6 +39,7 @@ A little comic relief - the hilarious **Legendary Artifacts Club** by Elle Cordo
   * [DRAM_STR - Move Constant Strings to RAM instead of Program Storage](#dram_str-\--move-constant-strings-to-ram-instead-of-program-storage "DRAM_STR - Move Constant Strings to RAM instead of Program Storage")
   * [Entire Screen Pans or Scrolls](#entire-screen-pans-or-scrolls "Entire Screen Pans or Scrolls")
   * [LVGL Timeout and Crash if Call LVGL Routine inside ESP-NOW callback](#lvgl-timeout-and-crash-if-call-lvgl-routine-inside-esp\-now-callback "LVGL Timeout and Crash if Call LVGL Routine inside ESP-NOW callback")
+  * [Do-It-Yourself Layout Creator](#do\-it\-yourself-layout-creator "Do-It-Yourself Layout Creator")
 * [Licensing](#licensing "Licensing")
 
 ## The Plan
