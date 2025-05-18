@@ -29,6 +29,15 @@ This diagram shows the pin connections to the RC522 RFID reader/writer for both 
 
 <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/RFIDWriterESP32D_schem.png" width="600" alt="ESP32D Special Hardware schematic">
 
+### Do-It-Yourself Layout Creator
+[Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
+I didn't know about this when I did my perfboard design for the Special purpose ESP32D hardware for WriteRFID but I wish I had used DIYLC instead of hacking away at my perfboard!
+- https://github.com/bancika/diy-layout-creator
+- https://github.com/bancika/diy-layout-creator/releases
+
+Here is a nice YouTube showing how to use it
+- Design Circuits on Stripboard or Veroboard for FREE with DIY Layout Creator by TekSparkz - https://www.youtube.com/watch?v=mzje3eHqi2E
+
 ## Description
 [Top](#WriteRFID "Top")<br>
 This routine writes and checks command info to PICC (RFID) cards.
