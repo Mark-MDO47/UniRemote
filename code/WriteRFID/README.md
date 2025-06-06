@@ -41,8 +41,8 @@ Here is a nice YouTube showing how to use it
 
 ## Description
 [Top](#WriteRFID "Top")<br>
-This routine writes and checks command info to PICC (RFID) cards.
-It is intended to write PICC cards to be used by UniRemoteCYD.
+This routine writes and checks command info to PICC (RFID) cards. It can also read PICC cards without writing them, but assumes they contain an ASCII string.<br>
+It is intended to write and/or read PICC cards to be used by UniRemoteCYD.
 - https://github.com/Mark-MDO47/UniRemote
 - https://github.com/Mark-MDO47/UniRemote/tree/master/code/UniRemoteCYD
 
