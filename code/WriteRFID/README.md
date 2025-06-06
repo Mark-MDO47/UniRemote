@@ -79,40 +79,71 @@ starting WriteRFID - writes to a PICC RFID card
    see https://github.com/Mark-MDO47/UniRemote
 
 Prepare to write MIFARE Classic EV1 1K card
-   Enter anything starting with w or W to start looking for card and writing
-   Enter anything starting with s or S to skip this string and go to the next
+   Enter anything starting with r or R to start looking for card and read/display it
+   Enter anything starting with w or W to start looking for card and writing below write string
+   Enter anything starting with s or S to skip below write string and go to the next
    Enter anything starting with a or A to abort this process and stop writing RFID cards
- --String-To-Process--> "Test Message to XIAO ESP32-Sense	74:4d:bd:98:7f:1c|TestMessage XIAO ESP32-Sense"
+ --String-To-Process--> "Message for BANJO	ac:67:b2:2c:c9:c0|BANJO ; MUSIC:SONG A440"
 Enter your command to process this String >  
-You Entered "Skip"
-Skipping to next string
-
-Prepare to write MIFARE Classic EV1 1K card
-   Enter anything starting with w or W to start looking for card and writing
-   Enter anything starting with s or S to skip this string and go to the next
-   Enter anything starting with a or A to abort this process and stop writing RFID cards
- --String-To-Process--> "Test Message to non-existing destination	74:4d:bd:11:11:11|TestMessage non-existing"
-Enter your command to process this String >  
-You Entered "write"
- --Write--> "74:4d:bd:11:11:11	TestMessage non-existing	Test Message to non-existing destination"
+You Entered "w"
+ --Write--> "ac:67:b2:2c:c9:c0|BANJO ; MUSIC:SONG A440"
 Please place card on writer
 --READING---------
-Card UID:  13 6A 98 20
+Card UID:  41 84 A5 82
 PICC Write final MFRC522 status 0
 uni_write_picc() succesful! Please remove card, short wait, replace card for reading
 --READING---------
-Card UID:  13 6A 98 20
+Card UID:  41 84 A5 82
 PICC read final MFRC522 status 0
- --Read---> "74:4d:bd:11:11:11	TestMessage non-existing	Test Message to non-existing destination"
+ --Read---> "ac:67:b2:2c:c9:c0|BANJO ; MUSIC:SONG A440"
 Comparison GOOD - Read data matches Write data
 Please remove PICC card
 
 Prepare to write MIFARE Classic EV1 1K card
-   Enter anything starting with w or W to start looking for card and writing
-   Enter anything starting with s or S to skip this string and go to the next
+   Enter anything starting with r or R to start looking for card and read/display it
+   Enter anything starting with w or W to start looking for card and writing below write string
+   Enter anything starting with s or S to skip below write string and go to the next
    Enter anything starting with a or A to abort this process and stop writing RFID cards
- --String-To-Process--> "Test Message is too short	74:4d:bd:11:11:1|TestMessage address too short"
+ --String-To-Process--> "Message for BANJO	ac:67:b2:2c:c9:c0|BANJO ; VOLUME:GSCALE 50"
+Enter your command to process this String > 
+You Entered "r"
+Please place card to read on reader (AKA writer)
+--READING---------
+Card UID:  72 1C EE AC
+PICC read final MFRC522 status 0
+ --Read---> "ac:67:b2:2c:c9:c0|BANJO ; MUSIC:NEXT ignore ; EYES:PATTERN OPPOSITE/64/BLINK"
+Please remove PICC card
+   and enter R or r to read another
+    or enter M or m to go to main menu
+Enter your command >  
+You Entered "r"
+Please place card to read on reader (AKA writer)
+--READING---------
+Card UID:  F1 9B A4 82
+PICC read final MFRC522 status 0
+ --Read---> "ac:67:b2:2c:c9:c0|BANJO ; MUSIC:TYPE CHRISTMAS"
+Please remove PICC card
+   and enter R or r to read another
+    or enter M or m to go to main menu
+Enter your command >  
+You Entered "m"
+Prepare to write MIFARE Classic EV1 1K card
+   Enter anything starting with r or R to start looking for card and read/display it
+   Enter anything starting with w or W to start looking for card and writing below write string
+   Enter anything starting with s or S to skip below write string and go to the next
+   Enter anything starting with a or A to abort this process and stop writing RFID cards
+ --String-To-Process--> "Message for BANJO	ac:67:b2:2c:c9:c0|BANJO ; VOLUME:GSCALE 50"
 Enter your command to process this String >  
-You Entered "abort"
+You Entered "s"
+Skipping to next string
+
+Prepare to write MIFARE Classic EV1 1K card
+   Enter anything starting with r or R to start looking for card and read/display it
+   Enter anything starting with w or W to start looking for card and writing below write string
+   Enter anything starting with s or S to skip below write string and go to the next
+   Enter anything starting with a or A to abort this process and stop writing RFID cards
+ --String-To-Process--> "Message for BANJO	ac:67:b2:2c:c9:c0|BANJO ; VOLUME:GSCALE 150"
+Enter your command to process this String >  
+You Entered "a"
 Aborting; done
 ```
