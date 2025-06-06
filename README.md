@@ -111,7 +111,7 @@ Here is what the code is:<br>
 | [code/mdo_use_ota_webupdater](https://github.com/Mark-MDO47/UniRemote/blob/master/code/mdo_use_ota_webupdater "mdo_use_ota_webupdater") |  My adaptation of the ESP32 example **OTAWebUpdater.ino** Over-The-Air web updater **mdo_use_ota_webupdater**. |
 | [code/readMacAddress](https://github.com/Mark-MDO47/UniRemote/tree/master/code/readMacAddress "readMacAddress") | Code to read the WiFi MAC address of pretty much any ESP32 - used on remotes to get info - attribution in its README |
 | --- | **UTILITIES** |
-| [code/WriteRFID](https://github.com/Mark-MDO47/UniRemote/tree/master/code/WriteRFID "WriteRFID") | Used to write RFID cards using input text strings in same format as input to QRCode.py - attributions in the code.<BR>Works on both UniRemoteCYD hardware and EPS32D special purpose hardware. |
+| [code/WriteRFID](https://github.com/Mark-MDO47/UniRemote/tree/master/code/WriteRFID "WriteRFID") | Used to **write** RFID cards using input text strings in same format as input to QRCode.py or **read** RFID cards - attributions in the code.<BR>Works on both UniRemoteCYD hardware and EPS32D special purpose hardware. |
 | [MDOpythonUtils QRCode.py](https://github.com/Mark-MDO47/MDOpythonUtils/tree/master/QRCode "QRCode.py") | Python routine to generate QR code based on directions in a text file |
 | --- | **DOCUMENTATION** |
 | [code/CYDtest](https://github.com/Mark-MDO47/UniRemote/tree/master/code/CYDtest "CYDtest") | ESP32-2432S028R (Cheap Yellow Display or CYD) pointers to tutorials and hardware information |
