@@ -297,7 +297,7 @@ void setup() {
   delay(1000); // 1 second delay - XIAO ESP32S3 Sense and others need this
 
   mfrc522.PCD_Init();    // Init MFRC522 board.
-  Serial.println(F("\nstarting WriteRFID - writes to a PICC RFID card"));
+  Serial.println(F("\nstarting WriteRFID - writes to and/or reads from a PICC RFID card"));
   Serial.println(F("   see https://github.com/Mark-MDO47/UniRemote\n"));
  
   // Prepare key - all keys are set to FFFFFFFFFFFF at chip delivery from the factory.
@@ -315,17 +315,18 @@ void setup() {
 //    but when used as a remote control there is no code to write a PICC card.
 //
 const char * write_strings[] = {
+  "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; MUSIC:SONG A440",
+  "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; VOLUME:GSCALE 50",
+  "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; VOLUME:GSCALE 150" };
   /*
   "XIAO_test_msg.png\tTest Message to XIAO ESP32-Sense\t74:4d:bd:98:7f:1c|TestMessage XIAO ESP32-Sense",
   "bad_test_ne_msg.png\tTest Message to non-existing destination\t74:4d:bd:11:11:11|TestMessage non-existing",
   "bad_test_sh_msg.png\tTest Message is too short\t74:4d:bd:11:11:1|TestMessage address too short",
   "bad_test_lg_msg.png\tTest Message is too long\t74:4d:bd:11:11:11c|TestMessage address too long" };
-   */
   "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; MUSIC:SONG MERRY-GENTLEMEN",
   "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; MUSIC:SONG SILENCE",
   "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; MUSIC:TYPE CHRISTMAS",
   "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; MUSIC:NEXT ignore ; EYES:PATTERN OPPOSITE/64/BLINK" };
-  /*
   "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; EYES:PATTERN TOGETHER/64/SINELON",
   "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; EYES:PATTERN TOGETHER/64/BLINK",
   "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; EYES:PATTERN OPPOSITE/64/BLINK",
@@ -336,11 +337,11 @@ const char * write_strings[] = {
   */
 
 // #define STATE_READ_1 0
-#define STATE_DESCRIBE 0
-#define STATE_WRITE    1
-#define STATE_WRITE    1
-#define STATE_READ     2
-#define STATE_DONE     3
+#define STATE_DESCRIBE     0
+#define STATE_WRITE        1
+#define STATE_READ_COMPARE 2
+#define STATE_DONE         3
+#define STATE_READ_DISPLAY 4 // not reading something we just wrote
 void loop() {
   static uint8_t state = STATE_DESCRIBE;
   static char build_string[ESP_NOW_MAX_DATA_LEN];
@@ -353,8 +354,9 @@ void loop() {
   if (STATE_DESCRIBE == state) {
     if (NUMOF(write_strings) > input_idx) {
       Serial.println("Prepare to write MIFARE Classic EV1 1K card");
-      Serial.println("   Enter anything starting with w or W to start looking for card and writing");
-      Serial.println("   Enter anything starting with s or S to skip this string and go to the next");
+      Serial.println("   Enter anything starting with r or R to start looking for card and read/display it");
+      Serial.println("   Enter anything starting with w or W to start looking for card and writing below write string");
+      Serial.println("   Enter anything starting with s or S to skip below write string and go to the next");
       Serial.println("   Enter anything starting with a or A to abort this process and stop writing RFID cards");
       // print without the first field (unused)
       Serial.print(" --String-To-Process--> \""); Serial.print(strptr = 1+strstr(write_strings[input_idx],"\t")); Serial.println("\"");
@@ -370,6 +372,9 @@ void loop() {
           Serial.println("ERROR parsing input string, skipping to next string\n");
           input_idx += 1;
         }
+      } else if (('r' == *opr_input) || ('R' == *opr_input)) {
+        state = STATE_READ_DISPLAY;
+        Serial.println("Please place card to read on reader (AKA writer)");
       } else if (('s' == *opr_input) || ('S' == *opr_input)) {
           Serial.println("Skipping to next string\n");
           input_idx += 1;
@@ -385,10 +390,10 @@ void loop() {
     if (0 == (the_status = uni_write_picc(build_string))) {
       Serial.println("uni_write_picc() succesful! Please remove card, short wait, replace card for reading");
       input_idx += 1;
-      state = STATE_READ;
+      state = STATE_READ_COMPARE;
       delay(1000);
     }
-  } else if (STATE_READ == state) {
+  } else if (STATE_READ_COMPARE == state) {
     if (0 == (the_status = uni_read_picc(my_picc_read))) {
       Serial.print(" --Read---> \""); Serial.print(my_picc_read); Serial.println("\"");
       if (0 == strcmp(build_string, my_picc_read)) {
@@ -399,6 +404,27 @@ void loop() {
       Serial.println("Please remove PICC card\n");
       delay(1000);
       state = STATE_DESCRIBE;
-    }
-  }
+    } // end if we read a card
+  } else if (STATE_READ_DISPLAY == state) {
+    if (0 == (the_status = uni_read_picc(my_picc_read))) {
+      int good_input = 0;
+      Serial.print(" --Read---> \""); Serial.print(my_picc_read); Serial.println("\"");
+      while (0 == good_input) {
+        Serial.println("Please remove PICC card\n   and enter R or r to read another\n    or enter M or m to go to main menu");
+        Serial.print("Enter your command > ");
+        opr_input = get_ascii_string();
+        Serial.println(" "); Serial.print("You Entered \""); Serial.print(opr_input); Serial.println("\"");
+        if (('m' == *opr_input) || ('M' == *opr_input)) {
+          good_input = 1;
+          state = STATE_DESCRIBE;
+        } else if (('r' == *opr_input) || ('R' == *opr_input)) {
+          good_input = 1;
+          state = STATE_READ_DISPLAY;
+          Serial.println("Please place card to read on reader (AKA writer)");
+        } else {
+          Serial.print("Error: your entered command \"");  Serial.print(opr_input); Serial.println("\" is not recognized");
+        }
+      } // end while
+    } // end if we read a card
+  } // end all state checks
 } // end loop()
