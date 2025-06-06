@@ -75,7 +75,7 @@ Example: "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; MUSIC:NEXT ignore 
 ## Example Run of WriteRFID
 [Top](#WriteRFID "Top")<br>
 ```
-starting WriteRFID - writes to a PICC RFID card
+starting WriteRFID - writes to and/or reads from a PICC RFID card
    see https://github.com/Mark-MDO47/UniRemote
 
 Prepare to write MIFARE Classic EV1 1K card
