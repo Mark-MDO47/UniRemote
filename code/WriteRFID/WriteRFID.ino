@@ -315,9 +315,16 @@ void setup() {
 //    but when used as a remote control there is no code to write a PICC card.
 //
 const char * write_strings[] = {
-  "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; MUSIC:SONG A440",
+  "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; MUSIC:SKIP ignore",
+  "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; MUSIC:NEXT ignore",
   "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; VOLUME:GSCALE 50",
-  "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; VOLUME:GSCALE 150" };
+  "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; VOLUME:GSCALE 100",
+  "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; MUSIC:TYPE PATRIOT",
+  "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; MUSIC:TYPE CHOPIN",
+  "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; MUSIC:TYPE DUEL",
+  "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; MUSIC:TYPE ALL",
+  "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; VOLUME:GSCALE 75",
+  "BANJO\tMessage for BANJO\tac:67:b2:2c:c9:c0|BANJO ; VOLUME:GSCALE 125" };
   /*
   "XIAO_test_msg.png\tTest Message to XIAO ESP32-Sense\t74:4d:bd:98:7f:1c|TestMessage XIAO ESP32-Sense",
   "bad_test_ne_msg.png\tTest Message to non-existing destination\t74:4d:bd:11:11:11|TestMessage non-existing",
