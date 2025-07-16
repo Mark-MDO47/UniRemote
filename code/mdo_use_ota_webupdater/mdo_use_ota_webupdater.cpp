@@ -41,9 +41,9 @@ const char* host = "esp32";
 const char* g_ssid = WIFI_SSID;
 const char* g_password = WIFI_PWD;
 
-#define MDO_USE_OTA_WEB_UPDATER_NOT_INIT  0 // OTA Web Server not initialized/started
-#define MDO_USE_OTA_WEB_UPDATER_REQUESTED 1 // We are requested to initialize/start OTA Web Server from loop()
-#define MDO_USE_OTA_WEB_UPDATER_INIT      2 // OTA Web Server initialized/started; periodically call g_ota_server.handleClient()
+constexpr uint16_t MDO_USE_OTA_WEB_UPDATER_NOT_INIT  = 0; // OTA Web Server not initialized/started
+constexpr uint16_t MDO_USE_OTA_WEB_UPDATER_REQUESTED = 1; // We are requested to initialize/start OTA Web Server from loop()
+constexpr uint16_t MDO_USE_OTA_WEB_UPDATER_INIT      = 2; // OTA Web Server initialized/started; periodically call g_ota_server.handleClient()
 // not visible to the user
 static uint16_t g_ota_state = MDO_USE_OTA_WEB_UPDATER_NOT_INIT;
 

@@ -47,10 +47,10 @@ extern const char* host;
 extern const char* g_ssid;
 extern const char* g_password;
 
-#define START_OTA_WEB_INIT_WIFI_STA        0x0001 // init WiFi from beginning (do not set if already init ESP-NOW)
-#define START_OTA_WEB_BEGIN_WIFI           0x0002 // connect to router using known SSID and Password and get IP address
-#define START_OTA_WEB_INIT_MDNS            0x0004 // init mdns so can route http://esp32.local to the ESP32
-#define START_OTA_WEB_INIT_UPDATER_WEBPAGE 0x0008 // init and start the updater webpage
+constexpr uint16_t START_OTA_WEB_INIT_WIFI_STA        = 0x0001; // init WiFi from beginning (do not set if already init ESP-NOW)
+constexpr uint16_t START_OTA_WEB_BEGIN_WIFI           = 0x0002; // connect to router using known SSID and Password and get IP address
+constexpr uint16_t START_OTA_WEB_INIT_MDNS            = 0x0004; // init mdns so can route http://esp32.local to the ESP32
+constexpr uint16_t START_OTA_WEB_INIT_UPDATER_WEBPAGE = 0x0008; // init and start the updater webpage
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
