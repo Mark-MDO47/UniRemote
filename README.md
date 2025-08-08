@@ -150,7 +150,7 @@ I finally got around to adding the parts list.
 
 | Price (each) | Num | Description | URL |
 | --- | --- | --- | --- |
-| $10.00 | 1 | CYD ESP32 WiFi Bluetooth Development Board 2.8 Inch 240X320 TFT | https://www.aliexpress.us/item/3256805697430313.html |
+| $11.00 | 1 | CYD ESP32 WiFi Bluetooth Development Board 2.8 Inch 240X320 TFT | https://www.aliexpress.us/item/3256805697430313.html |
 | $3.75 | 1 | CYD Case Only | https://www.aliexpress.us/item/3256806316808825.html |
 | $3.33 | 1 | HiLetgo 3pcs RFID Kit - Mifare RC522 RF IC Card Sensor Module + S50 Blank Card | https://www.amazon.com/dp/B07VLDSYRW |
 | $13.50 | 1 | SparkFun microSD Sniffer | https://www.sparkfun.com/sparkfun-microsd-sniffer.html |
