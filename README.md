@@ -6,7 +6,7 @@ I wanted this to work not just at home in my WiFi zone but also at remote locati
 It communicates with my projects via ESP-NOW WiFi
 - https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/network/esp_now.html
 
-Current state of software and tools: **v0.9** "basics work: CYD, Tiny Code Reader for QRcodes, Mifare RC522 RF IC via MicroSD sniffer for 13.56MHz MIFARE Classic 1K cards, XPT2046_Bitbang lib to free up VSPI"
+Current state of software and tools: **v1.0** "basics work: CYD, Tiny Code Reader for QRcodes, Mifare RC522 RF IC via MicroSD sniffer for 13.56MHz MIFARE Classic 1K cards, XPT2046_Bitbang lib to free up VSPI"
 
 Here is a short YouTube demonstration of the latest version
 - https://youtu.be/a9atNTkQOKo
