@@ -143,6 +143,22 @@ I chose to implement the fixed Lipo "drone style" batteries. There is a connecto
 Alternatively I did create a removable 18650 battery harness. Because these would be mounted on the sides of the CYD, the theory was that they would provide some protection for the MicroSD sniffer which sticks out on one side. In practice this did not seem as helpful as I hoped. Below is a diagram of the circuit.<br>
 <img src="https://github.com/Mark-MDO47/UniRemote/blob/master/resources/images/UniRemote_BatteryHarness_Removable18650.png" width="500" alt="Diagram for Removable 18650 Battery Harness">
 
+## Parts List
+[Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
+I finally got around to adding the parts list.
+
+| Price (each) | Num | Description | URL |
+| --- | --- | --- | --- |
+| $10.00 | 1 | CYD ESP32 WiFi Bluetooth Development Board 2.8 Inch 240X320 TFT | https://www.aliexpress.us/item/3256805697430313.html |
+| $3.75 | 1 | CYD Case Only | https://www.aliexpress.us/item/3256806316808825.html |
+| $3.33 | 1 | HiLetgo 3pcs RFID Kit - Mifare RC522 RF IC Card Sensor Module + S50 Blank Card | https://www.amazon.com/dp/B07VLDSYRW |
+| $12.00 | 1 | SparkFun microSD Sniffer | https://www.sparkfun.com/sparkfun-microsd-sniffer.html |
+| $0.20 | 1 | ON/Off Switch Self-Lock Micro Push Button Switch DC 30V 1A | https://www.amazon.com/gp/product/B086L2GPGX | $0.20 |
+| $0.90 | 2 pair | 20 PCS JST MX 1.25 4-pin connector & wire (male/female) | https://www.amazon.com/dp/B09DYLY95R?th=1 |
+| $0.30 | 2 pair | mxuteuk 20 Pairs 22 AWG JST SM Plug & wire (male/female) 150mm | https://www.amazon.com/dp/B083GR7FQF |
+| ??? | 2 | drone batteries and charger from my old parts bin | old parts bin |
+| 0.10 | 8 | from 220 Pieces M3 Male Female Hex Brass Standoffs Spacers Screws Nuts Kit, Kindroufly Brass Standoffs Assortment Kit | https://www.amazon.com/dp/B0B3Y6WF2Y?th=1 |
+
 ## Interesting Considerations
 [Top](#uniremote-\--one-remote-to-rule-them-all "Top")<br>
 Following are things I wanted to document and remember.
