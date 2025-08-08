@@ -153,7 +153,7 @@ I finally got around to adding the parts list.
 | $10.00 | 1 | CYD ESP32 WiFi Bluetooth Development Board 2.8 Inch 240X320 TFT | https://www.aliexpress.us/item/3256805697430313.html |
 | $3.75 | 1 | CYD Case Only | https://www.aliexpress.us/item/3256806316808825.html |
 | $3.33 | 1 | HiLetgo 3pcs RFID Kit - Mifare RC522 RF IC Card Sensor Module + S50 Blank Card | https://www.amazon.com/dp/B07VLDSYRW |
-| $12.00 | 1 | SparkFun microSD Sniffer | https://www.sparkfun.com/sparkfun-microsd-sniffer.html |
+| $13.50 | 1 | SparkFun microSD Sniffer | https://www.sparkfun.com/sparkfun-microsd-sniffer.html |
 | $0.20 | 1 | ON/Off Switch Self-Lock Micro Push Button Switch DC 30V 1A | https://www.amazon.com/gp/product/B086L2GPGX | $0.20 |
 | $0.90 | 2 pair | 20 PCS JST MX 1.25 4-pin connector & wire (male/female) | https://www.amazon.com/dp/B09DYLY95R?th=1 |
 | $0.30 | 2 pair | mxuteuk 20 Pairs 22 AWG JST SM Plug & wire (male/female) 150mm | https://www.amazon.com/dp/B083GR7FQF |
