@@ -6,8 +6,8 @@
 	(paper "USLetter")
 	(title_block
 		(title "UniRemoteCYD")
-		(date "2025-05-08")
-		(rev "Rev 0.9")
+		(date "2025-08-08")
+		(rev "Rev 1.0")
 		(company "https://github.com/Mark-MDO47")
 	)
 	(lib_symbols
