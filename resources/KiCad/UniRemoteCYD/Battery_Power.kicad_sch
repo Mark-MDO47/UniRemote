@@ -3,11 +3,11 @@
 	(generator "eeschema")
 	(generator_version "9.0")
 	(uuid "e5b5dd44-e95b-4d42-91af-ac6faef1b2d3")
-	(paper "A4")
+	(paper "USLetter")
 	(title_block
 		(title "UniRemoteCYD")
-		(date "2025-05-08")
-		(rev "Rev 0.9")
+		(date "2025-08-08")
+		(rev "Rev 1.0")
 		(company "https://github.com/Mark-MDO47")
 	)
 	(lib_symbols
@@ -1189,6 +1189,26 @@
 			(justify left bottom)
 		)
 		(uuid "9015184f-37a0-4126-97e0-d6c3c72dc602")
+	)
+	(text "JST SM\n2 mm"
+		(exclude_from_sim no)
+		(at 93.472 57.658 0)
+		(effects
+			(font
+				(size 2 2)
+			)
+		)
+		(uuid "a53ced89-4455-40ea-9b89-b711d3e1d3d7")
+	)
+	(text "JST SM\n2 mm"
+		(exclude_from_sim no)
+		(at 99.822 104.14 0)
+		(effects
+			(font
+				(size 2 2)
+			)
+		)
+		(uuid "a8dad904-e110-4c72-a6f2-96c6151aeea2")
 	)
 	(text "Blue"
 		(exclude_from_sim no)

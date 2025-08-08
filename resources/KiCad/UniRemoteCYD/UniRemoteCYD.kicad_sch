@@ -962,6 +962,16 @@
 		)
 		(uuid "54e5bcbb-7481-4f06-98b8-87579986213e")
 	)
+	(text "JST MX\n1.25 mm"
+		(exclude_from_sim no)
+		(at 73.914 125.984 0)
+		(effects
+			(font
+				(size 2 2)
+			)
+		)
+		(uuid "6cf6eab8-20fe-406a-85f5-bbfa3f95a5bd")
+	)
 	(text "P1"
 		(exclude_from_sim no)
 		(at 92.202 110.49 0)

@@ -34,6 +34,7 @@ A little comic relief - the hilarious **Legendary Artifacts Club** by Elle Cordo
 * [Guide to the Code](#guide-to-the-code "Guide to the Code")
 * [Schematic](#schematic "Schematic")
   * [Battery Harness](#battery-harness "Battery Harness")
+* [Parts List](#parts-list "Parts List")
 * [Interesting Considerations](#interesting-considerations "Interesting Considerations")
   * [General CYD and LVGL and Related Info](#general-cyd-and-lvgl-and-related-info "General CYD and LVGL and Related Info")
   * [DRAM_STR - Move Constant Strings to RAM instead of Program Storage](#dram_str-\--move-constant-strings-to-ram-instead-of-program-storage "DRAM_STR - Move Constant Strings to RAM instead of Program Storage")
